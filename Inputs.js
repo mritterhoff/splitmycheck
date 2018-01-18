@@ -2,25 +2,25 @@ import React from 'react'
 
 import AutosizeInput from 'react-input-autosize';
 
-class NameForm_old extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {value: props.initalValue};
+// class NameForm_old extends React.Component {
+//   constructor(props) {
+//     super(props);
+//     this.state = {value: props.initalValue};
 
-    this.handleChange = this.handleChange.bind(this);
-  }
+//     this.handleChange = this.handleChange.bind(this);
+//   }
 
-  handleChange(event) {
-    let newValue = event.target.value;
-    this.setState({value: newValue});
-  }
+//   handleChange(event) {
+//     let newValue = event.target.value;
+//     this.setState({value: newValue});
+//   }
 
-  render() {
-    return (
-      <input type="text" value={this.state.value} onChange={this.handleChange} />
-    );
-  }
-}
+//   render() {
+//     return (
+//       <input type="text" value={this.state.value} onChange={this.handleChange} />
+//     );
+//   }
+// }
 
 class StringInput extends React.Component {
   constructor(props) {
@@ -35,13 +35,14 @@ class StringInput extends React.Component {
   }
 
   render() {
+    let style = Object.assign({ borderRadius: 1, padding: 1 }, this.props.style);
     return (
       <AutosizeInput
         placeholder={this.props.initalValue}
         placeholderIsMinWidth
         value={this.state.value}
         onChange={this.updateInputValue.bind(this)}
-        style={{ background: '#eee', borderRadius: 1, padding: 1 }}
+        style={style}
         inputStyle={{ border: '1px solid #999', borderRadius: 3, padding: 3, fontSize: 14 }}
         />
     );
@@ -53,7 +54,14 @@ class StringInput extends React.Component {
 class PriceInput extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {value: ''};
+    this.state = {value: this.getDefaultValue(this.props.initalValue)};
+  }
+
+  getDefaultValue(initalValue) {
+    if (initalValue) {
+      return initalValue.toFixed(2);
+    }
+    return '';  
   }
 
   updateInputValue(event) {
@@ -65,6 +73,8 @@ class PriceInput extends React.Component {
     newValue = newValue.toFixed(2);
     this.setNumber(newValue);
     console.log('blurring!');
+
+    this.props.onBlurCB(newValue);
   }
 
   setNumber(newValue) {
@@ -73,6 +83,7 @@ class PriceInput extends React.Component {
   }
 
   render() {
+    let style = Object.assign({ borderRadius: 5 /*, padding: 5*/ }, this.props.style);
     return (
       <AutosizeInput
         placeholder={'0.00'}
@@ -81,7 +92,7 @@ class PriceInput extends React.Component {
         value={this.state.value}
         onChange={this.updateInputValue.bind(this)}
         onBlur={this.onBlur.bind(this)}
-        style={{ background: '#eee', borderRadius: 5, padding: 5 }}
+        style={style}
         inputStyle={{ border: '1px solid #999', borderRadius: 3, padding: 3, fontSize: 14, textAlign: 'center' }}
       />
     );
