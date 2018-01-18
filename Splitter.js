@@ -1,5 +1,7 @@
 import React from 'react'
 
+import {StringInput, PriceInput} from './Inputs.js'
+
 class Splitter extends React.Component {
   constructor(props) {
     super(props);
@@ -11,11 +13,16 @@ class Splitter extends React.Component {
       tax: 0
     };
   }
+
+  componentWillMount() {
+    this.addPerson();
+    this.addPerson();
+  }
   
   addPerson() {
     console.log('adding person...');
     this.setState((prevState) => ({
-      people: [...prevState.people, "Person" + (prevState.people.length + 1)]
+      people: [...prevState.people, `Person ${(prevState.people.length + 1)}`]
     }));
   };
   removeLastPerson() {
@@ -62,7 +69,9 @@ function getNamesHeader(people) {
   let key = 0;
   let out = [<_th key={key++}/>, <_th key={key++}/>];
   people.forEach((el) => {
-    out.push(<_th key={key++}>{el}</_th>);
+    out.push(<_th key={key++}>
+       <StringInput initalValue = {el}/>
+    </_th>);
   });
 
   return (
@@ -72,19 +81,37 @@ function getNamesHeader(people) {
   );
 }
 
-function getOrderRows(people) {
+function getTotalRow(allProps) {
+  return <div/>;
+
+}
+
+
+function getOrderRows(allProps) {
+  let people = allProps.people;
+
   let ordersLength = 4;
   let rows = new Array();
   let i = 0;
-  while (i < ordersLength) {
-    let newRow = [<_td>{`dishName${i}`}</_td>, <_td>{`DishAmount${i}`}</_td>];
+  for (let i = 0; i < ordersLength; i++) {
+    let newRow = [
+      <_td key={'dn'+i}>
+        <StringInput initalValue = {`Dish ${i}`}/>
+      </_td>,
+      <_td key={'da'+i}>
+        <PriceInput/>
+      </_td>
+    ];
+    let key = 0;
     people.forEach((el) => {
-      newRow.push(<_th>{`${el}'s ${i}`}</_th>);
+      newRow.push(
+        <_td key={`${i}${key++}`}>
+          {`${el}'s ${i}`}
+        </_td>);
     });
 
     // push here would just concat
-    rows.push(<_tr>{newRow}</_tr>);
-    i++;
+    rows.push(<_tr key={`r${i}`}>{newRow}</_tr>);
   }
   
   return rows;
@@ -104,7 +131,8 @@ class Grid extends React.Component {
           {getNamesHeader(this.props.allProps.people)}
 
           <div className="tbody">
-            {getOrderRows(this.props.allProps.people)}
+            {getOrderRows(this.props.allProps)}
+            {getTotalRow(this.props.allProps)}
           </div>
         </div>
       </div>
