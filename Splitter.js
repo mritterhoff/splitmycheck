@@ -22,6 +22,7 @@ class Splitter extends React.Component {
     };
   }
 
+// this is dumb, have an example page instead
   componentWillMount() {
     this.addPerson('Mark');
     this.addPerson('Sarah');
@@ -116,7 +117,25 @@ class Splitter extends React.Component {
   }
   
   render() {
+    return (
+      <div>
+        <span id='debug'>debug</span>
+        <div className="tableContainer">
+          {this.getButtonBar()}
+          <div className="table">
+            {getNamesHeader(this.state.people)}
 
+            <div className="tbody">
+              {this.getOrderRows()}
+              {this.getTotalRow(this.state.people)}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  getButtonBar() { 
     let divStyle = {
       backgroundColor: 'lightgray',
       display: 'inline-block',
@@ -135,32 +154,19 @@ class Splitter extends React.Component {
     };
 
     return (
-      <div>
-        <span id='debug'>debug</span>
-        <div className="tableContainer">
-          <div style = {barStyle}>
-            <div style = {divStyle}>
-              <button onClick={() => this.removeLastPerson()}>-</button>
-              <span style = {spanStyle}>Person</span>
-              <button onClick={() => this.addPerson()}>+</button>
-            </div>
-            <div style={{width: '1em', display: 'inline-block'}}></div>
-            <div style = {divStyle}>
-              <button onClick={() => this.removeLastDish()}>-</button>
-              <span style = {spanStyle}>Dish</span>
-              <button onClick={() => this.addDish()}>+</button>
-            </div>
-          </div>
-          <div className="table">
-            {getNamesHeader(this.state.people)}
-
-            <div className="tbody">
-              {this.getOrderRows()}
-              {this.getTotalRow(this.state.people)}
-            </div>
-          </div>
+      <div style = {barStyle}>
+        <div style = {divStyle}>
+          <button onClick={() => this.removeLastPerson()}>-</button>
+          <span style = {spanStyle}>Person</span>
+          <button onClick={() => this.addPerson()}>+</button>
         </div>
-      </div>
+        <div style={{width: '1em', display: 'inline-block'}}></div>
+        <div style = {divStyle}>
+          <button onClick={() => this.removeLastDish()}>-</button>
+          <span style = {spanStyle}>Dish</span>
+          <button onClick={() => this.addDish()}>+</button>
+        </div>
+      </div>  
     );
   }
 
@@ -182,7 +188,10 @@ class Splitter extends React.Component {
       <span>Total:</span>
     ];
     this.state.people.forEach((person, pInd) => {
-      rowElements.push(<span>{this.getTotalForPerson(pInd)}</span>);
+      rowElements.push(
+        <span style={{fontWeight: 'bold'}}>
+          {'$'+ this.getTotalForPerson(pInd)}
+        </span>);
     });
 
     // put each row element in a _td, then put all of those in a _tr
@@ -218,11 +227,21 @@ class Splitter extends React.Component {
       };
     };
 
+    function getPrice(pInd, dInd) {
+      if (this.checkOrderPersonDish(pInd, dInd)) {
+        let dishPrice = this.state.dishes[dInd].price;
+        let splitters = this.getPeoplePerDish(dInd);
+        return '$' + (dishPrice / splitters).toFixed(2);
+      }
+      return '$0.00';
+    }
+
     return dishes.map((dish, dInd) => {
       let rowElements = people.map((el, pInd) => (
         <CellToggle 
           enabled={that.checkOrderPersonDish(pInd, dInd)}
           callback={getToggleCB(pInd, dInd)}
+          price={getPrice.bind(that)(pInd, dInd)}
         />
       ));
 

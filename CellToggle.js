@@ -23,7 +23,9 @@ class CellToggle extends React.Component {
     };
 
     return (
-      <span style={style} onClick={this.clicked.bind(this)}></span>
+      <span style={style} onClick={this.clicked.bind(this)}>
+        {this.props.price}
+      </span>
     );
   }
 }
