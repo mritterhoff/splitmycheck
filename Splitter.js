@@ -206,7 +206,7 @@ class Splitter extends React.Component {
     let personStyle = {
       fontWeight: 'bold',
       display: 'inline-block',
-      minWidth: '6em' // prevents content jumping for totals < $1000
+      minWidth: '7em' // prevents content jumping for totals < $10k
     };
 
     let rowEls = [
