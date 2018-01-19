@@ -19,6 +19,7 @@ class CellToggle extends React.Component {
       height: '100%',
       display: 'block',
       padding: '1em',
+      cursor: 'pointer',
       background: newColor
     };
 

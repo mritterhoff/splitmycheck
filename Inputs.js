@@ -24,13 +24,48 @@ class StringInput extends React.Component {
         onChange={this.updateInputValue.bind(this)}
         style={style}
         inputStyle={{ border: '1px solid #999', borderRadius: 3, padding: 3, fontSize: 14 }}
+        onKeyDown={getKeydownCB(() => (this.asInput))}
+        ref={(asInput) => { this.asInput = asInput; }}
         />
     );
   }
 }
 
-// https://stackoverflow.com/questions/149055/how-can-i-format-numbers-as-dollars-currency-string-in-javascript
+// fix for silly % not handling negative well
+function mod(n, m) {
+  return ((n % m) + m) % m;
+}
 
+// Makes the enter key act like a tab (but strictly for inputs)!!
+// proud of this worrk around generally, and the RefGetter that allows
+// easy sharing between components (no 'this' referencing)
+function getKeydownCB(inputRefGetter) {
+  return (ev) => {
+    if (ev.keyCode === 13) {
+      const inputRef = inputRefGetter();  
+      if (inputRef) {
+        inputRef.blur();
+        // get as array rather than NodeList
+        let inputs = [...document.querySelectorAll('input')];
+        let curIndex = inputs.indexOf(inputRef.input)
+        console.log(`curIndex is ${curIndex}`);
+        if (curIndex == -1) {
+          console.warn(`Couldn't find current input. ${inputRef.input.innerHTML}`);
+          return;
+        }
+
+        // shift enter will move backwards in the input list!!!
+        let offSet = ev.shiftKey ? -1 : 1;
+        // wrap around to the beginning
+        let newIndex = mod(curIndex + offSet, inputs.length);
+        inputs[newIndex].select();
+      }
+    }
+  };
+}
+
+
+// https://stackoverflow.com/questions/149055/how-can-i-format-numbers-as-dollars-currency-string-in-javascript
 class PriceInput extends React.Component {
   constructor(props) {
     super(props);
@@ -60,18 +95,7 @@ class PriceInput extends React.Component {
   setNumber(newValue) {
     this.setState({value: newValue});
     console.log(`newvalue is ${newValue}`);
-  }
-
-  keydown(ev) {
-    // if(ev.keyCode===13) {
-    //   console.log(this.asInput);
-    //   if (this.asInput) {
-    //     this.asInput.blur();
-    //   }
-    // }
-    console.info(ev.keyCode);
-    document.getElementById('debug').innerText = ev.keyCode;
-  }
+  }  
 
   render() {
     let style = Object.assign({ borderRadius: 5, padding: '.1em', marginLeft: '.4em' }, this.props.style);
@@ -85,8 +109,8 @@ class PriceInput extends React.Component {
         onBlur={this.onBlur.bind(this)}
         style={style}
         inputStyle={{ border: '1px solid #999', borderRadius: 3, padding: 3, fontSize: 14, textAlign: 'center' }}
-        onKeyDown={this.keydown.bind(this)}
-        // ref={(asInput) => { this.asInput = asInput; }}
+        onKeyDown={getKeydownCB(() => (this.asInput))}
+        ref={(asInput) => { this.asInput = asInput; }}
       />
     );
   }

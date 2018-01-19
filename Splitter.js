@@ -3,6 +3,12 @@ import React from 'react'
 import {CellToggle} from './CellToggle.js'
 import {StringInput, PriceInput} from './Inputs.js'
 
+
+function getAsPriceString(num) {
+  return '$ ' + num.toFixed(2); 
+}
+
+
 class Splitter extends React.Component {
   constructor(props) {
     super(props);
@@ -119,7 +125,6 @@ class Splitter extends React.Component {
   render() {
     return (
       <div>
-        <span id='debug'>debug</span>
         <div className="tableContainer">
           {this.getButtonBar()}
           <div className="table">
@@ -179,8 +184,7 @@ class Splitter extends React.Component {
       }
       return 0;
     }, this)
-    .reduce((p, c) => p + c, 0)
-    .toFixed(2);
+    .reduce((p, c) => p + c, 0);
   }
 
   getTotalRow() {
@@ -190,7 +194,7 @@ class Splitter extends React.Component {
     this.state.people.forEach((person, pInd) => {
       rowElements.push(
         <span style={{fontWeight: 'bold'}}>
-          {'$'+ this.getTotalForPerson(pInd)}
+          {getAsPriceString(this.getTotalForPerson(pInd))}
         </span>);
     });
 
@@ -215,7 +219,6 @@ class Splitter extends React.Component {
 
     let getPriceCB = function (dInd) {
       return (newPrice) => {
-        console.log(`attempting to set new price for ${dInd}th dish, at ${newPrice}`);
         that.setState((prevState) => {
           // shallow copy
           let newDishes = prevState.dishes.slice();
@@ -227,13 +230,11 @@ class Splitter extends React.Component {
       };
     };
 
+    // If the person ordered the dish, do some math. Else return 0.
     function getPrice(pInd, dInd) {
-      if (this.checkOrderPersonDish(pInd, dInd)) {
-        let dishPrice = this.state.dishes[dInd].price;
-        let splitters = this.getPeoplePerDish(dInd);
-        return '$' + (dishPrice / splitters).toFixed(2);
-      }
-      return '$0.00';
+      return getAsPriceString(this.checkOrderPersonDish(pInd, dInd)
+        ? this.state.dishes[dInd].price / this.getPeoplePerDish(dInd)
+        : 0);
     }
 
     return dishes.map((dish, dInd) => {
