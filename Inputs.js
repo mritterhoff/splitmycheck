@@ -2,7 +2,7 @@ import React from 'react'
 
 import AutosizeInput from 'react-input-autosize';
 
-let inputStyle = { 
+let inputStyleDefault = { 
   border: '1px solid #999',
   borderRadius: 3, 
   padding: '.2em 0em',
@@ -28,6 +28,7 @@ class StringInput extends React.Component {
 
   render() {
     let divStyle = Object.assign({}, divContainerStyle, this.props.style);
+    let inputStyle = Object.assign({}, inputStyleDefault, this.props.style, {padding: '.2em'});
     return (
       <AutosizeInput
         placeholder={this.props.placeholder}
@@ -80,7 +81,10 @@ function getKeydownCB(inputRefGetter) {
 class PriceInput extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {value: this.getDefaultValue(this.props.initalValue)};
+    this.state = {
+      value: this.getDefaultValue(this.props.initalValue),
+      focused: false
+    };
   }
 
   getDefaultValue(initalValue) {
@@ -91,21 +95,36 @@ class PriceInput extends React.Component {
   }
 
   updateInputValue(event) {
-    this.setNumber(event.target.value);
+    this.updateState(event.target.value);
+  }
+
+  onFocus(event) {
+    this.setState((prevState) => ({
+      focused: true
+    }));
   }
 
   onBlur(event) {
     let newValue = Number(this.state.value || 0);
-    this.setNumber(newValue.toFixed(2));
+    this.updateState(newValue.toFixed(2));
     this.props.onBlurCB(newValue);
+    this.setState((prevState) => ({
+      focused: false
+    }));
   }
 
-  setNumber(newValue) {
+  updateState(newValue) {
     this.setState({value: newValue});
   }  
 
   render() {
     let divStyle = Object.assign({ marginLeft: '.4em' }, divContainerStyle, this.props.style);
+    
+    // if the price input is empty and the input isn't focused, show a pink background
+    let inputStyle = Object.assign({}, inputStyleDefault)
+    if (Number(this.state.value) === 0 && !this.state.focused) {
+      inputStyle.backgroundColor = 'pink';
+    }
     return (
       <AutosizeInput
         placeholder={'0.00'}
@@ -114,6 +133,7 @@ class PriceInput extends React.Component {
         value={this.state.value}
         onChange={this.updateInputValue.bind(this)}
         onBlur={this.onBlur.bind(this)}
+        onFocus={this.onFocus.bind(this)}
         style={divStyle}
         inputStyle={inputStyle}
         onKeyDown={getKeydownCB(() => (this.asInput))}
