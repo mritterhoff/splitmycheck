@@ -156,15 +156,15 @@ class Splitter extends React.Component {
     return (
       <div style = {barStyle}>
         <div style = {divStyle}>
-          <button onClick={() => this.removeLastPerson()}>-</button>
-          <span style = {spanStyle}>Person</span>
-          <button onClick={() => this.addPerson()}>+</button>
-        </div>
-        <div style={{width: '1em', display: 'inline-block'}}></div>
-        <div style = {divStyle}>
           <button onClick={() => this.removeLastDish()}>-</button>
           <span style = {spanStyle}>Dish</span>
           <button onClick={() => this.addDish()}>+</button>
+        </div>       
+        <div style={{width: '1em', display: 'inline-block'}}></div>
+        <div style = {divStyle}>
+          <button onClick={() => this.removeLastPerson()}>-</button>
+          <span style = {spanStyle}>Person</span>
+          <button onClick={() => this.addPerson()}>+</button>
         </div>
       </div>  
     );
