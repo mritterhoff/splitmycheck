@@ -203,6 +203,12 @@ class Splitter extends React.Component {
       paddingRight: '.9em'
     };
 
+    let personStyle = {
+      fontWeight: 'bold',
+      display: 'inline-block',
+      minWidth: '6em' // prevents content jumping for totals < $1000
+    };
+
     let rowEls = [
       <div>
         <span>Total:</span>
@@ -214,7 +220,7 @@ class Splitter extends React.Component {
     rowEls = rowEls.concat(this.state.people.map((person, pInd) => {
         let personTotal = this.orderTotalForPerson(pInd)
           + this.personOrderProportion(pInd) * (this.state.tax + this.state.tip);
-        return <span style={{fontWeight: 'bold'}}>{priceAsString(personTotal)}</span>;
+        return <span style={personStyle}>{priceAsString(personTotal)}</span>;
       },
       this));
 
