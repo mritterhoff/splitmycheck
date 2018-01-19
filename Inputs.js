@@ -95,8 +95,8 @@ class PriceInput extends React.Component {
   }
 
   onBlur(event) {
-    let newValue = Number(this.state.value || 0).toFixed(2);
-    this.setNumber(newValue);
+    let newValue = Number(this.state.value || 0);
+    this.setNumber(newValue.toFixed(2));
     this.props.onBlurCB(newValue);
   }
 
