@@ -238,20 +238,7 @@ class Splitter extends React.Component {
     return this.orderTotalForPerson(pInd) / this.orderTotal();
   }
 
-  getTaxRow() {
-    let updater = function updateTax(tax) {
-      this.setState((prevState) => ({tax: tax}));
-    };
-
-    let getterFunc = function getTax(tax) {
-      return this.state.tax;
-    };
-
-    return this.getSpecialRow('Tax', updater, getterFunc);
-  }
-
   getSpecialRow(displayName, updaterFunc, getterFunc) {
-    getterFunc = getterFunc.bind(this);
     // this style makes it align with the input box (which has a 1px border)
     let style = {display: 'inline-block', padding: '.3em 0em', margin: '1px 0'};
     let rowEls = [
@@ -260,7 +247,7 @@ class Splitter extends React.Component {
         <PriceInput 
           style={{float: 'right'}} 
           initalValue = {0}
-          onBlurCB = {updaterFunc.bind(this)} />
+          onBlurCB = {updaterFunc} />
       </div>
       ];
     rowEls = rowEls.concat(this.state.people.map((person, pInd) => (
@@ -275,6 +262,13 @@ class Splitter extends React.Component {
         {rowEls.map((el, el_i) => <_td key={el_i}>{el}</_td>)}
       </_tr>
     );
+  }
+
+  getTaxRow() {
+    return this.getSpecialRow(
+      'Tax',
+      (tax) => {this.setState((prevState) => ({tax: tax}))},
+      (tax) => (this.state.tax));
   }
 
   getTipRow() {
