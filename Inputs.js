@@ -2,6 +2,19 @@ import React from 'react'
 
 import AutosizeInput from 'react-input-autosize';
 
+let inputStyle = { 
+  border: '1px solid #999',
+  borderRadius: 3, 
+  padding: '.2em 0em',
+  fontSize: 14,
+  textAlign: 'center'
+};
+
+let divContainerStyle = {
+  borderRadius: 5, 
+  padding: '.1em'
+};
+
 class StringInput extends React.Component {
   constructor(props) {
     super(props);
@@ -15,15 +28,15 @@ class StringInput extends React.Component {
   }
 
   render() {
-    let style = Object.assign({ borderRadius: 1, padding: '.1em' }, this.props.style);
+    let divStyle = Object.assign({}, divContainerStyle, this.props.style);
     return (
       <AutosizeInput
         placeholder={this.props.placeholder}
         placeholderIsMinWidth
         value={this.state.value}
         onChange={this.updateInputValue.bind(this)}
-        style={style}
-        inputStyle={{ border: '1px solid #999', borderRadius: 3, padding: 3, fontSize: 14 }}
+        style={divStyle}
+        inputStyle={inputStyle}
         onKeyDown={getKeydownCB(() => (this.asInput))}
         ref={(asInput) => { this.asInput = asInput; }}
         />
@@ -98,7 +111,7 @@ class PriceInput extends React.Component {
   }  
 
   render() {
-    let style = Object.assign({ borderRadius: 5, padding: '.1em', marginLeft: '.4em' }, this.props.style);
+    let divStyle = Object.assign({ marginLeft: '.4em' }, divContainerStyle, this.props.style);
     return (
       <AutosizeInput
         placeholder={'0.00'}
@@ -107,8 +120,8 @@ class PriceInput extends React.Component {
         value={this.state.value}
         onChange={this.updateInputValue.bind(this)}
         onBlur={this.onBlur.bind(this)}
-        style={style}
-        inputStyle={{ border: '1px solid #999', borderRadius: 3, padding: 3, fontSize: 14, textAlign: 'center' }}
+        style={divStyle}
+        inputStyle={inputStyle}
         onKeyDown={getKeydownCB(() => (this.asInput))}
         ref={(asInput) => { this.asInput = asInput; }}
       />

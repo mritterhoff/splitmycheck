@@ -3,6 +3,8 @@ import React from 'react'
 import {CellToggle} from './CellToggle.js'
 import {StringInput, PriceInput} from './Inputs.js'
 
+let summer = (p, c) => p + c
+
 class Splitter extends React.Component {
   constructor(props) {
     super(props);
@@ -26,13 +28,14 @@ class Splitter extends React.Component {
   componentWillMount() {
     this.addPerson('Mark');
     this.addPerson('Sarah');
-    console.log(this.state.orders);
   }
 
   componentDidMount() {
     this.addDish(new Dish('Mocktails', 9.40));
     this.addDish(new Dish('Steak', 29.50));
     this.addDish(new Dish('Sandwich', 12.40));
+
+    console.log('orders:');
     console.log(this.state.orders);
   }
 
@@ -46,24 +49,27 @@ class Splitter extends React.Component {
     });
   }
 
+  // Returns true or false
   didPersonOrderDish(pInd, dInd) {
     return this.state.orders[dInd][pInd];
   }
 
+  // Given a dish, how many people ordered it?
   getPeoplePerDish(dInd) {
     return this.state.people
       .map((p, pInd) => (this.didPersonOrderDish(pInd, dInd)))
       .reduce((p, c) => p + c);
   }
 
+  // Given a person and dish, how much do they owe for it?
   personCostForDish(pInd, dInd) {
     return this.didPersonOrderDish(pInd, dInd)
       ? this.state.dishes[dInd].price / this.getPeoplePerDish(dInd)
       : 0;
   }
 
-  // For each dish, 
-  getTotalForPerson(pInd) {
+  // Given a person, what's their total owed for orders? (exluding tax/tip)
+  orderTotalForPerson(pInd) {
     return this.state.dishes.map((dish, dInd) => (this.personCostForDish(pInd, dInd)), this)
       .reduce((p, c) => p + c, 0);
   }
@@ -185,7 +191,7 @@ class Splitter extends React.Component {
     let rowEls = [<span>Total:</span>];
     rowEls = rowEls.concat(this.state.people.map((person, pInd) => (
       <span style={{fontWeight: 'bold'}}>
-        {priceAsString(this.getTotalForPerson(pInd))}
+        {priceAsString(this.orderTotalForPerson(pInd))}
       </span>
     )));
 
@@ -197,11 +203,58 @@ class Splitter extends React.Component {
     );
   }
 
+  // Returns true or false
+  didPersonOrderDish(pInd, dInd) {
+    return this.state.orders[dInd][pInd];
+  }
+
+  // Given a dish, how many people ordered it?
+  getPeoplePerDish(dInd) {
+    return this.state.people
+      .map((p, pInd) => (this.didPersonOrderDish(pInd, dInd)))
+      .reduce((p, c) => p + c);
+  }
+
+  // Given a person and dish, how much do they owe for it?
+  personCostForDish(pInd, dInd) {
+    return this.didPersonOrderDish(pInd, dInd)
+      ? this.state.dishes[dInd].price / this.getPeoplePerDish(dInd)
+      : 0;
+  }
+
+  // Given a person, what's their total owed for orders? (exluding tax/tip)
+  orderTotalForPerson(pInd) {
+    return this.state.dishes.map((dish, dInd) => (this.personCostForDish(pInd, dInd)), this)
+      .reduce(summer, 0);
+  }
+
+  // Return the sum of dish orders.
+  orderTotal() {
+    return this.state.dishes.map((dish) => (dish.price)).reduce(summer, 0);
+  }
+
+
   getTaxRow() {
-    let rowEls = [<span>Tax:</span>];
+
+    function updateTax(tax) {
+      console.log(`tax set to ${tax}`)
+      this.setState((prevState) => ({tax: tax}));
+    }
+
+    // this style makes it align with the input box (which has a 1px border)
+    let style = {display: 'inline-block', padding: '.3em 0em', margin: '1px 0'};
+    let rowEls = [
+      <div>
+        <span style={style}>Tax:</span>
+        <PriceInput 
+          style={{float: 'right'}} 
+          initalValue = {0}
+          onBlurCB = {updateTax.bind(this)} />
+      </div>
+      ];
     rowEls = rowEls.concat(this.state.people.map((person, pInd) => (
       <span>
-        Tax
+        {priceAsString(this.orderTotalForPerson(pInd) / this.orderTotal() * this.state.tax)}
       </span>
     )));
 
@@ -214,7 +267,15 @@ class Splitter extends React.Component {
   }
 
   getTipRow() {
-    let rowEls = [<span>Tip:</span>];
+    let rowEls = [
+      <div>
+        <span>Tip:</span>
+        <PriceInput 
+          style={{float: 'right'}} 
+          initalValue = {0}
+          onBlurCB = {(tip) => {console.log(`tip set to ${tip}`)}} />
+      </div> 
+      ];
     rowEls = rowEls.concat(this.state.people.map((person, pInd) => (
       <span>
         Tip
@@ -238,11 +299,10 @@ class Splitter extends React.Component {
       };
     };
 
-    let getPriceCB = function (dInd) {
+    function setPriceCBGetter(dInd) {
       return (newPrice) => {
         that.setState((prevState) => {
-          // shallow copy
-          let newDishes = prevState.dishes.slice();
+          let newDishes = prevState.dishes.slice();  // shallow copy
           newDishes[dInd] = new Dish(newDishes[dInd].name, newPrice);
           return {
             dishes: newDishes
@@ -250,11 +310,6 @@ class Splitter extends React.Component {
         });
       };
     };
-
-    // If the person ordered the dish, do some math. Else return 0.
-    function getPrice(pInd, dInd) {
-      return priceAsString(this.personCostForDish(pInd, dInd))
-    }
 
     return this.state.dishes.map((dish, dInd) => {
       let rowEls = [
@@ -266,7 +321,7 @@ class Splitter extends React.Component {
           <PriceInput 
             style={{float: 'right'}} 
             initalValue = {dish.price}
-            onBlurCB = {getPriceCB(dInd)} />
+            onBlurCB = {setPriceCBGetter(dInd)} />
         </div>
       ];
 
@@ -274,7 +329,7 @@ class Splitter extends React.Component {
         <CellToggle 
           enabled={that.didPersonOrderDish(pInd, dInd)}
           callback={getToggleCB(pInd, dInd)}
-          price={getPrice.bind(that)(pInd, dInd)}
+          price={priceAsString(this.personCostForDish(pInd, dInd))}
         />
       )));
 
@@ -287,7 +342,6 @@ class Splitter extends React.Component {
     });
   }
 }  // end of Splitter class
-
 
 
 function _th(props) {
@@ -332,5 +386,7 @@ function clone2D(a) {
 function priceAsString(num) {
   return '$ ' + num.toFixed(2); 
 }
+
+
 
 export default Splitter;
