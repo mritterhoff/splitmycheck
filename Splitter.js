@@ -189,11 +189,12 @@ class Splitter extends React.Component {
 
   getTotalRow() {
     let rowEls = [<span>Total:</span>];
-    rowEls = rowEls.concat(this.state.people.map((person, pInd) => (
-      <span style={{fontWeight: 'bold'}}>
-        {priceAsString(this.orderTotalForPerson(pInd))}
-      </span>
-    )));
+    rowEls = rowEls.concat(this.state.people.map((person, pInd) => {
+        let personTotal = this.orderTotalForPerson(pInd)
+          + this.getPersonOrderProportion(pInd) * (this.state.tax + this.state.tip);
+        return <span style={{fontWeight: 'bold'}}>{priceAsString(personTotal)}</span>;
+      },
+      this));
 
     // put each row element in a _td, then put all of those in a _tr
     return (
@@ -233,30 +234,40 @@ class Splitter extends React.Component {
     return this.state.dishes.map((dish) => (dish.price)).reduce(summer, 0);
   }
 
+  getPersonOrderProportion(pInd) {
+    return this.orderTotalForPerson(pInd) / this.orderTotal();
+  }
 
   getTaxRow() {
-
-    function updateTax(tax) {
-      console.log(`tax set to ${tax}`)
+    let updater = function updateTax(tax) {
       this.setState((prevState) => ({tax: tax}));
-    }
+    };
 
+    let getterFunc = function getTax(tax) {
+      return this.state.tax;
+    };
+
+    return this.getSpecialRow('Tax', updater, getterFunc);
+  }
+
+  getSpecialRow(displayName, updaterFunc, getterFunc) {
+    getterFunc = getterFunc.bind(this);
     // this style makes it align with the input box (which has a 1px border)
     let style = {display: 'inline-block', padding: '.3em 0em', margin: '1px 0'};
     let rowEls = [
       <div>
-        <span style={style}>Tax:</span>
+        <span style={style}>{displayName}:</span>
         <PriceInput 
           style={{float: 'right'}} 
           initalValue = {0}
-          onBlurCB = {updateTax.bind(this)} />
+          onBlurCB = {updaterFunc.bind(this)} />
       </div>
       ];
     rowEls = rowEls.concat(this.state.people.map((person, pInd) => (
       <span>
-        {priceAsString(this.orderTotalForPerson(pInd) / this.orderTotal() * this.state.tax)}
+        {priceAsString(this.getPersonOrderProportion(pInd) * getterFunc())}
       </span>
-    )));
+    ), this));
 
     // put each row element in a _td, then put all of those in a _tr
     return (
