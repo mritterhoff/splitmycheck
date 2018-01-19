@@ -1,24 +1,7 @@
 import React from 'react'
 
+import {CellToggle} from './CellToggle.js'
 import {StringInput, PriceInput} from './Inputs.js'
-
-class Dish {
-  constructor(name, price) {
-    this.name = name;
-    this.price = price;
-  }
-}
-
-function clone2D(a) {
-  return a.map(o => [...o]);
-}
-
-// class Order {
-//   constructor(personIndex, dishIndex) {
-//     this.pInd = personIndex;
-//     this.dInd = dishIndex;
-//   }
-// }
 
 class Splitter extends React.Component {
   constructor(props) {
@@ -41,14 +24,15 @@ class Splitter extends React.Component {
 
   componentWillMount() {
     this.addPerson('Mark');
-    this.addPerson('Damian');
+    this.addPerson('Sarah');
+    console.log(this.state.orders);
+  }
 
-    setTimeout(() => {
-      this.addDish(new Dish('Beer', 9.40));
-      this.addDish(new Dish('Steak', 29.50));
-      this.addDish(new Dish('Sandwich', 12.40));
-      console.log(this.state.orders);
-    }, 100);
+  componentDidMount() {
+    this.addDish(new Dish('Mocktails', 9.40));
+    this.addDish(new Dish('Steak', 29.50));
+    this.addDish(new Dish('Sandwich', 12.40));
+    console.log(this.state.orders);
   }
 
   indicateOrder(setUnset, pInd, dInd) {
@@ -132,18 +116,41 @@ class Splitter extends React.Component {
   }
   
   render() {
+
+    let divStyle = {
+      backgroundColor: 'lightgray',
+      display: 'inline-block',
+      padding: '.1em'
+    };
+
+    let spanStyle = {
+      padding: '.5em'
+    };
+
+    let barStyle = {
+      margin: 'auto',
+      width: 'auto',
+      textAlign: 'center',
+      padding: '.5em'
+    };
+
     return (
       <div>
         <span id='debug'>debug</span>
-        <div>
-          <button onClick={() => this.addPerson()}>Add Person</button>
-          <button onClick={() => this.removeLastPerson()}>Remove Person</button>
-        </div>
-         <div>
-          <button onClick={() => this.addDish()}>Add Dish</button>
-          <button onClick={() => this.removeLastDish()}>Remove Dish</button>
-        </div>
         <div className="tableContainer">
+          <div style = {barStyle}>
+            <div style = {divStyle}>
+              <button onClick={() => this.removeLastPerson()}>-</button>
+              <span style = {spanStyle}>Person</span>
+              <button onClick={() => this.addPerson()}>+</button>
+            </div>
+            <div style={{width: '1em', display: 'inline-block'}}></div>
+            <div style = {divStyle}>
+              <button onClick={() => this.removeLastDish()}>-</button>
+              <span style = {spanStyle}>Dish</span>
+              <button onClick={() => this.addDish()}>+</button>
+            </div>
+          </div>
           <div className="table">
             {getNamesHeader(this.state.people)}
 
@@ -222,7 +229,10 @@ class Splitter extends React.Component {
       // put in the beggining
       rowElements.splice(0, 0, 
         <div>
-          <StringInput style={{float: 'left'}} initalValue = {dish.name}/>
+          <StringInput 
+            style={{float: 'left'}}
+            placeholder= 'Dish'
+            initalValue = {dish.name}/>
           <PriceInput 
             style={{float: 'right'}} 
             initalValue = {dish.price}
@@ -242,9 +252,6 @@ class Splitter extends React.Component {
 
 
 
-
-
-
 function _th(props) {
   return <div className="th">{props.children}</div>;
 }
@@ -259,9 +266,13 @@ function _tr(props) {
 
 function getNamesHeader(people) {
   // row starts with one empty cell
-  let rowElements = [<div style={{minWidth: '12em'}}/>];
+  let rowElements = [<div/>];
   people.forEach((el) => {
-    rowElements.push(<StringInput initalValue = {el}/>);
+    rowElements.push(
+      <StringInput 
+        initalValue = {el}
+        placeholder = 'Person'
+      />);
   });
 
   return (
@@ -271,34 +282,15 @@ function getNamesHeader(people) {
   );
 }
 
-class CellToggle extends React.Component {
-  constructor(props) {
-    super(props);
+class Dish {
+  constructor(name, price) {
+    this.name = name;
+    this.price = price;
   }
+}
 
-  clicked() {
-    this.props.callback(!this.props.enabled);
-  }
-
- 
-  render() {
-    let newColor = this.props.enabled 
-      ? 'lightgreen' 
-      : this.props.enabled == undefined ? 'grey' : 'lightpink';
-    let style = {
-      width: '100%',
-      height: '100%',
-      display: 'block',
-      padding: '1em',
-      background: newColor
-    };
-
-    return (
-      <span style={style} onClick={this.clicked.bind(this)}>
-        {this.props.enabled ? 'enabled' : 'disabled'}
-      </span>
-    );
-  }
+function clone2D(a) {
+  return a.map(o => [...o]);
 }
 
 export default Splitter;

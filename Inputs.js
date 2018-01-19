@@ -2,30 +2,10 @@ import React from 'react'
 
 import AutosizeInput from 'react-input-autosize';
 
-// class NameForm_old extends React.Component {
-//   constructor(props) {
-//     super(props);
-//     this.state = {value: props.initalValue};
-
-//     this.handleChange = this.handleChange.bind(this);
-//   }
-
-//   handleChange(event) {
-//     let newValue = event.target.value;
-//     this.setState({value: newValue});
-//   }
-
-//   render() {
-//     return (
-//       <input type="text" value={this.state.value} onChange={this.handleChange} />
-//     );
-//   }
-// }
-
 class StringInput extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {value: ''};
+    this.state = {value: this.props.initalValue};
   }
 
   updateInputValue(event) {
@@ -35,10 +15,10 @@ class StringInput extends React.Component {
   }
 
   render() {
-    let style = Object.assign({ borderRadius: 1, padding: 1 }, this.props.style);
+    let style = Object.assign({ borderRadius: 1, padding: '.1em' }, this.props.style);
     return (
       <AutosizeInput
-        placeholder={this.props.initalValue}
+        placeholder={this.props.placeholder}
         placeholderIsMinWidth
         value={this.state.value}
         onChange={this.updateInputValue.bind(this)}
@@ -94,7 +74,7 @@ class PriceInput extends React.Component {
   }
 
   render() {
-    let style = Object.assign({ borderRadius: 5 /*, padding: 5*/ }, this.props.style);
+    let style = Object.assign({ borderRadius: 5, padding: '.1em', marginLeft: '.4em' }, this.props.style);
     return (
       <AutosizeInput
         placeholder={'0.00'}
@@ -111,14 +91,5 @@ class PriceInput extends React.Component {
     );
   }
 }
-
-    // function keydown (e){
-    //   if(e.keyCode===13){
-    //     document.getElementById('search').blur();
-    //   }
-    //   console.info(e.keyCode);
-    // }
-    // function load(){
-    //   document.getElementById('search').addEventListener("keydown",keydown);
 
 export {StringInput, PriceInput};
