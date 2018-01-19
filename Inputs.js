@@ -82,6 +82,17 @@ class PriceInput extends React.Component {
     console.log(`newvalue is ${newValue}`);
   }
 
+  keydown(ev) {
+    // if(ev.keyCode===13) {
+    //   console.log(this.asInput);
+    //   if (this.asInput) {
+    //     this.asInput.blur();
+    //   }
+    // }
+    console.info(ev.keyCode);
+    document.getElementById('debug').innerText = ev.keyCode;
+  }
+
   render() {
     let style = Object.assign({ borderRadius: 5 /*, padding: 5*/ }, this.props.style);
     return (
@@ -94,10 +105,20 @@ class PriceInput extends React.Component {
         onBlur={this.onBlur.bind(this)}
         style={style}
         inputStyle={{ border: '1px solid #999', borderRadius: 3, padding: 3, fontSize: 14, textAlign: 'center' }}
+        onKeyDown={this.keydown.bind(this)}
+        // ref={(asInput) => { this.asInput = asInput; }}
       />
     );
   }
 }
 
+    // function keydown (e){
+    //   if(e.keyCode===13){
+    //     document.getElementById('search').blur();
+    //   }
+    //   console.info(e.keyCode);
+    // }
+    // function load(){
+    //   document.getElementById('search').addEventListener("keydown",keydown);
 
 export {StringInput, PriceInput};

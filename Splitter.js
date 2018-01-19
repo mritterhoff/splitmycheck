@@ -134,6 +134,7 @@ class Splitter extends React.Component {
   render() {
     return (
       <div>
+        <span id='debug'>debug</span>
         <div>
           <button onClick={() => this.addPerson()}>Add Person</button>
           <button onClick={() => this.removeLastPerson()}>Remove Person</button>
