@@ -267,32 +267,15 @@ class Splitter extends React.Component {
   getTaxRow() {
     return this.getSpecialRow(
       'Tax',
-      (tax) => {this.setState((prevState) => ({tax: tax}))},
+      (tax) => {this.setState((prevState) => ({tax: Number(tax)}))},
       (tax) => (this.state.tax));
   }
 
   getTipRow() {
-    let rowEls = [
-      <div>
-        <span>Tip:</span>
-        <PriceInput 
-          style={{float: 'right'}} 
-          initalValue = {0}
-          onBlurCB = {(tip) => {console.log(`tip set to ${tip}`)}} />
-      </div> 
-      ];
-    rowEls = rowEls.concat(this.state.people.map((person, pInd) => (
-      <span>
-        Tip
-      </span>
-    )));
-
-    // put each row element in a _td, then put all of those in a _tr
-    return (
-      <_tr>
-        {rowEls.map((el, el_i) => <_td key={el_i}>{el}</_td>)}
-      </_tr>
-    );
+    return this.getSpecialRow(
+      'Tip',
+      (tip) => {this.setState((prevState) => ({tip: Number(tip)}))},
+      (tip) => (this.state.tip));
   }
 
   getOrderRows() {

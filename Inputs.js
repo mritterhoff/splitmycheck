@@ -24,7 +24,6 @@ class StringInput extends React.Component {
   updateInputValue(event) {
     let newValue = event.target.value;
     this.setState({value: newValue});
-    console.log(`newvalue is ${newValue}`);
   }
 
   render() {
@@ -61,7 +60,6 @@ function getKeydownCB(inputRefGetter) {
         // get as array rather than NodeList
         let inputs = [...document.querySelectorAll('input')];
         let curIndex = inputs.indexOf(inputRef.input)
-        console.log(`curIndex is ${curIndex}`);
         if (curIndex == -1) {
           console.warn(`Couldn't find current input. ${inputRef.input.innerHTML}`);
           return;
@@ -97,17 +95,13 @@ class PriceInput extends React.Component {
   }
 
   onBlur(event) {
-    let newValue = Number(this.state.value || 0);
-    newValue = newValue.toFixed(2);
+    let newValue = Number(this.state.value || 0).toFixed(2);
     this.setNumber(newValue);
-    console.log('blurring!');
-
     this.props.onBlurCB(newValue);
   }
 
   setNumber(newValue) {
     this.setState({value: newValue});
-    console.log(`newvalue is ${newValue}`);
   }  
 
   render() {
