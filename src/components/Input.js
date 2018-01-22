@@ -28,20 +28,99 @@ class StringInput extends React.Component {
     this.setState({value: newValue});
   }
 
+
+  onFocus(event) {
+    // don't show the placeholder when user is inputting numbers
+    this.inputRef.input.placeholder = '';
+  }
+
+  onBlur(event) {
+    this.inputRef.input.placeholder = this.props.placeholder;
+  }
+
   render() {
     let divStyle = Object.assign({}, divContainerStyle, this.props.style);
     let inputStyle = Object.assign({}, inputStyleDefault, this.props.style, {padding: '.2em'});
     return (
       <AutosizeInput
+        value={this.state.value}
         placeholder={this.props.placeholder}
         placeholderIsMinWidth
-        value={this.state.value}
-        onChange={this.updateInputValue.bind(this)}
         style={divStyle}
         inputStyle={inputStyle}
-        onKeyDown={getKeydownCB(() => (this.asInput))}
-        ref={(asInput) => { this.asInput = asInput; }}
+        onKeyDown={getKeydownCB(() => (this.inputRef))}
+        onChange={this.updateInputValue.bind(this)}
+        onBlur={this.onBlur.bind(this)}
+        onFocus={this.onFocus.bind(this)}
+        ref={(inputRef) => { this.inputRef = inputRef; }}
         />
+    );
+  }
+}
+
+// https://stackoverflow.com/questions/149055/how-can-i-format-numbers-as-dollars-currency-string-in-javascript
+class PriceInput extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      value: this.props.initalValue ? this.props.initalValue.toFixed(2) : '',
+      focused: false
+    };
+  }
+
+  updateInputValue(event) {
+    this.updateState(event.target.value);
+  }
+
+  onFocus(event) {
+    this.setState((prevState) => ({ focused: true }));
+
+    // don't show the placeholder when user is inputting numbers
+    this.inputRef.input.placeholder = '';
+  }
+
+  onBlur(event) {
+    // only set the state if it's not 0 or ''
+    if (this.state.value) {
+      let newValue = Number(this.state.value);
+      this.updateState(newValue.toFixed(2));
+      this.props.onBlurCB(newValue);
+    }
+
+    this.setState((prevState) => ({
+      focused: false
+    }));
+
+    this.inputRef.input.placeholder = '0.00';
+  }
+
+  updateState(newValue) {
+    this.setState({value: newValue});
+  }  
+
+  render() {
+    let divStyle = Object.assign({ marginLeft: '.4em' }, divContainerStyle, this.props.style);
+    
+    // if the price input is empty and the input isn't focused, show a pink background
+    let inputStyle = Object.assign({}, inputStyleDefault)
+    if (Number(this.state.value) === 0 && !this.state.focused) {
+      inputStyle.backgroundColor = 'pink';
+    }
+    return (
+      <AutosizeInput
+        value={this.state.value}
+        type="number"
+        min="0.01" step="0.01" max="2500"
+        placeholder={'0.00'}
+        placeholderIsMinWidth
+        style={divStyle}
+        inputStyle={inputStyle}
+        onChange={this.updateInputValue.bind(this)}
+        onBlur={this.onBlur.bind(this)}
+        onFocus={this.onFocus.bind(this)}
+        onKeyDown={getKeydownCB(() => (this.inputRef))}
+        ref={(inputRef) => { this.inputRef = inputRef; }}
+      />
     );
   }
 }
@@ -56,7 +135,7 @@ function mod(n, m) {
 // easy sharing between components (no 'this' referencing)
 function getKeydownCB(inputRefGetter) {
   return (ev) => {
-    if (ev.keyCode === 13) {
+    if (ev.keyCode === 13) {  // Enter key (works on mobile too!)
       const inputRef = inputRefGetter();  
       if (inputRef) {
         inputRef.blur();
@@ -76,73 +155,6 @@ function getKeydownCB(inputRefGetter) {
       }
     }
   };
-}
-
-
-// https://stackoverflow.com/questions/149055/how-can-i-format-numbers-as-dollars-currency-string-in-javascript
-class PriceInput extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      value: this.getDefaultValue(this.props.initalValue),
-      focused: false
-    };
-  }
-
-  getDefaultValue(initalValue) {
-    if (initalValue) {
-      return initalValue.toFixed(2);
-    }
-    return '';  
-  }
-
-  updateInputValue(event) {
-    this.updateState(event.target.value);
-  }
-
-  onFocus(event) {
-    this.setState((prevState) => ({
-      focused: true
-    }));
-  }
-
-  onBlur(event) {
-    let newValue = Number(this.state.value || 0);
-    this.updateState(newValue.toFixed(2));
-    this.props.onBlurCB(newValue);
-    this.setState((prevState) => ({
-      focused: false
-    }));
-  }
-
-  updateState(newValue) {
-    this.setState({value: newValue});
-  }  
-
-  render() {
-    let divStyle = Object.assign({ marginLeft: '.4em' }, divContainerStyle, this.props.style);
-    
-    // if the price input is empty and the input isn't focused, show a pink background
-    let inputStyle = Object.assign({}, inputStyleDefault)
-    if (Number(this.state.value) === 0 && !this.state.focused) {
-      inputStyle.backgroundColor = 'pink';
-    }
-    return (
-      <AutosizeInput
-        placeholder={'0.00'}
-        type="number"
-        min="0.01" step="0.01" max="2500"
-        value={this.state.value}
-        onChange={this.updateInputValue.bind(this)}
-        onBlur={this.onBlur.bind(this)}
-        onFocus={this.onFocus.bind(this)}
-        style={divStyle}
-        inputStyle={inputStyle}
-        onKeyDown={getKeydownCB(() => (this.asInput))}
-        ref={(asInput) => { this.asInput = asInput; }}
-      />
-    );
-  }
 }
 
 export {StringInput, PriceInput};

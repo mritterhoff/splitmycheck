@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import './css/App.css';
-import Splitter from './components/Splitter.js'
+import '../css/App.css';
+import Splitter from './Splitter.js'
 
 class App extends Component {
   render() {

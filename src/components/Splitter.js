@@ -86,15 +86,13 @@ class Splitter extends React.Component {
   }
 
   addPerson(name) {
-    let pInd = this.state.people.length;
-    name = name || `Person ${pInd + 1}`
     console.log('adding person...');
 
     this.setState((prevState) => {
       let newOrders = clone2D(prevState.orders);
 
       for (let row = 0; row < newOrders.length; row++) {
-        newOrders[row][pInd] = true;
+        newOrders[row][this.state.people.length] = true;
       }
 
       return {
@@ -113,11 +111,7 @@ class Splitter extends React.Component {
   }
 
   addDish(dish) {
-    // index of new person
-    let dInd = this.state.dishes.length;
-    let peopleCount = this.state.people.length;
-
-    dish = dish || new Dish(`Dish ${dInd + 1}`, 0);
+    dish = dish || new Dish('', 0);
     console.log('adding dish...');
     this.setState((prevState) => {
       // let newOrders = clone2D(prevState.orders)
@@ -126,7 +120,7 @@ class Splitter extends React.Component {
       // add to the end (-1), don't delete any (0)
       // splice isn't chainable. unsure if I can switch to concat (above)
       let newOrders = clone2D(prevState.orders);
-      newOrders.splice(-1, 0, Array(peopleCount).fill(true));
+      newOrders.splice(-1, 0, Array(this.state.people.length).fill(true));
 
       return {
         dishes: [...prevState.dishes, dish],
@@ -301,7 +295,7 @@ class Splitter extends React.Component {
         <div>
           <StringInput 
             style={{float: 'left'}}
-            placeholder= 'Dish'
+            placeholder= {`Dish ${dInd + 1}`}
             initalValue = {dish.name}/>
           <PriceInput 
             style={{float: 'right'}} 
@@ -343,10 +337,10 @@ function TR(props) {
 
 function getNamesHeader(people) {
   let rowEls = [<div/>];
-  rowEls = rowEls.concat(people.map((el) => (
+  rowEls = rowEls.concat(people.map((person, pInd) => (
     <StringInput 
-      initalValue = {el}
-      placeholder = 'Person'
+      initalValue = {person}
+      placeholder = {`Person ${pInd + 1}`}
     />
   )));
 
