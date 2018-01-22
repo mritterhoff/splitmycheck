@@ -150,18 +150,16 @@ class Splitter extends React.Component {
   
   render() {
     return (
-      <div>
-        <div className="tableContainer">
-          {this.getButtonBar()}
-          <div className="table">
-            {getNamesHeader(this.state.people)}
+      <div className="splitterContainer">
+        {this.getButtonBar()}
+        <div className="table">
+          {getNamesHeader(this.state.people)}
 
-            <div className="tbody">
-              {this.getOrderRows()}
-              {this.getTaxRow()}
-              {this.getTipRow()}
-              {this.getTotalRow()}
-            </div>
+          <div className="tbody">
+            {this.getOrderRows()}
+            {this.getTaxRow()}
+            {this.getTipRow()}
+            {this.getTotalRow()}
           </div>
         </div>
       </div>
@@ -182,7 +180,6 @@ class Splitter extends React.Component {
     let barStyle = {
       margin: 'auto',
       width: 'auto',
-      textAlign: 'center',
       padding: '.5em'
     };
 

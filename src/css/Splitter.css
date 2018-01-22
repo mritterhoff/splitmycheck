@@ -77,8 +77,10 @@ div.td:first-child {
   border-right: 1px solid #dedede;
 }
 
-.tableContainer {
+.splitterContainer {
   background: skyblue;
   padding: .5em;
   height: 100vh;
+  display: inline-block;
+  min-width: 100%;
 }
