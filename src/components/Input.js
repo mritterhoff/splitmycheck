@@ -8,7 +8,6 @@ let inputStyleDefault = {
   border: '1px solid #999',
   borderRadius: 3, 
   padding: '.2em 0em',
-  fontSize: 14,
   textAlign: 'center'
 };
 
@@ -27,7 +26,6 @@ class StringInput extends React.Component {
     let newValue = event.target.value;
     this.setState({value: newValue});
   }
-
 
   onFocus(event) {
     // don't show the placeholder when user is inputting numbers
@@ -68,7 +66,8 @@ class PriceInput extends React.Component {
     };
   }
 
-  updateInputValue(event) {
+
+  onChange(event) {
     this.updateState(event.target.value);
   }
 
@@ -80,12 +79,11 @@ class PriceInput extends React.Component {
   }
 
   onBlur(event) {
-    // only set the state if it's not 0 or ''
-    if (this.state.value) {
-      let newValue = Number(this.state.value);
-      this.updateState(newValue.toFixed(2));
-      this.props.onBlurCB(newValue);
-    }
+    let newValue = Number(this.state.value || 0);
+    this.props.onBlurCB(newValue);
+
+    // if the value is going to be 0, set it to '' instead, which will show the placeholder
+    this.updateState(newValue ? newValue.toFixed(2) : '');
 
     this.setState((prevState) => ({
       focused: false
@@ -95,7 +93,9 @@ class PriceInput extends React.Component {
   }
 
   updateState(newValue) {
-    this.setState({value: newValue});
+    this.setState((prevState) => ({
+      value: newValue
+    }));
   }  
 
   render() {
@@ -115,7 +115,7 @@ class PriceInput extends React.Component {
         placeholderIsMinWidth
         style={divStyle}
         inputStyle={inputStyle}
-        onChange={this.updateInputValue.bind(this)}
+        onChange={this.onChange.bind(this)}
         onBlur={this.onBlur.bind(this)}
         onFocus={this.onFocus.bind(this)}
         onKeyDown={getKeydownCB(() => (this.inputRef))}

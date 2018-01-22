@@ -81,13 +81,18 @@ class Splitter extends React.Component {
     return this.state.dishes.map((dish) => (dish.price)).reduce(summer, 0);
   }
 
+  // get the proportion of the order that Person (indexed by pInd) is responsible for
+  // if the orderTotal is 0, will return 0 instead of NaN (dev by 0) (better to show user 0 than NaN)
   personOrderProportion(pInd) {
-    return this.orderTotalForPerson(pInd) / this.orderTotal();
+    let orderTotal = this.orderTotal();
+    if (orderTotal === 0) {
+      return 0;
+    }
+
+    return this.orderTotalForPerson(pInd) / orderTotal;
   }
 
   addPerson(name) {
-    console.log('adding person...');
-
     this.setState((prevState) => {
       let newOrders = clone2D(prevState.orders);
 
@@ -104,7 +109,6 @@ class Splitter extends React.Component {
 
   removeLastPerson() {
     if (this.state.people.length === 2) { return; }
-    console.log('removing person...');
     this.setState((prevState) => ({
       people: prevState.people.slice(0, prevState.people.length - 1)
     }));
@@ -112,7 +116,6 @@ class Splitter extends React.Component {
 
   addDish(dish) {
     dish = dish || new Dish('', 0);
-    console.log('adding dish...');
     this.setState((prevState) => {
       // let newOrders = clone2D(prevState.orders)
       //   .concat(Array(peopleCount).fill(true));
@@ -131,7 +134,6 @@ class Splitter extends React.Component {
 
   removeLastDish() {
     if (this.state.dishes.length === 1) { return; }
-    console.log('removing dish...');
     this.setState((prevState) => ({
       dishes: prevState.dishes.slice(0, prevState.dishes.length - 1)
     }));
@@ -218,7 +220,6 @@ class Splitter extends React.Component {
       },
       this));
 
-    // put each row element in a TD, then put all of those in a TR
     return (
       <TR>
         {rowEls.map((el, el_i) => <TD key={el_i}>{el}</TD>)}
@@ -237,14 +238,13 @@ class Splitter extends React.Component {
           initalValue = {0}
           onBlurCB = {updaterFunc} />
       </div>
-      ];
+    ];
     rowEls = rowEls.concat(this.state.people.map((person, pInd) => (
       <span>
         {priceAsString(this.personOrderProportion(pInd) * getterFunc())}
       </span>
     ), this));
 
-    // put each row element in a TD, then put all of those in a TR
     return (
       <TR>
         {rowEls.map((el, el_i) => <TD key={el_i}>{el}</TD>)}
@@ -312,7 +312,6 @@ class Splitter extends React.Component {
         />
       )));
 
-      // put each row element in a TD, then put all of those in a TR
       return (
         <TR key={dInd}>
           {rowEls.map((el, el_i) => <TD key={el_i}>{el}</TD>)}
@@ -362,6 +361,7 @@ function clone2D(a) {
   return a.map(o => [...o]);
 }
 
+// display num as '$ num.##' (nbsp after $)
 function priceAsString(num) {
   return '$\u00A0' + num.toFixed(2); 
 }
