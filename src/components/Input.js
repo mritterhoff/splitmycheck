@@ -2,6 +2,8 @@ import React from 'react'
 
 import AutosizeInput from 'react-input-autosize';
 
+import '../css/Input.css';
+
 let inputStyleDefault = { 
   border: '1px solid #999',
   borderRadius: 3, 
@@ -61,7 +63,7 @@ function getKeydownCB(inputRefGetter) {
         // get as array rather than NodeList
         let inputs = [...document.querySelectorAll('input')];
         let curIndex = inputs.indexOf(inputRef.input)
-        if (curIndex == -1) {
+        if (curIndex === -1) {
           console.warn(`Couldn't find current input. ${inputRef.input.innerHTML}`);
           return;
         }

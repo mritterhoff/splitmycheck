@@ -1,0 +1,84 @@
+/* Needed for red/green box sizing, */
+span {
+  -webkit-box-sizing: border-box; /*Safari/Chrome, other WebKit*/
+  -moz-box-sizing: border-box;    /*Firefox, other Gecko*/
+  box-sizing: border-box;         /*Opera/IE 8+ */
+}
+
+.table {
+  display: table;
+  width: auto;
+}
+
+.tr {
+  display: table-row;
+}
+
+.thead {
+  display: table-header-group;
+}
+
+.tbody {
+  display: table-row-group;
+}
+
+.tfoot {
+  display: table-footer-group;
+}
+
+.col {
+  display: table-column;
+}
+
+.colgroup {
+  display: table-column-group;
+}
+
+.td,
+.th {
+  display: table-cell;
+  /*width: 50%;*/
+}
+
+.caption {
+  display: table-caption;
+}
+
+.table,
+.thead,
+.tbody,
+.tfoot,
+.tr,
+.td,
+.th {
+  text-align: center;
+  margin: auto;
+  padding: .3em;
+}
+
+.table {
+  background: #fff;
+  margin: auto;
+  border: none;
+  padding: 0;
+}
+
+.th {
+  font-weight: 700;
+}
+
+.td {
+  font-weight: 300;
+  vertical-align: middle;
+  border-top: 1px solid #dedede;
+}
+
+div.td:first-child {
+  border-right: 1px solid #dedede;
+}
+
+.tableContainer {
+  background: skyblue;
+  padding: .5em;
+  height: 100vh;
+}

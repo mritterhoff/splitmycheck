@@ -1,7 +1,9 @@
 import React from 'react'
 
 import {CellToggle} from './CellToggle.js'
-import {StringInput, PriceInput} from './Inputs.js'
+import {StringInput, PriceInput} from './Input.js'
+
+import '../css/Splitter.css'
 
 let summer = (p, c) => p + c
 
@@ -24,7 +26,7 @@ class Splitter extends React.Component {
     };
   }
 
-// this is dumb, have an example page instead
+// TODO have an example page instead
   componentWillMount() {
     this.addPerson('Mark');
     this.addPerson('Sarah');
@@ -68,7 +70,6 @@ class Splitter extends React.Component {
       : 0;
   }
 
-
   // Given a person, what's their total owed for orders? (exluding tax/tip)
   orderTotalForPerson(pInd) {
     return this.state.dishes.map((dish, dInd) => (this.personCostForDish(pInd, dInd)), this)
@@ -104,7 +105,7 @@ class Splitter extends React.Component {
   }
 
   removeLastPerson() {
-    if (this.state.people.length == 2) { return; }
+    if (this.state.people.length === 2) { return; }
     console.log('removing person...');
     this.setState((prevState) => ({
       people: prevState.people.slice(0, prevState.people.length - 1)
@@ -135,7 +136,7 @@ class Splitter extends React.Component {
   }
 
   removeLastDish() {
-    if (this.state.dishes.length == 1) { return; }
+    if (this.state.dishes.length === 1) { return; }
     console.log('removing dish...');
     this.setState((prevState) => ({
       dishes: prevState.dishes.slice(0, prevState.dishes.length - 1)
@@ -205,8 +206,7 @@ class Splitter extends React.Component {
 
     let personStyle = {
       fontWeight: 'bold',
-      display: 'inline-block',
-      minWidth: '7em' // prevents content jumping for totals < $10k
+      display: 'inline-block'
     };
 
     let rowEls = [
@@ -224,11 +224,11 @@ class Splitter extends React.Component {
       },
       this));
 
-    // put each row element in a _td, then put all of those in a _tr
+    // put each row element in a TD, then put all of those in a TR
     return (
-      <_tr>
-        {rowEls.map((el, el_i) => <_td key={el_i}>{el}</_td>)}
-      </_tr>
+      <TR>
+        {rowEls.map((el, el_i) => <TD key={el_i}>{el}</TD>)}
+      </TR>
     );
   }
 
@@ -250,11 +250,11 @@ class Splitter extends React.Component {
       </span>
     ), this));
 
-    // put each row element in a _td, then put all of those in a _tr
+    // put each row element in a TD, then put all of those in a TR
     return (
-      <_tr>
-        {rowEls.map((el, el_i) => <_td key={el_i}>{el}</_td>)}
-      </_tr>
+      <TR>
+        {rowEls.map((el, el_i) => <TD key={el_i}>{el}</TD>)}
+      </TR>
     );
   }
 
@@ -283,7 +283,7 @@ class Splitter extends React.Component {
 
     function setPriceCBGetter(dInd) {
       return (newPrice) => {
-        if (typeof newPrice == 'string') {
+        if (typeof newPrice === 'string') {
           console.error(`newPrice is a string and shouldn't be: "${newPrice}"`);
         }
         that.setState((prevState) => {
@@ -318,26 +318,26 @@ class Splitter extends React.Component {
         />
       )));
 
-      // put each row element in a _td, then put all of those in a _tr
+      // put each row element in a TD, then put all of those in a TR
       return (
-        <_tr key={dInd}>
-          {rowEls.map((el, el_i) => <_td key={el_i}>{el}</_td>)}
-        </_tr>
+        <TR key={dInd}>
+          {rowEls.map((el, el_i) => <TD key={el_i}>{el}</TD>)}
+        </TR>
       );
     });
   }
 }  // end of Splitter class
 
 
-function _th(props) {
+function TH(props) {
   return <div className="th">{props.children}</div>;
 }
 
-function _td(props) {
+function TD(props) {
   return <div className="td">{props.children}</div>;
 }
 
-function _tr(props) {
+function TR(props) {
   return <div className="tr">{props.children}</div>;
 }
 
@@ -352,7 +352,7 @@ function getNamesHeader(people) {
 
   return (
     <div className="thead"> 
-      {rowEls.map((el, i) => <_th key={i}>{el}</_th>)}
+      {rowEls.map((el, i) => <TH key={i}>{el}</TH>)}
     </div>
   );
 }
