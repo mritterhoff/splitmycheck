@@ -10,35 +10,42 @@ let summer = (p, c) => p + c
 class Splitter extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
+    this.state = this.props.showExample ? this.getExampleState() : this.getDefaultState();
+  }
+
+  getDefaultState() {
+    return {
       // list of people
-      people: [],
+      people: ['', ''],
 
       // list of {name, price} dish objects
-      dishes: [],
+      dishes: [new Dish('', 0)],
 
       // 2d array of booleans
       // orders[dInd][pInd]
-      orders: [],
+      orders: [ [true, true] ],
 
       tip: 0,
       tax: 0
     };
   }
 
-// TODO have an example page instead
-  componentWillMount() {
-    this.addPerson('Mark');
-    this.addPerson('Sarah');
-  }
-
-  componentDidMount() {
-    this.addDish(new Dish('Mocktails', 9.40));
-    this.addDish(new Dish('Steak', 29.50));
-    this.addDish(new Dish('Sandwich', 12.40));
-
-    console.log('orders:');
-    console.log(this.state.orders);
+  getExampleState() {
+    return {
+      people: ['Mark', 'Sarah'],
+      dishes: [
+        new Dish('Mocktails', 9.40),
+        new Dish('Steak', 29.50),
+        new Dish('Sandwich', 12.40)
+      ],
+      orders: [
+        [true, true],
+        [true, true],
+        [true, true]
+      ],
+      tip: 10,
+      tax: 5
+    };
   }
 
   indicateOrder(setUnset, pInd, dInd) {
@@ -108,6 +115,7 @@ class Splitter extends React.Component {
   }
 
   removeLastPerson() {
+    // There must always be two or more people
     if (this.state.people.length === 2) { return; }
     this.setState((prevState) => ({
       people: prevState.people.slice(0, prevState.people.length - 1)
@@ -133,6 +141,7 @@ class Splitter extends React.Component {
   }
 
   removeLastDish() {
+    // There must always be at least 1 dish
     if (this.state.dishes.length === 1) { return; }
     this.setState((prevState) => ({
       dishes: prevState.dishes.slice(0, prevState.dishes.length - 1)
@@ -235,7 +244,7 @@ class Splitter extends React.Component {
         <span style={style}>{displayName}:</span>
         <PriceInput 
           style={{float: 'right'}} 
-          initalValue = {0}
+          initalValue = {getterFunc()}
           onBlurCB = {updaterFunc} />
       </div>
     ];
