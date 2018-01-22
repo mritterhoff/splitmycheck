@@ -7,11 +7,58 @@ import '../css/Splitter.css'
 
 let summer = (p, c) => p + c
 
+let lsSplitterKey = 'SplitterState';
+
 class Splitter extends React.Component {
   constructor(props) {
     super(props);
-    this.state = this.props.showExample ? this.getExampleState() : this.getDefaultState();
+
+    // check if we have state stored in localStorage, and use it if we do
+    if (this.props.showExample) {
+      this.state = this.getExampleState();
+    }
+    else {
+      if (localStorage && localStorage.getItem(lsSplitterKey)) {
+        console.log('loading past state from localStorage');
+        try {
+          var obj = JSON.parse(localStorage.getItem(lsSplitterKey));
+          this.state = obj;
+        } 
+        catch (ex) {
+          console.error(ex);
+        }
+      }
+      else {
+        this.state = this.getDefaultState();
+      }
+    }
+
+    // TODO this may be unsafe and terrible
+    this.oldSetState = this.setState;   
+    
+    this.setState = function (partialState, callback) {
+      function cb() { 
+        console.log('state being set!'); 
+        console.log(JSON.stringify(this.state));
+
+        if (localStorage) {
+          console.log('updating localStorage');
+          localStorage.setItem(lsSplitterKey, JSON.stringify(this.state));
+        }
+
+        if (arguments.length > 0) {
+          console.log(arguments);
+        }
+        // should call original callback here with parameters
+        if (typeof callback === 'function') {
+          callback(arguments);
+        }
+      }
+      this.oldSetState(partialState, cb);
+    } 
   }
+
+
 
   getDefaultState() {
     return {
@@ -281,14 +328,23 @@ class Splitter extends React.Component {
       };
     };
 
-    function setPriceCBGetter(dInd) {
+    function setDishPriceCBGetter(dInd) {
       return (newPrice) => {
-        if (typeof newPrice === 'string') {
-          console.error(`newPrice is a string and shouldn't be: "${newPrice}"`);
-        }
         that.setState((prevState) => {
           let newDishes = prevState.dishes.slice();  // shallow copy
           newDishes[dInd] = new Dish(newDishes[dInd].name, newPrice);
+          return {
+            dishes: newDishes
+          }
+        });
+      };
+    };
+
+    function setDishNameCBGetter(dInd) {
+      return (newDishName) => {
+        that.setState((prevState) => {
+          let newDishes = prevState.dishes.slice();  // shallow copy
+          newDishes[dInd] = new Dish(newDishName, newDishes[dInd].price);
           return {
             dishes: newDishes
           }
@@ -302,11 +358,12 @@ class Splitter extends React.Component {
           <StringInput 
             style={{float: 'left'}}
             placeholder= {`Dish ${dInd + 1}`}
-            initalValue = {dish.name}/>
+            initalValue = {dish.name}
+            onBlurCB = {setDishNameCBGetter(dInd)}/>
           <PriceInput 
             style={{float: 'right'}} 
             initalValue = {dish.price}
-            onBlurCB = {setPriceCBGetter(dInd)} />
+            onBlurCB = {setDishPriceCBGetter(dInd)} />
         </div>
       ];
 
@@ -340,6 +397,8 @@ function TR(props) {
   return <div className="tr">{props.children}</div>;
 }
 
+
+// TODO move this to Splitter, and add an onBlurCB
 function getNamesHeader(people) {
   let rowEls = [<div/>];
   rowEls = rowEls.concat(people.map((person, pInd) => (

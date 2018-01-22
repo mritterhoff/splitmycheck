@@ -19,12 +19,14 @@ let divContainerStyle = {
 class StringInput extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {value: this.props.initalValue};
+
+    // if we don't have an initialValue, we must assign one, to avoid the input
+    // switching from uncontrolled to controlled and causing an error
+    this.state = {value: this.props.initalValue || ''};
   }
 
   updateInputValue(event) {
-    let newValue = event.target.value;
-    this.setState({value: newValue});
+    this.setState({value: event.target.value});
   }
 
   onFocus(event) {
@@ -33,6 +35,12 @@ class StringInput extends React.Component {
   }
 
   onBlur(event) {
+    if (this.props.onBlurCB) {
+      this.props.onBlurCB(this.state.value);
+    }
+    else {
+      console.log('todo make onBlur() required');
+    }
     this.inputRef.input.placeholder = this.props.placeholder;
   }
 
