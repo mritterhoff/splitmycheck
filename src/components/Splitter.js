@@ -2,6 +2,7 @@ import React from 'react'
 
 import {CellToggle} from './CellToggle.js'
 import {StringInput, PriceInput} from './Input.js'
+import {ButtonBar} from './ButtonBar.js'
 
 import '../css/Splitter.css'
 
@@ -57,8 +58,6 @@ class Splitter extends React.Component {
       this.oldSetState(partialState, cb);
     } 
   }
-
-
 
   getDefaultState() {
     return {
@@ -198,9 +197,14 @@ class Splitter extends React.Component {
   render() {
     return (
       <div className="splitterContainer">
-        {this.getButtonBar()}
+        <ButtonBar 
+          addPersonFunc={this.addPerson.bind(this)}
+          removePersonFunc={this.removeLastPerson.bind(this)}
+          addDishFunc={this.addDish.bind(this)}
+          removeDishFunc={this.removeLastDish.bind(this)}
+        />
         <div className="table">
-          {getNamesHeader(this.state.people)}
+          {this.getNamesHeader()}
 
           <div className="tbody">
             {this.getOrderRows()}
@@ -213,37 +217,32 @@ class Splitter extends React.Component {
     );
   }
 
-  getButtonBar() { 
-    let divStyle = {
-      backgroundColor: 'lightgray',
-      display: 'inline-block',
-      padding: '.1em'
+  getNamesHeader(people) {
+    let that = this;
+    function setNameCBGetter(pInd) {
+      return (newName) => {
+        that.setState((prevState) => {
+          prevState.people[pInd] = newName;
+          return {
+            people: prevState.people
+          }
+        });
+      };
     };
 
-    let spanStyle = {
-      padding: '.5em'
-    };
-
-    let barStyle = {
-      margin: 'auto',
-      width: 'auto',
-      padding: '.5em'
-    };
+    let rowEls = [<div/>]
+      .concat(this.state.people.map((person, pInd) => (
+        <StringInput 
+          initalValue = {person}
+          placeholder = {`Person ${pInd + 1}`}
+          onBlurCB = {setNameCBGetter(pInd).bind(this)}
+        />
+      )));
 
     return (
-      <div style = {barStyle}>
-        <div style = {divStyle}>
-          <button onClick={() => this.removeLastDish()}>-</button>
-          <span style = {spanStyle}>Dish</span>
-          <button onClick={() => this.addDish()}>+</button>
-        </div>       
-        <div style={{width: '1em', display: 'inline-block'}}></div>
-        <div style = {divStyle}>
-          <button onClick={() => this.removeLastPerson()}>-</button>
-          <span style = {spanStyle}>Person</span>
-          <button onClick={() => this.addPerson()}>+</button>
-        </div>
-      </div>  
+      <div className="thead"> 
+        {rowEls.map((el, i) => <TH key={i}>{el}</TH>)}
+      </div>
     );
   }
 
@@ -322,7 +321,7 @@ class Splitter extends React.Component {
   getOrderRows() {
     let that = this;
 
-    let getToggleCB = function (pInd, dInd) {
+    function getToggleCB(pInd, dInd) {
       return (setUnset) => {
         that.indicateOrder(setUnset, pInd, dInd);
       };
@@ -397,24 +396,6 @@ function TR(props) {
   return <div className="tr">{props.children}</div>;
 }
 
-
-// TODO move this to Splitter, and add an onBlurCB
-function getNamesHeader(people) {
-  let rowEls = [<div/>];
-  rowEls = rowEls.concat(people.map((person, pInd) => (
-    <StringInput 
-      initalValue = {person}
-      placeholder = {`Person ${pInd + 1}`}
-    />
-  )));
-
-  return (
-    <div className="thead"> 
-      {rowEls.map((el, i) => <TH key={i}>{el}</TH>)}
-    </div>
-  );
-}
-
 class Dish {
   constructor(name, price) {
     this.name = name;
@@ -422,6 +403,7 @@ class Dish {
   }
 }
 
+// Return a shallow clone of the given 2d array
 function clone2D(a) {
   return a.map(o => [...o]);
 }
