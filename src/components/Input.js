@@ -21,7 +21,8 @@ let divContainerStyle = {
 // that state with this.props.onChangeCB()
 class StringInput extends React.Component {
   updateInputValue(event) {
-    this.props.onChangeCB(event.target.value);
+    // must prevent passing null value, so pass empty string instead
+    this.props.onChangeCB(event.target.value || '');
   }
 
   onFocus(event) {
@@ -69,9 +70,10 @@ class PriceInput extends React.Component {
     };
   }
 
-
   onChange(event) {
-    this.updateState(event.target.value);
+    let value = event.target.value;
+    console.log('new value: ' + value);
+    this.updateState(value);
   }
 
   onFocus(event) {

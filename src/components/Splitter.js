@@ -355,7 +355,6 @@ class Splitter extends React.Component {
     };
 
     return this.state.dishes.map((dish, dInd) => {
-      debugger;
       let rowEls = [
         <div>
           <StringInput 
