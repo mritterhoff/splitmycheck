@@ -195,6 +195,8 @@ class Splitter extends React.Component {
   }
   
   render() {
+    let resetState = () => {this.setState((prevState) => this.getDefaultState())};
+
     return (
       <div className="splitterContainer">
         <ButtonBar 
@@ -202,6 +204,7 @@ class Splitter extends React.Component {
           removePersonFunc={this.removeLastPerson.bind(this)}
           addDishFunc={this.addDish.bind(this)}
           removeDishFunc={this.removeLastDish.bind(this)}
+          resetFunc={resetState}
         />
         <div className="table">
           {this.getNamesHeader()}
@@ -233,9 +236,9 @@ class Splitter extends React.Component {
     let rowEls = [<div/>]
       .concat(this.state.people.map((person, pInd) => (
         <StringInput 
-          initalValue = {person}
+          value = {person}
           placeholder = {`Person ${pInd + 1}`}
-          onBlurCB = {setNameCBGetter(pInd).bind(this)}
+          onChangeCB = {setNameCBGetter(pInd).bind(this)}
         />
       )));
 
@@ -308,14 +311,14 @@ class Splitter extends React.Component {
     return this.getSpecialRow(
       'Tax',
       (tax) => {this.setState((prevState) => ({tax: Number(tax)}))},
-      (tax) => (this.state.tax));
+      () => (this.state.tax));
   }
 
   getTipRow() {
     return this.getSpecialRow(
       'Tip',
       (tip) => {this.setState((prevState) => ({tip: Number(tip)}))},
-      (tip) => (this.state.tip));
+      () => (this.state.tip));
   }
 
   getOrderRows() {
@@ -352,13 +355,14 @@ class Splitter extends React.Component {
     };
 
     return this.state.dishes.map((dish, dInd) => {
+      debugger;
       let rowEls = [
         <div>
           <StringInput 
             style={{float: 'left'}}
             placeholder= {`Dish ${dInd + 1}`}
-            initalValue = {dish.name}
-            onBlurCB = {setDishNameCBGetter(dInd)}/>
+            value = {dish.name}
+            onChangeCB = {setDishNameCBGetter(dInd)}/>
           <PriceInput 
             style={{float: 'right'}} 
             initalValue = {dish.price}

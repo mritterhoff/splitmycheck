@@ -1,5 +1,5 @@
 import React from 'react'
-
+import PropTypes from 'prop-types';
 import AutosizeInput from 'react-input-autosize';
 
 import '../css/Input.css';
@@ -16,17 +16,12 @@ let divContainerStyle = {
   padding: '.1em'
 };
 
+
+// This is a controlled component that only ever shows current state, and updates
+// that state with this.props.onChangeCB()
 class StringInput extends React.Component {
-  constructor(props) {
-    super(props);
-
-    // if we don't have an initialValue, we must assign one, to avoid the input
-    // switching from uncontrolled to controlled and causing an error
-    this.state = {value: this.props.initalValue || ''};
-  }
-
   updateInputValue(event) {
-    this.setState({value: event.target.value});
+    this.props.onChangeCB(event.target.value);
   }
 
   onFocus(event) {
@@ -35,12 +30,6 @@ class StringInput extends React.Component {
   }
 
   onBlur(event) {
-    if (this.props.onBlurCB) {
-      this.props.onBlurCB(this.state.value);
-    }
-    else {
-      console.log('todo make onBlur() required');
-    }
     this.inputRef.input.placeholder = this.props.placeholder;
   }
 
@@ -49,7 +38,7 @@ class StringInput extends React.Component {
     let inputStyle = Object.assign({}, inputStyleDefault, this.props.style, {padding: '.2em'});
     return (
       <AutosizeInput
-        value={this.state.value}
+        value={this.props.value}
         placeholder={this.props.placeholder}
         placeholderIsMinWidth
         style={divStyle}
@@ -58,10 +47,16 @@ class StringInput extends React.Component {
         onChange={this.updateInputValue.bind(this)}
         onBlur={this.onBlur.bind(this)}
         onFocus={this.onFocus.bind(this)}
-        ref={(inputRef) => { this.inputRef = inputRef; }}
-        />
+        ref={(inputRef) => { this.inputRef = inputRef; }}/>
     );
   }
+}
+
+StringInput.propTypes = {
+  style:        PropTypes.object,
+  onChangeCB:   PropTypes.func.isRequired,
+  value:        PropTypes.string.isRequired,
+  placeholder:  PropTypes.string.isRequired
 }
 
 // https://stackoverflow.com/questions/149055/how-can-i-format-numbers-as-dollars-currency-string-in-javascript

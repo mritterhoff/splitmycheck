@@ -32,16 +32,19 @@ class ButtonBar extends React.Component {
           <span style = {spanStyle}>Person</span>
           <button onClick={() => this.props.addPersonFunc()}>+</button>
         </div>
+        <div style={{width: '1em', display: 'inline-block'}}></div>
+        <button onClick={() => this.props.resetFunc()}>Reset</button>
       </div>  
     );
   }
 }
 
-ButtonBar.PropTypes = {
+ButtonBar.propTypes = {
   addPersonFunc: PropTypes.func.isRequired,
   removePersonFunc: PropTypes.func.isRequired,
   addDishFunc: PropTypes.func.isRequired,
-  removeDishFunc: PropTypes.func.isRequired
+  removeDishFunc: PropTypes.func.isRequired,
+  resetFunc: PropTypes.func.isRequired
 }
 
 export {ButtonBar};
