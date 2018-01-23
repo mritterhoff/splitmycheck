@@ -33,9 +33,9 @@ class ButtonBar extends React.Component {
           <button onClick={() => this.props.addPersonFunc()}>+</button>
         </div>
         <div style={{width: '1em', display: 'inline-block'}}></div>
-        <button onClick={() => this.props.resetFunc()}>Reset</button>
-        <div style={{width: '1em', display: 'inline-block'}}></div>
         <button onClick={() => this.props.showExampleFunc()}>Show Example</button>
+        <div style={{width: '1em', display: 'inline-block'}}></div>
+        <button onClick={() => this.props.resetFunc()}>Reset</button>
       </div>  
     );
   }

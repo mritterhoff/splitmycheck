@@ -68,17 +68,17 @@ class Splitter extends React.Component {
     return {
       people: ['Mark', 'Sarah'],
       dishes: [
-        new Dish('Mocktails', 9.40),
-        new Dish('Steak', 29.50),
-        new Dish('Sandwich', 12.40)
+        new Dish('Mocktails', '9.40'),
+        new Dish('Steak', '29.50'),
+        new Dish('Sandwich', '12.40')
       ],
       orders: [
         [true, true],
         [true, true],
         [true, true]
       ],
-      tip: 10,
-      tax: 5
+      tip: '10.00',
+      tax: '5.00'
     };
   }
 

@@ -16,7 +16,6 @@ let divContainerStyle = {
   padding: '.1em'
 };
 
-
 // This is a controlled component that only ever shows current state, and updates
 // that state with this.props.onChangeCB()
 class StringInput extends React.Component {
@@ -98,20 +97,15 @@ class PriceInput extends React.Component {
     
     // if the price input is empty and the input isn't focused, show a pink background
     let inputStyle = Object.assign({}, inputStyleDefault)
-    if (Number(this.state.value) === 0 && !this.state.focused) {
+    if (Number(this.props.value) === 0 && !this.state.focused) {
       inputStyle.backgroundColor = 'pink';
-    }
-
-    let valueToShow = '';
-    if (Number(this.props.value) > 0) {
-      valueToShow = this.props.value;
     }
 
     return (
       <AutosizeInput
-        value={valueToShow}
+        value={Number(this.props.value) > 0 ? this.props.value : ''}
         type="number"
-        min="0.01" step="0.01" max="9999"
+        min="0.01" step="0.01"
         placeholder={'0.00'}
         placeholderIsMinWidth
         style={divStyle}
@@ -124,6 +118,11 @@ class PriceInput extends React.Component {
       />
     );
   }
+}
+
+PriceInput.propTypes = {
+  onChangeCB:   PropTypes.func.isRequired,
+  value:        PropTypes.string.isRequired
 }
 
 // fix for silly % not handling negative well
