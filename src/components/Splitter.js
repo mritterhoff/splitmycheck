@@ -15,23 +15,18 @@ class Splitter extends React.Component {
     super(props);
 
     // check if we have state stored in localStorage, and use it if we do
-    if (this.props.showExample) {
-      this.state = this.getExampleState();
+    if (localStorage && localStorage.getItem(lsSplitterKey)) {
+      console.log('loading past state from localStorage');
+      try {
+        var obj = JSON.parse(localStorage.getItem(lsSplitterKey));
+        this.state = obj;
+      } 
+      catch (ex) {
+        console.error(ex);
+      }
     }
     else {
-      if (localStorage && localStorage.getItem(lsSplitterKey)) {
-        console.log('loading past state from localStorage');
-        try {
-          var obj = JSON.parse(localStorage.getItem(lsSplitterKey));
-          this.state = obj;
-        } 
-        catch (ex) {
-          console.error(ex);
-        }
-      }
-      else {
-        this.state = this.getDefaultState();
-      }
+      this.state = this.getDefaultState();
     }
 
     // TODO this may be unsafe and terrible
@@ -39,17 +34,10 @@ class Splitter extends React.Component {
     
     this.setState = function (partialState, callback) {
       function cb() { 
-        console.log('state being set!'); 
-        console.log(JSON.stringify(this.state));
-
         if (localStorage) {
-          console.log('updating localStorage');
           localStorage.setItem(lsSplitterKey, JSON.stringify(this.state));
         }
 
-        if (arguments.length > 0) {
-          console.log(arguments);
-        }
         // should call original callback here with parameters
         if (typeof callback === 'function') {
           callback(arguments);
@@ -119,7 +107,7 @@ class Splitter extends React.Component {
   // Given a person and dish, how much do they owe for it?
   personCostForDish(pInd, dInd) {
     return this.didPersonOrderDish(pInd, dInd)
-      ? this.state.dishes[dInd].price / this.peoplePerDish(dInd)
+      ? Number(this.state.dishes[dInd].price) / this.peoplePerDish(dInd)
       : 0;
   }
 
@@ -131,7 +119,7 @@ class Splitter extends React.Component {
 
   // Return the sum of dish orders.
   orderTotal() {
-    return this.state.dishes.map((dish) => (dish.price)).reduce(summer, 0);
+    return this.state.dishes.map((dish) => (Number(dish.price))).reduce(summer, 0);
   }
 
   // get the proportion of the order that Person (indexed by pInd) is responsible for
@@ -145,7 +133,7 @@ class Splitter extends React.Component {
     return this.orderTotalForPerson(pInd) / orderTotal;
   }
 
-  addPerson(name) {
+  addPerson() {
     this.setState((prevState) => {
       let newOrders = clone2D(prevState.orders);
 
@@ -154,7 +142,7 @@ class Splitter extends React.Component {
       }
 
       return {
-        people: [...prevState.people, name],
+        people: [...prevState.people, ''],
         orders: newOrders
       };
     });
@@ -195,8 +183,6 @@ class Splitter extends React.Component {
   }
   
   render() {
-    let resetState = () => {this.setState((prevState) => this.getDefaultState())};
-
     return (
       <div className="splitterContainer">
         <ButtonBar 
@@ -204,7 +190,8 @@ class Splitter extends React.Component {
           removePersonFunc={this.removeLastPerson.bind(this)}
           addDishFunc={this.addDish.bind(this)}
           removeDishFunc={this.removeLastDish.bind(this)}
-          resetFunc={resetState}
+          showExampleFunc={() => {this.setState((prevState) => this.getExampleState())}}
+          resetFunc={() => {this.setState((prevState) => this.getDefaultState())}}
         />
         <div className="table">
           {this.getNamesHeader()}
@@ -264,13 +251,13 @@ class Splitter extends React.Component {
       <div>
         <span>Total:</span>
         <span style = {totalStyle}>
-          {priceAsString(this.orderTotal() + this.state.tax + this.state.tip)}
+          {priceAsString(this.orderTotal() + Number(this.state.tax) + Number(this.state.tip))}
         </span>
       </div>
     ];
     rowEls = rowEls.concat(this.state.people.map((person, pInd) => {
         let personTotal = this.orderTotalForPerson(pInd)
-          + this.personOrderProportion(pInd) * (this.state.tax + this.state.tip);
+          + this.personOrderProportion(pInd) * (Number(this.state.tax) + Number(this.state.tip));
         return <span style={personStyle}>{priceAsString(personTotal)}</span>;
       },
       this));
@@ -290,8 +277,8 @@ class Splitter extends React.Component {
         <span style={style}>{displayName}:</span>
         <PriceInput 
           style={{float: 'right'}} 
-          initalValue = {getterFunc()}
-          onBlurCB = {updaterFunc} />
+          value = {getterFunc()}
+          onChangeCB = {updaterFunc} />
       </div>
     ];
     rowEls = rowEls.concat(this.state.people.map((person, pInd) => (
@@ -310,14 +297,14 @@ class Splitter extends React.Component {
   getTaxRow() {
     return this.getSpecialRow(
       'Tax',
-      (tax) => {this.setState((prevState) => ({tax: Number(tax)}))},
+      (tax) => {this.setState((prevState) => ({tax: tax}))},
       () => (this.state.tax));
   }
 
   getTipRow() {
     return this.getSpecialRow(
       'Tip',
-      (tip) => {this.setState((prevState) => ({tip: Number(tip)}))},
+      (tip) => {this.setState((prevState) => ({tip: tip}))},
       () => (this.state.tip));
   }
 
@@ -346,7 +333,7 @@ class Splitter extends React.Component {
       return (newDishName) => {
         that.setState((prevState) => {
           let newDishes = prevState.dishes.slice();  // shallow copy
-          newDishes[dInd] = new Dish(newDishName, newDishes[dInd].price);
+          newDishes[dInd] = new Dish(newDishName, Number(newDishes[dInd].price));
           return {
             dishes: newDishes
           }
@@ -364,8 +351,8 @@ class Splitter extends React.Component {
             onChangeCB = {setDishNameCBGetter(dInd)}/>
           <PriceInput 
             style={{float: 'right'}} 
-            initalValue = {dish.price}
-            onBlurCB = {setDishPriceCBGetter(dInd)} />
+            value = {dish.price}
+            onChangeCB = {setDishPriceCBGetter(dInd)} />
         </div>
       ];
 
@@ -413,7 +400,7 @@ function clone2D(a) {
 
 // display num as '$ num.##' (nbsp after $)
 function priceAsString(num) {
-  return '$\u00A0' + num.toFixed(2); 
+  return '$\u00A0' + Number(num).toFixed(2); 
 }
 
 export default Splitter;

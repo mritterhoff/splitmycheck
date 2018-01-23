@@ -65,7 +65,6 @@ class PriceInput extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: this.props.initalValue ? this.props.initalValue.toFixed(2) : '',
       focused: false
     };
   }
@@ -73,7 +72,7 @@ class PriceInput extends React.Component {
   onChange(event) {
     let value = event.target.value;
     console.log('new value: ' + value);
-    this.updateState(value);
+    this.props.onChangeCB(value);
   }
 
   onFocus(event) {
@@ -84,24 +83,15 @@ class PriceInput extends React.Component {
   }
 
   onBlur(event) {
-    let newValue = Number(this.state.value || 0);
-    this.props.onBlurCB(newValue);
-
-    // if the value is going to be 0, set it to '' instead, which will show the placeholder
-    this.updateState(newValue ? newValue.toFixed(2) : '');
+    let newValue = Number(event.target.value || 0).toFixed(2);
+    this.props.onChangeCB(newValue);
 
     this.setState((prevState) => ({
       focused: false
     }));
 
     this.inputRef.input.placeholder = '0.00';
-  }
-
-  updateState(newValue) {
-    this.setState((prevState) => ({
-      value: newValue
-    }));
-  }  
+  } 
 
   render() {
     let divStyle = Object.assign({ marginLeft: '.4em' }, divContainerStyle, this.props.style);
@@ -111,11 +101,17 @@ class PriceInput extends React.Component {
     if (Number(this.state.value) === 0 && !this.state.focused) {
       inputStyle.backgroundColor = 'pink';
     }
+
+    let valueToShow = '';
+    if (Number(this.props.value) > 0) {
+      valueToShow = this.props.value;
+    }
+
     return (
       <AutosizeInput
-        value={this.state.value}
+        value={valueToShow}
         type="number"
-        min="0.01" step="0.01" max="2500"
+        min="0.01" step="0.01" max="9999"
         placeholder={'0.00'}
         placeholderIsMinWidth
         style={divStyle}

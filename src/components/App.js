@@ -19,9 +19,8 @@ class App extends Component {
         <p className="App-intro">
           <b>How to use</b>: Add people/dishes as needed with the + and - buttons. Click to rename them (optional) and to set prices, tax and tip (mandatory). Touch the red/green cells to add/remove the dish from the person's order. What everyone owes is at the bottom.
           <br/><b>Coming soon</b>: Tip calculator. Link saving/sharing. Prettier UI. History/Undo. Row/col contraint checking. Better rounding.<br/>
-          {this.state.showExample ? " Here's an example:" : ""}
         </p>
-        <Splitter showExample={this.state.showExample}/>
+        <Splitter/>
       </div>
     );
   }
