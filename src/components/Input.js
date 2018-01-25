@@ -2,6 +2,8 @@ import React from 'react'
 import PropTypes from 'prop-types';
 import AutosizeInput from 'react-input-autosize';
 
+import { Price } from '../Price.js';
+
 import '../css/Input.css';
 
 let inputStyleDefault = { 
@@ -59,6 +61,7 @@ StringInput.propTypes = {
   placeholder:  PropTypes.string.isRequired
 }
 
+
 // https://stackoverflow.com/questions/149055/how-can-i-format-numbers-as-dollars-currency-string-in-javascript
 class PriceInput extends React.Component {
   constructor(props) {
@@ -70,8 +73,13 @@ class PriceInput extends React.Component {
 
   onChange(event) {
     let value = event.target.value;
-    console.log('new value: ' + value);
-    this.props.onChangeCB(value);
+    console.log('new value from priceInput: ' + value);
+
+    if (typeof value !== 'string') {
+      console.log(`was expecting a string, got '${value}'`);
+    }
+
+    this.props.onChangeCB(value, false);
   }
 
   onFocus(event) {
@@ -82,8 +90,8 @@ class PriceInput extends React.Component {
   }
 
   onBlur(event) {
-    let newValue = Number(event.target.value || 0).toFixed(2);
-    this.props.onChangeCB(newValue);
+    let newValue = event.target.value || 0;
+    this.props.onChangeCB(newValue, true);
 
     this.setState((prevState) => ({
       focused: false
@@ -92,22 +100,20 @@ class PriceInput extends React.Component {
     this.inputRef.input.placeholder = '0.00';
   } 
 
+
+
   render() {
     let divStyle = Object.assign({}, divContainerStyle, this.props.style);
     
     // if the price input is empty and the input isn't focused, show a pink background
     let inputStyle = Object.assign({}, inputStyleDefault)
-    if (Number(this.props.value) === 0 && !this.state.focused) {
+    if (Number(this.props.priceObj.num) === 0 && !this.state.focused) {
       inputStyle.backgroundColor = 'pink';
-    }
-
-    if (typeof this.props.value === 'number') {
-      console.log(this.props.value)
     }
 
     return (
       <AutosizeInput
-        value={Number(this.props.value) > 0 ? this.props.value : ''}
+        value={this.props.priceObj.stringRep}
         type="number"
         min="0.01" step="0.01"
         placeholder={'0.00'}
@@ -126,7 +132,7 @@ class PriceInput extends React.Component {
 
 PriceInput.propTypes = {
   onChangeCB:   PropTypes.func.isRequired,
-  value:        PropTypes.string.isRequired
+  priceObj:     Price.shape.isRequired
 }
 
 // fix for silly % not handling negative well

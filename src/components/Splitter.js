@@ -4,6 +4,8 @@ import {CellToggle} from './CellToggle.js'
 import {StringInput, PriceInput} from './Input.js'
 import {ButtonBar} from './ButtonBar.js'
 
+import {Price} from '../Price.js'
+
 import '../css/Splitter.css'
 
 let summer = (p, c) => p + c
@@ -18,7 +20,22 @@ class Splitter extends React.Component {
     if (localStorage && localStorage.getItem(lsSplitterKey)) {
       console.log('loading past state from localStorage');
       try {
-        var obj = JSON.parse(localStorage.getItem(lsSplitterKey));
+        var obj = JSON.parse(localStorage.getItem(lsSplitterKey), 
+          (key, val) => {
+            //if this is an object, and is CardboardBox
+            if(typeof(val) === 'object' && val.__type === 'Price') {
+              return new Price(val);
+            }
+
+            return val;
+
+            //or if your object is in a context (like window), and there are many of
+            //them that could be in there, you can do:
+            //
+            //if(typeof(val) === 'object' && context[val.__type])
+            //    return new context[val.__type](val);
+          });
+
         this.state = obj;
         console.log(obj);
       } 
@@ -60,8 +77,8 @@ class Splitter extends React.Component {
       // orders[dInd][pInd]
       orders: [ [true, true] ],
 
-      tip: '0',
-      tax: '0'
+      tip: new Price(),
+      tax: new Price()
     };
   }
 
@@ -69,17 +86,17 @@ class Splitter extends React.Component {
     return {
       people: ['Mark', 'Sarah'],
       dishes: [
-        new Dish('Mocktails', '9.40'),
-        new Dish('Steak', '29.50'),
-        new Dish('Sandwich', '12.40')
+        new Dish('Mocktails', 9.40),
+        new Dish('Steak', 29.50),
+        new Dish('Sandwich', 12.40)
       ],
       orders: [
         [true, true],
         [true, true],
         [true, true]
       ],
-      tip: '10.00',
-      tax: '5.00'
+      tip: new Price(10),
+      tax: new Price(5)
     };
   }
 
@@ -108,7 +125,7 @@ class Splitter extends React.Component {
   // Given a person and dish, how much do they owe for it?
   personCostForDish(pInd, dInd) {
     return this.didPersonOrderDish(pInd, dInd)
-      ? Number(this.state.dishes[dInd].price) / this.peoplePerDish(dInd)
+      ? this.state.dishes[dInd].price.num / this.peoplePerDish(dInd)
       : 0;
   }
 
@@ -120,7 +137,7 @@ class Splitter extends React.Component {
 
   // Return the sum of dish orders.
   orderTotal() {
-    return this.state.dishes.map((dish) => (Number(dish.price))).reduce(summer, 0);
+    return this.state.dishes.map((dish) => (dish.price.num)).reduce(summer, 0);
   }
 
   // get the proportion of the order that Person (indexed by pInd) is responsible for
@@ -251,13 +268,13 @@ class Splitter extends React.Component {
       <div>
         <span>Total:</span>
         <span style = {totalStyle}>
-          {priceAsString(this.orderTotal() + Number(this.state.tax) + Number(this.state.tip))}
+          {priceAsString(this.orderTotal() + this.state.tax.num + this.state.tip.num)}
         </span>
       </div>
     ];
     rowEls = rowEls.concat(this.state.people.map((person, pInd) => {
         let personTotal = this.orderTotalForPerson(pInd)
-          + this.personOrderProportion(pInd) * (Number(this.state.tax) + Number(this.state.tip));
+          + this.personOrderProportion(pInd) * (this.state.tax.num + this.state.tip.num);
         return <span style={personStyle}>{priceAsString(personTotal)}</span>;
       },
       this));
@@ -277,13 +294,13 @@ class Splitter extends React.Component {
         <span style={style}>{displayName}:</span>
         <PriceInput 
           style={{float: 'right'}} 
-          value = {getterFunc()}
+          priceObj = {getterFunc()}
           onChangeCB = {updaterFunc} />
       </div>
     ];
     rowEls = rowEls.concat(this.state.people.map((person, pInd) => (
       <span>
-        {priceAsString(this.personOrderProportion(pInd) * getterFunc())}
+        {priceAsString(this.personOrderProportion(pInd) * getterFunc().num)}
       </span>
     ), this));
 
@@ -297,14 +314,46 @@ class Splitter extends React.Component {
   getTaxRow() {
     return this.getSpecialRow(
       'Tax',
-      (tax) => {this.setState((prevState) => ({tax: tax}))},
+      (taxString, isFinal) => {
+        this.setState((prevState) => {
+          
+          let newPriceObj;
+          if (isFinal) {
+            // update the numeric value, and the stringRep to reflect that
+            let number = Number(taxString);
+            newPriceObj = new Price(number, number.toFixed(2));
+          }
+          else {
+            // just update the stringRep
+            newPriceObj = new Price(prevState.tax.num, taxString);
+          }
+
+          return {tax: newPriceObj};
+        });
+      },
       () => (this.state.tax));
   }
 
   getTipRow() {
     return this.getSpecialRow(
       'Tip',
-      (tip) => {this.setState((prevState) => ({tip: tip}))},
+      (tipString, isFinal) => {
+        this.setState((prevState) => {
+          
+          let newPriceObj;
+          if (isFinal) {
+            // update the numeric value, and the stringRep to reflect that
+            let number = Number(tipString);
+            newPriceObj = new Price(number, number.toFixed(2));
+          }
+          else {
+            // just update the stringRep
+            newPriceObj = new Price(prevState.tip.num, tipString);
+          }
+
+          return {tip: newPriceObj};
+        });
+      },
       () => (this.state.tip));
   }
 
@@ -312,16 +361,27 @@ class Splitter extends React.Component {
     let that = this;
 
     function getToggleCB(pInd, dInd) {
-      return (setUnset) => {
-        that.indicateOrder(setUnset, pInd, dInd);
-      };
+      return (setUnset) => {that.indicateOrder(setUnset, pInd, dInd);};
     };
 
     function setDishPriceCBGetter(dInd) {
-      return (newPrice) => {
+      return (newPriceString, isFinal) => {
         that.setState((prevState) => {
           let newDishes = prevState.dishes.slice();  // shallow copy
-          newDishes[dInd] = new Dish(newDishes[dInd].name, newPrice);
+          console.log(`setting price: ${newPriceString}`)
+
+          let newPriceObj;
+          if (isFinal) {
+            // update the numeric value, and the stringRep to reflect that
+            let number = Number(newPriceString);
+            newPriceObj = new Price(number, number.toFixed(2));
+          }
+          else {
+            // just update the stringRep
+            newPriceObj = new Price(newDishes[dInd].price.num, newPriceString);
+          }
+
+          newDishes[dInd] = new Dish(newDishes[dInd].name, newPriceObj);
           return {
             dishes: newDishes
           }
@@ -333,7 +393,7 @@ class Splitter extends React.Component {
       return (newDishName) => {
         that.setState((prevState) => {
           let newDishes = prevState.dishes.slice();  // shallow copy
-          newDishes[dInd] = new Dish(newDishName, Number(newDishes[dInd].price));
+          newDishes[dInd] = new Dish(newDishName, newDishes[dInd].price);
           return {
             dishes: newDishes
           }
@@ -351,7 +411,7 @@ class Splitter extends React.Component {
             onChangeCB = {setDishNameCBGetter(dInd)}/>
           <PriceInput 
             style={{float: 'right'}} 
-            value = {dish.price}
+            priceObj = {dish.price}
             onChangeCB = {setDishPriceCBGetter(dInd)} />
         </div>
       ];
@@ -392,11 +452,19 @@ function DivTableElement(classType, props) {
   return <div className={className}>{props.children}</div>;
 }
 
-
 class Dish {
-  constructor() {
-    this.name = '';
-    this.price = '';
+  constructor(name = '', priceObjOrNum = 0) {
+    this.name = name;
+    if (typeof priceObjOrNum === 'object') {
+      this.price = priceObjOrNum;
+    }
+    else if (typeof priceObjOrNum === 'number') {
+      this.price = new Price(priceObjOrNum)
+    }
+    else {
+      console.error(`Dish: was expecting price obj or number, got ${priceObjOrNum}`)
+    }
+    console.log(`New Dish: name: '${name}', price: '${this.price}'`);
   }
 }
 
@@ -407,7 +475,10 @@ function clone2D(a) {
 
 // display num as '$ num.##' (nbsp after $)
 function priceAsString(num) {
-  return '$\u00A0' + Number(num).toFixed(2); 
+  if (typeof num === 'number') {
+    return '$\u00A0' + Number(num).toFixed(2); 
+  }
+  return '$\u00A0' + num.stringRep; 
 }
 
 export default Splitter;
