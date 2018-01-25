@@ -77,8 +77,8 @@ class Splitter extends React.Component {
       // orders[dInd][pInd]
       orders: [ [true, true] ],
 
-      tax: new Price(),
-      tip: new Price()
+      tax: new Price(0),
+      tip: new Price(0)
     };
   }
 
@@ -173,9 +173,18 @@ class Splitter extends React.Component {
   removeLastPerson() {
     // There must always be two or more people
     if (this.state.people.length === 2) { return; }
-    this.setState((prevState) => ({
-      people: prevState.people.slice(0, prevState.people.length - 1)
-    }));
+    this.setState((prevState) => {
+
+      let newOrders = prevState.orders.map(row => {
+        // make a copy except for last el
+        return row.slice(0, row.length - 1);
+      });
+
+      return {
+        people: prevState.people.slice(0, prevState.people.length - 1),
+        orders: newOrders
+      };
+    });
   }
 
   addDish() {
@@ -183,10 +192,13 @@ class Splitter extends React.Component {
       // let newOrders = clone2D(prevState.orders)
       //   .concat(Array(peopleCount).fill(true));
       
-      // add to the end (-1), don't delete any (0)
+      // add to the end (newOrders.length), don't delete any (0)
       // splice isn't chainable. unsure if I can switch to concat (above)
       let newOrders = clone2D(prevState.orders);
-      newOrders.splice(-1, 0, Array(this.state.people.length).fill(true));
+      newOrders.splice(
+        newOrders.length,
+        0,
+        Array(this.state.people.length).fill(true));
 
       return {
         dishes: [...prevState.dishes, new Dish()],
@@ -199,7 +211,8 @@ class Splitter extends React.Component {
     // There must always be at least 1 dish
     if (this.state.dishes.length === 1) { return; }
     this.setState((prevState) => ({
-      dishes: prevState.dishes.slice(0, prevState.dishes.length - 1)
+      dishes: prevState.dishes.slice(0, prevState.dishes.length - 1),
+      orders: prevState.orders.slice(0, prevState.orders.length - 1),
     }));
   }
   
@@ -320,17 +333,11 @@ class Splitter extends React.Component {
       'Tax',
       (taxString, isFinal) => {
         this.setState((prevState) => {
-          
-          let newPriceObj;
-          if (isFinal) {
+          let newPriceObj = isFinal 
             // update the numeric value, and the stringRep to reflect that
-            let number = Number(taxString);
-            newPriceObj = new Price(number, number.toFixed(2));
-          }
-          else {
+            ? new Price(taxString)
             // just update the stringRep
-            newPriceObj = new Price(prevState.tax.num, taxString);
-          }
+            : prevState.tax.withNewStringRep(taxString)
 
           return {tax: newPriceObj};
         });
@@ -343,17 +350,11 @@ class Splitter extends React.Component {
       'Tip',
       (tipString, isFinal) => {
         this.setState((prevState) => {
-          
-          let newPriceObj;
-          if (isFinal) {
+          let newPriceObj = isFinal 
             // update the numeric value, and the stringRep to reflect that
-            let number = Number(tipString);
-            newPriceObj = new Price(number, number.toFixed(2));
-          }
-          else {
+            ? new Price(tipString)
             // just update the stringRep
-            newPriceObj = new Price(prevState.tip.num, tipString);
-          }
+            : prevState.tip.withNewStringRep(tipString)
 
           return {tip: newPriceObj};
         });

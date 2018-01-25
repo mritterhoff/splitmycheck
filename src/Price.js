@@ -1,31 +1,49 @@
 import PropTypes from 'prop-types';
 
+
+/*
+Scenarios:
+1: creating a new Price from a number, like in the inital states:
+  Price(0)  => {0, 0.00}
+
+
+2. 
+
+Immutable (ideally)
+*/
 class Price {
   constructor() {
     if (arguments.length === 2) {
       this.num = arguments[0];
       this.stringRep = arguments[1];
     }
-    else {
+    else if (arguments.length === 1) {
       let arg = arguments[0];
-      if (typeof arg === 'string') {
-        this.stringRep = arg;
-        this.num = Number(arg);
-      }
-      else if (typeof arg === 'number') {
+     if (typeof arg === 'number') {
         this.num = arg;
-        this.stringRep = Number(arg).toFixed(2);
+        this.stringRep = this.num.toFixed(2);
+      }
+      else if (typeof arg === 'string') {
+        this.num = Number(arg);
+        this.stringRep = this.num.toFixed(2);
       }
       else if (typeof arg === 'object') {
         this.num = arg.num;
         this.stringRep = arg.stringRep;
       }
       else {
-        console.error('was expecting string or number, not ' + arg);
+        throw new Error('was expecting string or number, not ' + arg);
       }
+    }
+    else {
+      throw new Error('Need to supply 1 or 2 arguments');
     }
 
     console.log(`New Price: num: '${this.num}', stringRep: '${this.stringRep}'`);
+  }
+
+  withNewStringRep(newStringRep) {
+    return new Price(this.num, newStringRep);
   }
 }
 

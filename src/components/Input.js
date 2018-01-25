@@ -62,6 +62,8 @@ StringInput.propTypes = {
 }
 
 
+let defaultPlaceholder = '0.00';
+
 // https://stackoverflow.com/questions/149055/how-can-i-format-numbers-as-dollars-currency-string-in-javascript
 class PriceInput extends React.Component {
   constructor(props) {
@@ -90,17 +92,15 @@ class PriceInput extends React.Component {
   }
 
   onBlur(event) {
-    let newValue = event.target.value || 0;
-    this.props.onChangeCB(newValue, true);
+    // only ever send back a string, even if it's an empty string
+    this.props.onChangeCB(event.target.value || '', true);
 
     this.setState((prevState) => ({
       focused: false
     }));
 
-    this.inputRef.input.placeholder = '0.00';
-  } 
-
-
+    this.inputRef.input.placeholder = defaultPlaceholder;
+  }
 
   render() {
     let divStyle = Object.assign({}, divContainerStyle, this.props.style);
@@ -111,12 +111,17 @@ class PriceInput extends React.Component {
       inputStyle.backgroundColor = 'pink';
     }
 
+    let valueToShow = this.props.priceObj.stringRep;
+    if (valueToShow === defaultPlaceholder) {
+      valueToShow = '';
+    }
+
     return (
       <AutosizeInput
-        value={this.props.priceObj.stringRep}
+        value={valueToShow}
         type="number"
-        min="0.01" step="0.01"
-        placeholder={'0.00'}
+        min = "0" step="0.01"
+        placeholder={defaultPlaceholder}
         placeholderIsMinWidth
         style={divStyle}
         inputStyle={inputStyle}
@@ -134,6 +139,9 @@ PriceInput.propTypes = {
   onChangeCB:   PropTypes.func.isRequired,
   priceObj:     Price.shape.isRequired
 }
+
+
+
 
 // fix for silly % not handling negative well
 function mod(n, m) {
