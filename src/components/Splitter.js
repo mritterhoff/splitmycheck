@@ -366,7 +366,17 @@ class Splitter extends React.Component {
     let that = this;
 
     function getToggleCB(pInd, dInd) {
-      return (setUnset) => {that.indicateOrder(setUnset, pInd, dInd);};
+      return (setUnset) => {
+        // make sure we aren't unsetting the last enabled cell in an order (someone has to pay!)
+        if (!that.didPersonOrderDish(pInd, dInd) || that.state.orders[dInd].reduce(summer, 0) > 1) {
+          that.indicateOrder(setUnset, pInd, dInd);
+        }
+        else {
+          // let the user make the illegal move, but revert it immediately
+          that.indicateOrder(setUnset, pInd, dInd);
+          setTimeout(() => {that.indicateOrder(true, pInd, dInd);}, 200);
+        }
+      };
     };
 
     function setDishPriceCBGetter(dInd) {
@@ -469,7 +479,6 @@ class Dish {
     else {
       console.error(`Dish: was expecting price obj or number, got ${priceObjOrNum}`)
     }
-    console.log(`New Dish: name: '${name}', price: '${this.price}'`);
   }
 }
 
