@@ -1,9 +1,62 @@
+/* pallet here:
+ http://paletton.com/#uid=52Q0D1kkXlAn2Ccm1rZjYe+iW8ukl0kenh-rm5qMk2dQjc7Bkl0kenh-rm5qMk2dQjc7B
+*/
+
+
+
+
+
+/* Mobile Styles */
+@media only screen and (max-width: 400px) {
+  .App-header {
+    background-color: #111F26; /* darkest blue */
+  }
+
+  p {
+    font-size: small;
+  }
+
+  body {
+    font-size: 11px;
+  }
+}
+
+/* Tablet Styles */
+@media only screen and (min-width: 401px) and (max-width: 960px) {
+  .App-header {
+    background-color: #1C3746; /* dark blue */
+  }
+
+  p {
+    font-size: medium;
+  }
+
+  body {
+    font-size: 14px;
+  }
+}
+
+/* Desktop Styles */
+@media only screen and (min-width: 961px) {
+  .App-header {
+    background-color: #2F6887; /* lighter blue */
+  }
+
+  p {
+    font-size: large;
+  }
+
+  body {
+    font-size: 16px;
+  }
+}
+
+
 .App {
   display: inline-block;
 }
 
 .App-header {
-  background-color: #222;
   padding: 1em;
   color: white;
   text-align: center;
@@ -14,10 +67,6 @@
   margin: 0;
 }
 
-.App-intro {
-  font-size: large;
-}
-
 p.App-intro {
-  margin: .5em;
+  margin: .2em;
 }

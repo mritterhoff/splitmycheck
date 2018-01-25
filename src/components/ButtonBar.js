@@ -1,41 +1,32 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-let divStyle = {
-  backgroundColor: 'lightgray',
-  display: 'inline-block',
-  padding: '.1em'
-};
-
-let spanStyle = {
-  padding: '.5em'
-};
-
-let barStyle = {
-  margin: 'auto',
-  width: 'auto',
-  padding: '.5em'
-};
+import '../css/ButtonBar.css'
 
 class ButtonBar extends React.Component { 
   render() {
     return (
-      <div style = {barStyle}>
-        <div style = {divStyle}>
+      <div className='buttonBar'>
+        <div className='buttonGroup multi'>
           <button onClick={() => this.props.removeDishFunc()}>-</button>
-          <span style = {spanStyle}>Dish</span>
+          <span>Dish</span>
           <button onClick={() => this.props.addDishFunc()}>+</button>
         </div>       
-        <div style={{width: '1em', display: 'inline-block'}}></div>
-        <div style = {divStyle}>
+        <div className='buttonGroup multi'>
           <button onClick={() => this.props.removePersonFunc()}>-</button>
-          <span style = {spanStyle}>Person</span>
+            <span>Person</span>
           <button onClick={() => this.props.addPersonFunc()}>+</button>
         </div>
-        <div style={{width: '1em', display: 'inline-block'}}></div>
-        <button onClick={() => this.props.showExampleFunc()}>Show Example</button>
-        <div style={{width: '1em', display: 'inline-block'}}></div>
-        <button onClick={() => this.props.resetFunc()}>Reset</button>
+        <div className='buttonGroup single'>
+          <button onClick={() => this.props.resetFunc()}>
+            <span>Reset</span>
+          </button>
+        </div>
+        <div className='buttonGroup single'>
+          <button onClick={() => this.props.showExampleFunc()}>
+            <span>Example</span>
+          </button>
+        </div>
       </div>  
     );
   }
@@ -44,8 +35,10 @@ class ButtonBar extends React.Component {
 ButtonBar.propTypes = {
   addPersonFunc: PropTypes.func.isRequired,
   removePersonFunc: PropTypes.func.isRequired,
+
   addDishFunc: PropTypes.func.isRequired,
   removeDishFunc: PropTypes.func.isRequired,
+
   resetFunc: PropTypes.func.isRequired,
   showExampleFunc: PropTypes.func.isRequired
 }

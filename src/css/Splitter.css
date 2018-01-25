@@ -1,3 +1,8 @@
+
+.tr .td:not(:first-child) {
+  text-align: center;
+}
+
 /* Needed for red/green box sizing, */
 span {
   -webkit-box-sizing: border-box; /*Safari/Chrome, other WebKit*/
@@ -37,7 +42,6 @@ span {
 .td,
 .th {
   display: table-cell;
-  /*width: 50%;*/
 }
 
 .caption {
@@ -51,7 +55,6 @@ span {
 .tr,
 .td,
 .th {
-  text-align: center;
   margin: auto;
   padding: .3em;
 }
@@ -65,6 +68,7 @@ span {
 
 .th {
   font-weight: 700;
+  text-align: center;
 }
 
 .td {
@@ -78,9 +82,29 @@ div.td:first-child {
 }
 
 .splitterContainer {
-  background: skyblue;
-  padding: .5em;
   height: 100vh;
   display: inline-block;
   min-width: 100%;
+  background-color: #2F8735;
+}
+
+/* Mobile Styles */
+@media only screen and (max-width: 400px) {
+  .splitterContainer {
+    padding: 0;
+  }
+
+  .th {
+    padding: .1em;
+  }
+}
+
+/* Tablet Styles */
+@media only screen and (min-width: 401px) and (max-width: 960px) {
+
+}
+
+/* Desktop Styles */
+@media only screen and (min-width: 961px) {
+
 }

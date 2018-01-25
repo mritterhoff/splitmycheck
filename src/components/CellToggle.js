@@ -7,7 +7,6 @@ class CellToggle extends React.Component {
     this.props.callback(!this.props.enabled);
   }
 
- 
   render() {
     let newColor = this.props.enabled 
       ? 'lightgreen' 

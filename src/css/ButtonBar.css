@@ -1,0 +1,44 @@
+
+/* Mobile Styles */
+@media only screen and (max-width: 400px) {
+  div.buttonBar {
+    padding: .1em;
+  }
+}
+
+/* Tablet Styles */
+@media only screen and (min-width: 401px) and (max-width: 960px) {
+  div.buttonBar {
+    padding: .5em;
+  }
+}
+
+/* Desktop Styles */
+@media only screen and (min-width: 961px) {
+  div.buttonBar {
+    padding: .5em;
+  }
+}
+
+div.buttonBar {
+  margin: auto;
+  width: auto;
+}
+
+div.buttonGroup {
+  display: inline-block;
+  padding: .1em;
+  margin: .2em;
+}
+
+div.buttonGroup.multi {
+  background-color: lightgray;
+}
+
+.buttonGroup.single {
+  float: right;
+}
+
+.buttonGroup.multi span {
+  padding: .5em;
+}

@@ -20,6 +20,7 @@ class Splitter extends React.Component {
       try {
         var obj = JSON.parse(localStorage.getItem(lsSplitterKey));
         this.state = obj;
+        console.log(obj);
       } 
       catch (ex) {
         console.error(ex);
@@ -53,14 +54,14 @@ class Splitter extends React.Component {
       people: ['', ''],
 
       // list of {name, price} dish objects
-      dishes: [new Dish('', 0)],
+      dishes: [new Dish()],
 
       // 2d array of booleans
       // orders[dInd][pInd]
       orders: [ [true, true] ],
 
-      tip: 0,
-      tax: 0
+      tip: '0',
+      tax: '0'
     };
   }
 
@@ -156,8 +157,7 @@ class Splitter extends React.Component {
     }));
   }
 
-  addDish(dish) {
-    dish = dish || new Dish('', 0);
+  addDish() {
     this.setState((prevState) => {
       // let newOrders = clone2D(prevState.orders)
       //   .concat(Array(peopleCount).fill(true));
@@ -168,7 +168,7 @@ class Splitter extends React.Component {
       newOrders.splice(-1, 0, Array(this.state.people.length).fill(true));
 
       return {
-        dishes: [...prevState.dishes, dish],
+        dishes: [...prevState.dishes, new Dish()],
         orders: newOrders
       };
     });
@@ -366,7 +366,8 @@ class Splitter extends React.Component {
 
       return (
         <TR key={dInd}>
-          {rowEls.map((el, el_i) => <TD key={el_i}>{el}</TD>)}
+          {rowEls.map((el, i) => 
+            <TD key={i}>{el}</TD>)}
         </TR>
       );
     });
@@ -375,21 +376,27 @@ class Splitter extends React.Component {
 
 
 function TH(props) {
-  return <div className="th">{props.children}</div>;
+  return DivTableElement('th', props);
 }
 
 function TD(props) {
-  return <div className="td">{props.children}</div>;
+  return DivTableElement('td', props);
 }
 
 function TR(props) {
-  return <div className="tr">{props.children}</div>;
+  return DivTableElement('tr', props);
 }
 
+function DivTableElement(classType, props) {
+  let className = classType + (props.className ? props.className : '');
+  return <div className={className}>{props.children}</div>;
+}
+
+
 class Dish {
-  constructor(name, price) {
-    this.name = name;
-    this.price = price;
+  constructor() {
+    this.name = '';
+    this.price = '';
   }
 }
 

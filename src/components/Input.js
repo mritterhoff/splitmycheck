@@ -93,12 +93,16 @@ class PriceInput extends React.Component {
   } 
 
   render() {
-    let divStyle = Object.assign({ marginLeft: '.4em' }, divContainerStyle, this.props.style);
+    let divStyle = Object.assign({}, divContainerStyle, this.props.style);
     
     // if the price input is empty and the input isn't focused, show a pink background
     let inputStyle = Object.assign({}, inputStyleDefault)
     if (Number(this.props.value) === 0 && !this.state.focused) {
       inputStyle.backgroundColor = 'pink';
+    }
+
+    if (typeof this.props.value === 'number') {
+      console.log(this.props.value)
     }
 
     return (
