@@ -77,26 +77,30 @@ class Splitter extends React.Component {
       // orders[dInd][pInd]
       orders: [ [true, true] ],
 
-      tip: new Price(),
-      tax: new Price()
+      tax: new Price(),
+      tip: new Price()
     };
   }
 
   getExampleState() {
     return {
-      people: ['Mark', 'Sarah'],
+      people: ['Mark', 'Damian', 'Kai', 'Kapil'],
       dishes: [
-        new Dish('Mocktails', 9.40),
-        new Dish('Steak', 29.50),
-        new Dish('Sandwich', 12.40)
+        new Dish('Pitcher', 19.40),
+        new Dish('Wings', 15.75),
+        new Dish('Scotch Egg', 14.60),
+        new Dish('Pizza', 22.10),
+        new Dish('Shrimp', 12.98)
       ],
       orders: [
-        [true, true],
-        [true, true],
-        [true, true]
+        [true,true,true,true],
+        [false,false,true,true],
+        [true,true,false,false],
+        [true,true,true,true],
+        [false,false,true,false]
       ],
-      tip: new Price(10),
-      tax: new Price(5)
+      tax: new Price(7.65),
+      tip: new Price(15)
     };
   }
 
