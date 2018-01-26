@@ -82,10 +82,8 @@ div.td:first-child {
 }
 
 .splitterContainer {
-  height: 100vh;
   display: inline-block;
   min-width: 100%;
-  background-color: #2F8735;
 }
 
 /* Mobile Styles */
@@ -97,14 +95,22 @@ div.td:first-child {
   .th {
     padding: .1em;
   }
+
+  .table {
+    width: 100%;
+  }
 }
 
 /* Tablet Styles */
 @media only screen and (min-width: 401px) and (max-width: 960px) {
-
+  .table {
+    width: 100%;
+  }
 }
 
 /* Desktop Styles */
 @media only screen and (min-width: 961px) {
-
+  .table {
+    min-width: 960px;
+  }
 }
