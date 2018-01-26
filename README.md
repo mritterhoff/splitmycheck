@@ -4,6 +4,7 @@
 - [Purpose](#purpose)
 - [How It Works](#how-it-works)
 - [Sending Feedback](#sending-feedback)
+- [Thanks To](#thanks-to)
 
 ## Purpose
 Make splitting checks simple and easy, and learn something along the way.
@@ -18,4 +19,4 @@ I use...
 ## Sending Feedback
 Open an issue or send me a PR.
 
-
+## Thanks To

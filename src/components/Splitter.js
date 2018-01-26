@@ -343,8 +343,9 @@ function clone2D(a) {
 }
 
 // display num as '$ num.##' (nbsp after $)
+// add commas using regex, via https://stackoverflow.com/a/14428340/1188090
 function priceAsString(num) {
-  return '$\u00A0' + num.toFixed(2); 
+  return '$\u00A0' + num.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'); 
 }
 
 export default Splitter;

@@ -64,7 +64,6 @@ StringInput.propTypes = {
 
 let defaultPlaceholder = '0.00';
 
-// https://stackoverflow.com/questions/149055/how-can-i-format-numbers-as-dollars-currency-string-in-javascript
 class PriceInput extends React.Component {
   constructor(props) {
     super(props);

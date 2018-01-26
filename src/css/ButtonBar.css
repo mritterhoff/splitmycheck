@@ -11,8 +11,8 @@
   margin: .2em;
 }
 
-.buttonGroup.multi {
-  background-color: lightgray;
+.buttonGroup.multi button {
+  width: 2em;
 }
 
 .buttonGroup.single {
