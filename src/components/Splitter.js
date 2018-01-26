@@ -4,104 +4,17 @@ import {CellToggle} from './CellToggle.js'
 import {StringInput, PriceInput} from './Input.js'
 import {ButtonBar} from './ButtonBar.js'
 
-import {Price} from '../Price.js'
+import { Dish } from '../Dish.js'
+import { StateLoader } from '../StateLoader.js'
 
 import '../css/Splitter.css'
 
 let summer = (p, c) => p + c
 
-let lsSplitterKey = 'SplitterState';
-
 class Splitter extends React.Component {
   constructor(props) {
     super(props);
-
-    // check if we have state stored in localStorage, and use it if we do
-    if (localStorage && localStorage.getItem(lsSplitterKey)) {
-      console.log('loading past state from localStorage');
-      try {
-        var obj = JSON.parse(localStorage.getItem(lsSplitterKey), 
-          (key, val) => {
-            //if this is an object, and is CardboardBox
-            if(typeof(val) === 'object' && val.__type === 'Price') {
-              return new Price(val);
-            }
-
-            return val;
-
-            //or if your object is in a context (like window), and there are many of
-            //them that could be in there, you can do:
-            //
-            //if(typeof(val) === 'object' && context[val.__type])
-            //    return new context[val.__type](val);
-          });
-
-        this.state = obj;
-        console.log(obj);
-      } 
-      catch (ex) {
-        console.error(ex);
-      }
-    }
-    else {
-      this.state = this.getDefaultState();
-    }
-
-    // TODO this may be unsafe and terrible
-    this.oldSetState = this.setState;   
-    
-    this.setState = function (partialState, callback) {
-      function cb() { 
-        if (localStorage) {
-          localStorage.setItem(lsSplitterKey, JSON.stringify(this.state));
-        }
-
-        // should call original callback here with parameters
-        if (typeof callback === 'function') {
-          callback(arguments);
-        }
-      }
-      this.oldSetState(partialState, cb);
-    } 
-  }
-
-  getDefaultState() {
-    return {
-      // list of people
-      people: ['', ''],
-
-      // list of {name, price} dish objects
-      dishes: [new Dish()],
-
-      // 2d array of booleans
-      // orders[dInd][pInd]
-      orders: [ [true, true] ],
-
-      tax: new Price(0),
-      tip: new Price(0)
-    };
-  }
-
-  getExampleState() {
-    return {
-      people: ['Mark', 'Damian', 'Kai', 'Kapil'],
-      dishes: [
-        new Dish('Pitcher', 19.40),
-        new Dish('Wings', 15.75),
-        new Dish('Scotch Egg', 14.60),
-        new Dish('Pizza', 22.10),
-        new Dish('Shrimp', 12.98)
-      ],
-      orders: [
-        [true,true,true,true],
-        [false,false,true,true],
-        [true,true,false,false],
-        [true,true,true,true],
-        [false,false,true,false]
-      ],
-      tax: new Price(7.65),
-      tip: new Price(15)
-    };
+    this.state = StateLoader.loadInitial();
   }
 
   indicateOrder(setUnset, pInd, dInd) {
@@ -184,31 +97,26 @@ class Splitter extends React.Component {
 
   addDish() {
     this.setState((prevState) => {
-      // let newOrders = clone2D(prevState.orders)
-      //   .concat(Array(peopleCount).fill(true));
-      
-      // add to the end (newOrders.length), don't delete any (0)
-      // splice isn't chainable. unsure if I can switch to concat (above)
-      let newOrders = clone2D(prevState.orders);
-      newOrders.splice(
-        newOrders.length,
-        0,
-        Array(this.state.people.length).fill(true));
-
       return {
         dishes: [...prevState.dishes, new Dish()],
-        orders: newOrders
+        orders: clone2D(prevState.orders).concat([Array(this.state.people.length).fill(true)])
       };
     });
   }
 
   removeLastDish() {
     // There must always be at least 1 dish
-    if (this.state.dishes.length === 1) { return; }
-    this.setState((prevState) => ({
-      dishes: prevState.dishes.slice(0, prevState.dishes.length - 1),
-      orders: prevState.orders.slice(0, prevState.orders.length - 1),
-    }));
+    if (this.state.dishes.length > 1) {
+      this.setState((prevState) => ({
+        dishes: prevState.dishes.slice(0, prevState.dishes.length - 1),
+        orders: prevState.orders.slice(0, prevState.orders.length - 1)
+      }));
+    }
+  }
+
+  // this is called everytime the state is updated
+  componentDidUpdate(prevProps, prevState) {
+    StateLoader.updateLocalStorage(this.state);
   }
   
   render() {
@@ -219,12 +127,11 @@ class Splitter extends React.Component {
           removePersonFunc={this.removeLastPerson.bind(this)}
           addDishFunc={this.addDish.bind(this)}
           removeDishFunc={this.removeLastDish.bind(this)}
-          showExampleFunc={() => {this.setState((prevState) => this.getExampleState())}}
-          resetFunc={() => {this.setState((prevState) => this.getDefaultState())}}
+          showExampleFunc={() => {this.setState((prevState) => StateLoader.getExample())}}
+          resetFunc={() => {this.setState((prevState) => StateLoader.getDefault())}}
         />
         <div className="table">
           {this.getNamesHeader()}
-
           <div className="tbody">
             {this.getOrderRows()}
             {this.getTaxRow()}
@@ -298,7 +205,15 @@ class Splitter extends React.Component {
     );
   }
 
-  getSpecialRow(displayName, updaterFunc, getterFunc) {
+  getSpecialRow(displayName, stateKey) {
+    let updaterFunc = (stringRep, isFinal) => {
+        this.setState((prevState) => {
+          return {[stateKey]: prevState[stateKey].as(stringRep, isFinal)};
+        });
+      };
+
+    let getterFunc = () => (this.state[stateKey]);
+
     // this style makes it align with the input box (which has a 1px border)
     let style = {display: 'inline-block', padding: '.3em 0em', margin: '1px 0'};
     let rowEls = [
@@ -324,37 +239,11 @@ class Splitter extends React.Component {
   }
 
   getTaxRow() {
-    return this.getSpecialRow(
-      'Tax',
-      (taxString, isFinal) => {
-        this.setState((prevState) => {
-          let newPriceObj = isFinal 
-            // update the numeric value, and the stringRep to reflect that
-            ? new Price(taxString)
-            // just update the stringRep
-            : prevState.tax.withNewStringRep(taxString)
-
-          return {tax: newPriceObj};
-        });
-      },
-      () => (this.state.tax));
+    return this.getSpecialRow('Tax', 'tax');
   }
 
   getTipRow() {
-    return this.getSpecialRow(
-      'Tip',
-      (tipString, isFinal) => {
-        this.setState((prevState) => {
-          let newPriceObj = isFinal 
-            // update the numeric value, and the stringRep to reflect that
-            ? new Price(tipString)
-            // just update the stringRep
-            : prevState.tip.withNewStringRep(tipString)
-
-          return {tip: newPriceObj};
-        });
-      },
-      () => (this.state.tip));
+    return this.getSpecialRow('Tip', 'tip');
   }
 
   getOrderRows() {
@@ -372,22 +261,14 @@ class Splitter extends React.Component {
     };
 
     function setDishPriceCBGetter(dInd) {
-      return (newPriceString, isFinal) => {
+      return (stringRep, isFinal) => {
         that.setState((prevState) => {
           let newDishes = prevState.dishes.slice();  // shallow copy
 
-          let newPriceObj;
-          if (isFinal) {
-            // update the numeric value, and the stringRep to reflect that
-            let number = Number(newPriceString);
-            newPriceObj = new Price(number, number.toFixed(2));
-          }
-          else {
-            // just update the stringRep
-            newPriceObj = new Price(newDishes[dInd].price.num, newPriceString);
-          }
+          newDishes[dInd] = new Dish(
+            newDishes[dInd].name, 
+            prevState.dishes[dInd].price.as(stringRep, isFinal));
 
-          newDishes[dInd] = new Dish(newDishes[dInd].name, newPriceObj);
           return {
             dishes: newDishes
           }
@@ -424,8 +305,8 @@ class Splitter extends React.Component {
 
       rowEls = rowEls.concat(this.state.people.map((el, pInd) => (
         <CellToggle 
-          enabled={that.didPersonOrderDish(pInd, dInd)}
-          callback={getToggleCB(pInd, dInd)}
+          on={that.didPersonOrderDish(pInd, dInd)}
+          onClickCB={getToggleCB(pInd, dInd)}
           price={priceAsString(this.personCostForDish(pInd, dInd))}
         />
       )));
@@ -453,23 +334,7 @@ function TR(props) {
 }
 
 function DivTableElement(classType, props) {
-  let className = classType + (props.className ? props.className : '');
-  return <div className={className}>{props.children}</div>;
-}
-
-class Dish {
-  constructor(name = '', priceObjOrNum = 0) {
-    this.name = name;
-    if (typeof priceObjOrNum === 'object') {
-      this.price = priceObjOrNum;
-    }
-    else if (typeof priceObjOrNum === 'number') {
-      this.price = new Price(priceObjOrNum)
-    }
-    else {
-      console.error(`Dish: was expecting price obj or number, got ${priceObjOrNum}`)
-    }
-  }
+  return <div className={classType}>{props.children}</div>;
 }
 
 // Return a shallow clone of the given 2d array
@@ -479,10 +344,7 @@ function clone2D(a) {
 
 // display num as '$ num.##' (nbsp after $)
 function priceAsString(num) {
-  if (typeof num === 'number') {
-    return '$\u00A0' + Number(num).toFixed(2); 
-  }
-  return '$\u00A0' + num.stringRep; 
+  return '$\u00A0' + num.toFixed(2); 
 }
 
 export default Splitter;

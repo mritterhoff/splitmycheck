@@ -1,23 +1,24 @@
 import React from 'react'
+import PropTypes from 'prop-types';
 
 import '../css/CellToggle.css'
 
 class CellToggle extends React.Component {
-  clicked() {
-    this.props.callback(!this.props.enabled);
-  }
-
   render() {
-    let style = {
-      background: this.props.enabled ? 'lightgreen' : 'lightgrey'
-    };
-
     return (
-      <span className='CellToggle' style={style} onClick={this.clicked.bind(this)}>
-        {this.props.price}
+      <span 
+        className={'CellToggle ' + (this.props.on ? 'on' : 'off')} 
+        onClick={() => {this.props.onClickCB(!this.props.on)}}>
+          {this.props.price}
       </span>
     );
   }
+}
+
+CellToggle.propTypes = {
+  on:         PropTypes.bool.isRequired,
+  onClickCB:  PropTypes.func.isRequired,
+  price:      PropTypes.string.isRequired
 }
 
 export {CellToggle};

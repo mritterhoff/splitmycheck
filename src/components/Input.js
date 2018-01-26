@@ -74,14 +74,7 @@ class PriceInput extends React.Component {
   }
 
   onChange(event) {
-    let value = event.target.value;
-    console.log('new value from priceInput: ' + value);
-
-    if (typeof value !== 'string') {
-      console.log(`was expecting a string, got '${value}'`);
-    }
-
-    this.props.onChangeCB(value, false);
+    this.props.onChangeCB(event.target.value, false);
   }
 
   onFocus(event) {
@@ -108,7 +101,7 @@ class PriceInput extends React.Component {
     // if the price input is empty and the input isn't focused, show a pink background
     let inputStyle = Object.assign({}, inputStyleDefault)
     if (Number(this.props.priceObj.num) === 0 && !this.state.focused) {
-      inputStyle.backgroundColor = 'pink';
+      inputStyle.backgroundColor = 'lightgrey';
     }
 
     let valueToShow = this.props.priceObj.stringRep;
@@ -149,13 +142,14 @@ function mod(n, m) {
 }
 
 // Makes the enter key act like a tab (but strictly for inputs)!!
-// proud of this worrk around generally, and the RefGetter that allows
+// proud of this workaround generally, and the RefGetter that allows
 // easy sharing between components (no 'this' referencing)
 function getKeydownCB(inputRefGetter) {
   return (ev) => {
     if (ev.keyCode === 13) {  // Enter key (works on mobile too!)
       const inputRef = inputRefGetter();  
       if (inputRef) {
+
         inputRef.blur();
         // get as array rather than NodeList
         let inputs = [...document.querySelectorAll('input')];
@@ -165,10 +159,8 @@ function getKeydownCB(inputRefGetter) {
           return;
         }
 
-        // shift enter will move backwards in the input list!!!
-        let offSet = ev.shiftKey ? -1 : 1;
-        // wrap around to the beginning
-        let newIndex = mod(curIndex + offSet, inputs.length);
+        // shift/enter moves backwards in the input list. wrap to the beginning
+        let newIndex = mod(curIndex + (ev.shiftKey ? -1 : 1), inputs.length);
         inputs[newIndex].select();
       }
     }
