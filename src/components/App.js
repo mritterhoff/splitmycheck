@@ -21,6 +21,7 @@ class App extends Component {
           <br/><b>Coming soon</b>: Tip calculator. Link saving/sharing. History/Undo. Better rounding.<br/>
         </p>
         <Splitter/>
+        <div className='footer'> | <a href="https://github.com/mritterhoff/splitmycheck#table-of-contents">source</a> | </div>
       </div>
     );
   }
