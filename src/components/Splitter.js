@@ -172,19 +172,14 @@ class Splitter extends React.Component {
 
   removeLastPerson() {
     // There must always be two or more people
-    if (this.state.people.length === 2) { return; }
-    this.setState((prevState) => {
-
-      let newOrders = prevState.orders.map(row => {
-        // make a copy except for last el
-        return row.slice(0, row.length - 1);
+    if (this.state.people.length > 2) {
+      this.setState((prevState) => {
+        return {
+          people: prevState.people.slice(0, prevState.people.length - 1),
+          orders: prevState.orders.map(row => (row.slice(0, row.length - 1)))
+        };
       });
-
-      return {
-        people: prevState.people.slice(0, prevState.people.length - 1),
-        orders: newOrders
-      };
-    });
+    }
   }
 
   addDish() {
@@ -368,14 +363,11 @@ class Splitter extends React.Component {
     function getToggleCB(pInd, dInd) {
       return (setUnset) => {
         // make sure we aren't unsetting the last enabled cell in an order (someone has to pay!)
-        if (!that.didPersonOrderDish(pInd, dInd) || that.state.orders[dInd].reduce(summer, 0) > 1) {
-          that.indicateOrder(setUnset, pInd, dInd);
+        // let the user make the illegal move, but revert it immediately
+        if (!setUnset && that.state.orders[dInd].reduce(summer, 0) === 1) {
+          setTimeout(() => {that.indicateOrder(true, pInd, dInd)}, 200);
         }
-        else {
-          // let the user make the illegal move, but revert it immediately
-          that.indicateOrder(setUnset, pInd, dInd);
-          setTimeout(() => {that.indicateOrder(true, pInd, dInd);}, 200);
-        }
+        that.indicateOrder(setUnset, pInd, dInd);   
       };
     };
 
@@ -383,7 +375,6 @@ class Splitter extends React.Component {
       return (newPriceString, isFinal) => {
         that.setState((prevState) => {
           let newDishes = prevState.dishes.slice();  // shallow copy
-          console.log(`setting price: ${newPriceString}`)
 
           let newPriceObj;
           if (isFinal) {
@@ -448,7 +439,6 @@ class Splitter extends React.Component {
     });
   }
 }  // end of Splitter class
-
 
 function TH(props) {
   return DivTableElement('th', props);

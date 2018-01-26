@@ -8,11 +8,8 @@ class CellToggle extends React.Component {
   }
 
   render() {
-    let newColor = this.props.enabled 
-      ? 'lightgreen' 
-      : this.props.enabled === undefined ? 'grey' : 'lightpink';
     let style = {
-      background: newColor
+      background: this.props.enabled ? 'lightgreen' : 'lightgrey'
     };
 
     return (
