@@ -1,37 +1,17 @@
 
-/* Mobile Styles */
-@media only screen and (max-width: 400px) {
-  div.buttonBar {
-    padding: .1em;
-  }
-}
 
-/* Tablet Styles */
-@media only screen and (min-width: 401px) and (max-width: 960px) {
-  div.buttonBar {
-    padding: .5em;
-  }
-}
-
-/* Desktop Styles */
-@media only screen and (min-width: 961px) {
-  div.buttonBar {
-    padding: .5em;
-  }
-}
-
-div.buttonBar {
+.buttonBar {
   margin: auto;
   width: auto;
 }
 
-div.buttonGroup {
+.buttonGroup {
   display: inline-block;
   padding: .1em;
   margin: .2em;
 }
 
-div.buttonGroup.multi {
+.buttonGroup.multi {
   background-color: lightgray;
 }
 
@@ -41,4 +21,25 @@ div.buttonGroup.multi {
 
 .buttonGroup.multi span {
   padding: .5em;
+}
+
+/* Mobile Styles */
+@media only screen and (max-width: 400px) {
+  .buttonBar {
+    padding: .1em;
+  }
+}
+
+/* Tablet Styles */
+@media only screen and (min-width: 401px) and (max-width: 960px) {
+  .buttonBar {
+    padding: .5em;
+  }
+}
+
+/* Desktop Styles */
+@media only screen and (min-width: 961px) {
+  .buttonBar {
+    padding: .5em;
+  }
 }

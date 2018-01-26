@@ -3,13 +3,6 @@
   text-align: center;
 }
 
-/* Needed for red/green box sizing, */
-span {
-  -webkit-box-sizing: border-box; /*Safari/Chrome, other WebKit*/
-  -moz-box-sizing: border-box;    /*Firefox, other Gecko*/
-  box-sizing: border-box;         /*Opera/IE 8+ */
-}
-
 .table {
   display: table;
   width: auto;
@@ -77,7 +70,7 @@ span {
   border-top: 1px solid #dedede;
 }
 
-div.td:first-child {
+.td:first-child {
   border-right: 1px solid #dedede;
 }
 

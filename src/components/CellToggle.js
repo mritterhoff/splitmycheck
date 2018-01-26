@@ -6,11 +6,13 @@ import '../css/CellToggle.css'
 class CellToggle extends React.Component {
   render() {
     return (
-      <span 
+      <div 
         className={'CellToggle ' + (this.props.on ? 'on' : 'off')} 
         onClick={() => {this.props.onClickCB(!this.props.on)}}>
-          {this.props.price}
-      </span>
+        <span>
+            {this.props.price}
+        </span>
+      </div>
     );
   }
 }

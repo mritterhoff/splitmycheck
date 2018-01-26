@@ -2,9 +2,24 @@
  http://paletton.com/#uid=52Q0D1kkXlAn2Ccm1rZjYe+iW8ukl0kenh-rm5qMk2dQjc7Bkl0kenh-rm5qMk2dQjc7B
 */
 
+.App {
+  display: inline-block;
+}
 
+.App-header {
+  padding: 1em;
+  color: white;
+  text-align: center;
+}
 
+.App-title {
+  font-size: 1.5em;
+  margin: 0;
+}
 
+.App-intro {
+  margin: .2em;
+}
 
 /* Mobile Styles */
 @media only screen and (max-width: 400px) {
@@ -49,24 +64,4 @@
   body {
     font-size: 16px;
   }
-}
-
-
-.App {
-  display: inline-block;
-}
-
-.App-header {
-  padding: 1em;
-  color: white;
-  text-align: center;
-}
-
-.App-title {
-  font-size: 1.5em;
-  margin: 0;
-}
-
-p.App-intro {
-  margin: .2em;
 }
