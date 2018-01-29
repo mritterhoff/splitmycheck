@@ -1,20 +1,33 @@
 {
-  "name": "splitmycheck_v2",
-  "version": "0.1.0",
+  "name": "lookup-server",
+  "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "bootstrap": "3",
+    "babel-core": "6.14.0",
+    "body-parser": "^1.18.2",
+    "cheerio": "^1.0.0-rc.2",
     "dotenv": "^4.0.0",
-    "react": "^16.2.0",
-    "react-bootstrap": "^0.32.0",
-    "react-dom": "^16.2.0",
-    "react-input-autosize": "2.2.1",
-    "react-scripts": "1.1.0"
+    "express": "4.13.3",
+    "fs": "0.0.2",
+    "morgan": "^1.9.0",
+    "sqlite3": "^3.1.13"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "startDebug": "echo \"go to chrome://inspect/#devices\" && concurrently \"npm run serverDebug\" \"npm run client\"",
+    "prodStart": "npm run --prefix ./client build && NODE_ENV=production npm run server",
+    "server": "node server.js",
+    "serverDebug": "node --inspect-brk server.js ",
+    "client": "node start-client.js",
+    "lint": "eslint .",
+    "build": "echo 'we should be calling the one in ./client'"
+  },
+  "devDependencies": {
+    "concurrently": "3.1.0",
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb": "14.1.0",
+    "eslint-plugin-import": "2.2.0",
+    "eslint-plugin-jsx-a11y": "4.0.0",
+    "eslint-plugin-react": "6.9.0"
   }
 }

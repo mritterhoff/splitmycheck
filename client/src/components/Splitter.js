@@ -1,8 +1,9 @@
 import React from 'react'
 
-import {CellToggle} from './CellToggle.js'
-import {StringInput, PriceInput} from './Input.js'
-import {ButtonBar} from './ButtonBar.js'
+import { CellToggle } from './CellToggle.js'
+import { StringInput, PriceInput } from './Input.js'
+import { ButtonBar } from './ButtonBar.js'
+import { Linker } from './Linker.js'
 
 import { Dish } from '../Dish.js'
 import { StateLoader } from '../StateLoader.js'
@@ -122,6 +123,7 @@ class Splitter extends React.Component {
   render() {
     return (
       <div className="splitterContainer">
+        <Linker getJSON={() => ({'state': StateLoader.getStateFromLS()})}/>
         <ButtonBar 
           addPersonFunc={this.addPerson.bind(this)}
           removePersonFunc={this.removeLastPerson.bind(this)}
