@@ -10,6 +10,9 @@
 # production
 /client/build
 
+# don't expose database
+splitmycheck.db
+
 # misc
 .DS_Store
 .env

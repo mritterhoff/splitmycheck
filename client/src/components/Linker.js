@@ -16,7 +16,6 @@ class Linker extends React.Component {
   onClick() {
     // update the ui to show a request is in progress
     this.setState((prevState) => ({
-      result: 'requesting...',
       requesting: true
     }));
 
@@ -25,11 +24,30 @@ class Linker extends React.Component {
 
     Client.save(dataString, (response, error) => {
       this.setState({
-        result: response || error,
+        link: response || error,
         lastSentDataString: dataString,
         requesting: false
       });
     });
+  }
+
+  getLinkOrStatus() {
+    if (this.state.requesting) {
+      return <span> ... requesting </span>;
+    }
+    if (!this.state.link) {
+      return <span></span>
+    }
+
+    // keep us on https if we're not running locally
+    let hrefPrefix = this.state.link.match(/localhost/) ? 'http://' : 'https://';
+    return (
+      <a target='_blank' 
+        style={{'marginLeft': '.5em'}} 
+        href={hrefPrefix + this.state.link}>
+          {this.state.link}
+      </a>
+      );
   }
 
   render() {
@@ -42,11 +60,7 @@ class Linker extends React.Component {
         <button onClick={this.onClick.bind(this)} disabled={disableButton}>
           Get split link
         </button>
-        <a target='_blank' 
-          style={{'marginLeft': '.5em'}} 
-          href={'http://' + this.state.result}>
-            {this.state.result}
-          </a>
+        {this.getLinkOrStatus()}
       </div>
     );
   }
