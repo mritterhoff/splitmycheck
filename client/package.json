@@ -1,6 +1,6 @@
 {
-  "name": "splitmycheck_v2",
-  "version": "0.1.0",
+  "name": "SplitMyCheck_Client",
+  "version": "0.2.0",
   "private": true,
   "proxy": "http://localhost:3001/",
   "dependencies": {

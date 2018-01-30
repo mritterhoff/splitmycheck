@@ -53,6 +53,10 @@ app.post("/save", (req, res) => {
   // captures 'localhost:port' for testing ease
   const host = req.headers.host;
 
+  // 6 alphanumeric chars = (10+26+26)^6 = 62^6 = 56.8 billion combinations
+  // at 280,610 entries, there'll be a 50% of a collision
+  // https://www.wolframalpha.com/input/?i=solve+1-e%5E(-n%5E2%2F(2d))%3D.5,++d+%3D+(10%2B26%2B26)%5E6+over+the+reals
+  // "solve 1-e^(-n^2/(2d))=.5, d = (10+26+26)^6 over the reals"
   db.addRow(
     {link_id: randomstring.generate(6), state: stateString},
     (obj) => {
@@ -93,12 +97,8 @@ app.get("/saved/*", (req, res) => {
 // });
 
 
-// 6 alphanumeric chars = (10+26+26)^6 = 62^6 = 56.8 billion combinations
-
-
-
 app.use((req, res, next) => {
-  res.status(404).send("Sorry can't find that!")
+  res.status(404).send("Sorry, can't find what you're looking for! (404 error)");
 })
 
 app.listen(app.get("port"), () => {

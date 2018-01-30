@@ -9,17 +9,19 @@ class Database {
       console.log('Connected to the local database.');
     });
 
+    // TODO might want to wrap this with this.db.serialize()
     this.db.run(`
       CREATE TABLE IF NOT EXISTS Links (
         link_id text PRIMARY KEY,
-        state text NOT NULL
+        state text NOT NULL,
+        created DATETIME DEFAULT CURRENT_TIMESTAMP
       );`);
   }
 
   addRow(obj, cb) {
     this.db.serialize(() => {
       // insert one row into the langs table
-      this.db.run(`INSERT INTO Links VALUES (?, ?)`, [ obj.link_id, obj.state ], (err) => {
+      this.db.run(`INSERT INTO Links(link_id, state) VALUES (?, ?)`, [ obj.link_id, obj.state ], (err) => {
         if (err) {
           return console.log(err.message);
         }
@@ -33,7 +35,6 @@ class Database {
   }
 
   query(link_id, cb) {
-
     this.db.serialize(() => {
       const sql = `SELECT * FROM Links
                    WHERE link_id = '${link_id}'`;
