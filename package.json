@@ -17,7 +17,7 @@
   "scripts": {
     "start": "concurrently \"npm run server\" \"npm run client\"",
     "startDebug": "echo \"go to chrome://inspect/#devices\" && concurrently \"npm run serverDebug\" \"npm run client\"",
-    "prodStart": "npm run --prefix ./client build && NODE_ENV=production npm run server",
+    "prodStart": "npm --prefix ./client install && npm run --prefix ./client build && NODE_ENV=production npm run server",
     "server": "node server.js",
     "serverDebug": "node --inspect-brk server.js",
     "client": "node start-client.js",
