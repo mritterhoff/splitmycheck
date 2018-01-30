@@ -4,12 +4,14 @@
   "private": true,
   "dependencies": {
     "babel-core": "6.14.0",
+    "babel-eslint": "^8.2.1",
     "body-parser": "^1.18.2",
     "cheerio": "^1.0.0-rc.2",
     "dotenv": "^4.0.0",
     "express": "4.13.3",
     "fs": "0.0.2",
     "morgan": "^1.9.0",
+    "randomstring": "^1.1.5",
     "sqlite3": "^3.1.13"
   },
   "scripts": {
@@ -17,7 +19,7 @@
     "startDebug": "echo \"go to chrome://inspect/#devices\" && concurrently \"npm run serverDebug\" \"npm run client\"",
     "prodStart": "npm run --prefix ./client build && NODE_ENV=production npm run server",
     "server": "node server.js",
-    "serverDebug": "node --inspect-brk server.js ",
+    "serverDebug": "node --inspect-brk server.js",
     "client": "node start-client.js",
     "lint": "eslint .",
     "build": "echo 'we should be calling the one in ./client'"

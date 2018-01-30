@@ -12,18 +12,17 @@ function search(query, cb) {
     });
 }
 
-// send the given jsonData to the server, and execute the cb with the response
-function save(jsonData, cb) {
+// send the given text to the server, and execute the cb with the response
+function save(text, cb) {
   fetch('/save', {
     method: 'POST', // or 'PUT'
-    body: JSON.stringify(jsonData), 
+    body: text, 
     headers: new Headers({
-      'Content-Type': 'application/json'
+      'Content-Type': 'text/plain'
     })
   })
   .then(checkStatus)
-  .then(parseJSON)
-  .then((res) => res.savedURL)
+  .then((res) => res.text())
   .then(cb)
   .catch(error => console.error('Error:', error));
 }

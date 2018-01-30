@@ -1,48 +1,54 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 
 import Client from '../Client.js';
+
+import '../css/Linker.css'
 
 class Linker extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      result: ""
+      result: '',
+      lastSentDataString: ''
     };
   }
 
   onClick() {
     // update the ui to show a request is in progress
-    this.setState((prevState) => ({result: 'requesting...'}));
+    this.setState((prevState) => ({
+      result: 'requesting...',
+      requesting: true
+    }));
 
-    // Client.search('lindseyiscute', (response, error) => {
-    //   console.log(JSON.stringify(response));
-    //   this.setState({
-    //     result: response.yourQParamWas || error
-    //   });
-    // });
+    let dataString = JSON.stringify(this.props.dataToSend);
+    console.log(dataString);
 
-    Client.save(this.props.getJSON(), (response, error) => {
+    Client.save(dataString, (response, error) => {
       this.setState({
-        result: response || error
+        result: response || error,
+        lastSentDataString: dataString,
+        requesting: false
       });
     });
-
   }
-    
 
   render() {
+    let disableButton = this.state.requesting || (this.state.lastSentDataString === JSON.stringify(this.props.dataToSend));
+
     return (
       <div className="Linker" style={{ margin: '.2em'}}>
-        <a onClick={this.onClick.bind(this)}>Save this split as a link!</a>
+        <button onClick={this.onClick.bind(this)} disabled={disableButton}>
+          Get split link
+        </button>
         <span> {this.state.result}</span>
       </div>
     );
   }
 }
 
-Linker.propTypes = {
-  getJSON:  PropTypes.func.isRequired
-}
+// Linker.propTypes = {
+//   getDataToSend:  PropTypes.func.isRequired
+// }
 
 export { Linker };

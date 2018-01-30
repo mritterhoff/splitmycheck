@@ -37,10 +37,7 @@ class StateLoader {
 
   static getStateFromLS() {
     if (localStorage && localStorage.getItem(lsSplitterKey)) {
-      console.log('loading past state from localStorage');
-      let record = localStorage.getItem(lsSplitterKey);
-      console.log(`loaded: ${record}`);
-      return record;
+      return localStorage.getItem(lsSplitterKey);
     }
     throw new Error('error loading state from localStorage');
   }

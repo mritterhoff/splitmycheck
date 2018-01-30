@@ -123,7 +123,7 @@ class Splitter extends React.Component {
   render() {
     return (
       <div className="splitterContainer">
-        <Linker getJSON={() => ({'state': StateLoader.getStateFromLS()})}/>
+        <Linker dataToSend={this.state}/>
         <ButtonBar 
           addPersonFunc={this.addPerson.bind(this)}
           removePersonFunc={this.removeLastPerson.bind(this)}
