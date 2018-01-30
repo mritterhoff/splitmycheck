@@ -19,7 +19,7 @@ class Database {
   addRow(obj, cb) {
     this.db.serialize(() => {
       // insert one row into the langs table
-      this.db.run(`INSERT INTO Links VALUES (?, ?)`, [obj.link_id, obj.state], (err) => {
+      this.db.run(`INSERT INTO Links VALUES (?, ?)`, [ obj.link_id, obj.state ], (err) => {
         if (err) {
           return console.log(err.message);
         }
@@ -35,7 +35,7 @@ class Database {
   query(link_id, cb) {
 
     this.db.serialize(() => {
-      let sql = `SELECT * FROM Links
+      const sql = `SELECT * FROM Links
                    WHERE link_id = '${link_id}'`;
    
       // get just returns the first row
@@ -48,7 +48,7 @@ class Database {
 
   queryAll() {
     this.db.serialize(() => {
-      let sql = `SELECT * FROM Links`;
+      const sql = `SELECT * FROM Links`;
    
       this.db.all(sql, [], (err, rows) => {
         if (err) {
@@ -63,7 +63,7 @@ class Database {
 
 }
 
-module.exports = { 'Database': Database };
+module.exports = { Database };
 
 // let db = new Database();
 

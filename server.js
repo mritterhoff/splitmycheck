@@ -18,11 +18,11 @@ const PORT = process.env.PORT || 3001;
 console.log(`setting app port to ${PORT}`);
 app.set("port", PORT);
 
-let db = new Database();
+const db = new Database();
 
 // enable logging
 // more options: https://github.com/expressjs/morgan
-//app.use(morgan('combined'))
+// app.use(morgan('combined'))
 app.use(morgan('tiny'));
 
 // Express only serves static assets in production
@@ -46,15 +46,15 @@ if (process.env.NODE_ENV === "production") {
 }
 
 app.post("/save", (req, res) => {
-  let stateString = req.body;
+  const stateString = req.body;
   console.log(`POST to /save: ${stateString}`);
   validateStateString(stateString);
 
   // captures 'localhost:port' for testing ease
-  let host = req.headers.host;
+  const host = req.headers.host;
 
   db.addRow(
-    {'link_id': randomstring.generate(6), 'state': stateString},
+    {link_id: randomstring.generate(6), state: stateString},
     (obj) => {
       console.log(`saved new state, with link_id: ${obj.link_id}`);
 
@@ -65,14 +65,18 @@ app.post("/save", (req, res) => {
 });
 
 app.get("/saved/*", (req, res) => {
-  let key = req.params[0];
+  const key = req.params[0];
   console.log(`GET to /saved: ${key}`);
   validateLinkID(key);
 
   db.query(key, (row) => {
-    res.send(row.state);
+    if (row) {
+      res.send(row.state);  
+    }
+    else {
+      res.send('no row found!');
+    }
   });
-  console.log('did this happen?');
 });
 
 
@@ -93,7 +97,7 @@ app.get("/saved/*", (req, res) => {
 
 
 
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
   res.status(404).send("Sorry can't find that!")
 })
 
@@ -105,7 +109,7 @@ app.listen(app.get("port"), () => {
 function validateStateString(stateString) {
   let valid = false;
   if (typeof stateString === 'string') {
-    valid = ['people', 'dishes', 'orders', 'tax', 'tip']
+    valid = [ 'people', 'dishes', 'orders', 'tax', 'tip' ]
       .map(str => stateString.indexOf(str) > -1)
       .reduce((a,b)=>(a && b), true);
   }
@@ -117,10 +121,10 @@ function validateStateString(stateString) {
 // quick and dirty validation of linkID
 function validateLinkID(linkID) {
   let valid = false;
-  let alphanumeric = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const alphanumeric = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   if (linkID.length === 6) {
     valid = linkID.split('')
-      .map(l => v.indexOf(l) > -1)
+      .map(letter => alphanumeric.indexOf(letter) > -1)
       .reduce((a,b)=>(a && b), true);
   }
   if (!valid) {

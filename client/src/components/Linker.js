@@ -1,5 +1,4 @@
 import React from 'react';
-// import PropTypes from 'prop-types';
 
 import Client from '../Client.js';
 
@@ -34,21 +33,23 @@ class Linker extends React.Component {
   }
 
   render() {
-    let disableButton = this.state.requesting || (this.state.lastSentDataString === JSON.stringify(this.props.dataToSend));
+    // disable the button if we're requesting the url, or we haven't got new data to send
+    let disableButton = this.state.requesting 
+      || (this.state.lastSentDataString === JSON.stringify(this.props.dataToSend));
 
     return (
-      <div className="Linker" style={{ margin: '.2em'}}>
+      <div className='Linker' style={{ margin: '.2em'}}>
         <button onClick={this.onClick.bind(this)} disabled={disableButton}>
           Get split link
         </button>
-        <span> {this.state.result}</span>
+        <a target='_blank' 
+          style={{'marginLeft': '.5em'}} 
+          href={'http://' + this.state.result}>
+            {this.state.result}
+          </a>
       </div>
     );
   }
 }
-
-// Linker.propTypes = {
-//   getDataToSend:  PropTypes.func.isRequired
-// }
 
 export { Linker };
