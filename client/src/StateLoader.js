@@ -7,22 +7,14 @@ class StateLoader {
   static loadInitial() {
     // check if we have stashed data from the server in a global window var, use if present
     if (window.SERVER_DATA) {
-      return window.SERVER_DATA;
+      // stringify-ing is a bit hacky, give the Price object their as() methods though...
+      // TODO find a better way to make this happen
+      return JSON.parse(JSON.stringify(window.SERVER_DATA), customParser);
     }
 
     // check if we have state stored in localStorage, and use it if we do
     if (localStorage && localStorage.getItem(lsSplitterKey)) {
-      try {
-        return JSON.parse(localStorage.getItem(lsSplitterKey), (key, val) => {
-          if (typeof(val) === 'object' && val.__type === 'Price') {
-            return new Price(val);
-          }
-          return val;
-        });
-      } 
-      catch (ex) {
-        throw new Error(ex);
-      }
+      return JSON.parse(localStorage.getItem(lsSplitterKey), customParser);
     }
     return this.getDefault();
   }
@@ -79,6 +71,13 @@ class StateLoader {
       tip: new Price(15)
     };
   }
+}
+
+function customParser(key, val) {
+  if (typeof(val) === 'object' && val.__type === 'Price') {
+    return new Price(val);
+  }
+  return val;
 }
 
 export { StateLoader };
