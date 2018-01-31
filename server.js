@@ -28,20 +28,6 @@ app.use(morgan('tiny'));
 // Express only serves static assets in production
 if (process.env.NODE_ENV === "production") {
   console.log('production environment, serving client/build files...');
-
-  // app.use((req,res,next) => {
-  //   if (req.method === 'GET' && req.url === '/') {
-  //     var html = fs.readFileSync(__dirname + '/client/build/' + 'index.html', 'utf8');
-  //     var $ = cheerio.load(html);
-  //     var scriptNode = '<script>alert("script appended!");</script>';
-  //     $('body').append(scriptNode);
-  //     res.send($.html());
-  //   }
-  //   else { 
-  //     next();
-  //   }
-  // });
-
   app.use(express.static("client/build"));
 }
 
@@ -60,12 +46,9 @@ app.post("/save", (req, res) => {
   db.addRow(
     {link_id: randomstring.generate(6), state: stateString},
     (obj) => {
-      console.log(`saved new state, with link_id: ${obj.link_id}`);
-
-      // return 
+      // return the link
       res.send(`${host}/saved/${obj.link_id}`);
     });  
-  
 });
 
 app.get("/saved/*", (req, res) => {
@@ -73,29 +56,20 @@ app.get("/saved/*", (req, res) => {
   console.log(`GET to /saved: ${key}`);
   validateLinkID(key);
 
-  db.query(key, (row) => {
+  function serveAlteredHTML(row) {
     if (row) {
-      res.send(row.state);  
+      let html = fs.readFileSync(__dirname + '/client/build/' + 'index.html', 'utf8');
+      var $ = cheerio.load(html);
+      $('head').prepend(`<script>window.SERVER_DATA = ${row.state};</script>`);
+      res.send($.html());
     }
     else {
-      res.send('no row found!');
+      res.status(404).send('no row found!');
     }
-  });
+  }
+
+  db.query(key, serveAlteredHTML);
 });
-
-
-// app.get("/api/", (req, res) => {
-//   const param = req.query.q;
-
-//   if (!param) {
-//     res.json({
-//       error: "Missing required parameter `q`"
-//     });
-//     return;
-//   }
-//   res.json({'yourQParamWas': param})
-// });
-
 
 app.use((req, res, next) => {
   res.status(404).send("Sorry, can't find what you're looking for! (404 error)");
@@ -131,3 +105,15 @@ function validateLinkID(linkID) {
     throw new Error(`linkID is invalid: ${linkID}`);
   }
 }
+
+// app.get("/api/", (req, res) => {
+//   const param = req.query.q;
+
+//   if (!param) {
+//     res.json({
+//       error: "Missing required parameter `q`"
+//     });
+//     return;
+//   }
+//   res.json({'yourQParamWas': param})
+// });

@@ -5,34 +5,26 @@ const lsSplitterKey = 'SplitterState';
 
 class StateLoader {
   static loadInitial() {
+    // check if we have stashed data from the server in a global window var, use if present
+    if (window.SERVER_DATA) {
+      return window.SERVER_DATA;
+    }
+
     // check if we have state stored in localStorage, and use it if we do
     if (localStorage && localStorage.getItem(lsSplitterKey)) {
-      console.log('loading past state from localStorage');
       try {
-        let lsObj = localStorage.getItem(lsSplitterKey);
-        return JSON.parse(lsObj, (key, val) => {
-            if (typeof(val) === 'object') {
-              if (val.__type === 'Price') {
-                return new Price(val);
-              }
-            }
-
-            return val;
-
-            // or if your object is in a context (like window), and there are many of
-            // them that could be in there, you can do:
-            //
-            // if(typeof(val) === 'object' && context[val.__type])
-            //    return new context[val.__type](val);
-          });
+        return JSON.parse(localStorage.getItem(lsSplitterKey), (key, val) => {
+          if (typeof(val) === 'object' && val.__type === 'Price') {
+            return new Price(val);
+          }
+          return val;
+        });
       } 
       catch (ex) {
         throw new Error(ex);
       }
     }
-    else {
-      return this.getDefault();
-    }
+    return this.getDefault();
   }
 
   static getStateFromLS() {
