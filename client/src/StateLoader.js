@@ -29,7 +29,6 @@ class StateLoader {
   static updateLocalStorage(state) {
     if (localStorage) {
       localStorage.setItem(lsSplitterKey, JSON.stringify(state));
-      console.log('localStorage updated!');
     }
   }
 

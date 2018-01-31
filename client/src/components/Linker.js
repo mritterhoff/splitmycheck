@@ -20,7 +20,6 @@ class Linker extends React.Component {
     }));
 
     let dataString = JSON.stringify(this.props.dataToSend);
-    console.log(dataString);
 
     Client.save(dataString, (response, error) => {
       this.setState({
@@ -33,7 +32,7 @@ class Linker extends React.Component {
 
   getLinkOrStatus() {
     if (this.state.requesting) {
-      return <span> ... requesting </span>;
+      return <span> ...requesting</span>;
     }
     if (!this.state.link) {
       return <span></span>
@@ -47,7 +46,7 @@ class Linker extends React.Component {
         href={hrefPrefix + this.state.link}>
           {this.state.link}
       </a>
-      );
+    );
   }
 
   render() {
