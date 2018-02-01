@@ -4,7 +4,7 @@ import AutosizeInput from 'react-input-autosize';
 
 import { Price } from '../Price.js';
 
-import '../css/Input.css';
+import '../css/Inputs.css';
 
 let inputStyleDefault = { 
   border: '1px solid #999',
@@ -29,10 +29,14 @@ class StringInput extends React.Component {
   onFocus(event) {
     // don't show the placeholder when user is inputting numbers
     this.inputRef.input.placeholder = '';
+
+    console.log('__StringInput is FOCUSSED');
   }
 
   onBlur(event) {
     this.inputRef.input.placeholder = this.props.placeholder;
+
+    console.log('__StringInput is blurred');
   }
 
   render() {
@@ -81,6 +85,8 @@ class PriceInput extends React.Component {
 
     // don't show the placeholder when user is inputting numbers
     this.inputRef.input.placeholder = '';
+
+    console.log('__PriceInput is FOCUSSED');
   }
 
   onBlur(event) {
@@ -92,6 +98,7 @@ class PriceInput extends React.Component {
     }));
 
     this.inputRef.input.placeholder = defaultPlaceholder;
+    console.log('__PriceInput is blurred');
   }
 
   render() {

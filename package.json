@@ -3,12 +3,12 @@
   "version": "0.2.0",
   "private": true,
   "dependencies": {
-    "babel-core": "6.14.0",
+    "babel-core": "6.26.0",
     "babel-eslint": "^8.2.1",
     "body-parser": "^1.18.2",
     "cheerio": "^1.0.0-rc.2",
-    "dotenv": "^4.0.0",
-    "express": "^4.13.3",
+    "dotenv": "^5.0.0",
+    "express": "^4.16.2",
     "fs": "0.0.2",
     "morgan": "^1.9.0",
     "randomstring": "^1.1.5",
@@ -25,11 +25,11 @@
     "build": "echo 'we should be calling the one in ./client'"
   },
   "devDependencies": {
-    "concurrently": "3.1.0",
-    "eslint": "^3.19.0",
-    "eslint-config-airbnb": "14.1.0",
-    "eslint-plugin-import": "2.2.0",
-    "eslint-plugin-jsx-a11y": "4.0.0",
-    "eslint-plugin-react": "6.9.0"
+    "concurrently": "3.5.1",
+    "eslint": "^4.16.0",
+    "eslint-config-airbnb": "16.1.0",
+    "eslint-plugin-import": "2.8.0",
+    "eslint-plugin-jsx-a11y": "6.0.3",
+    "eslint-plugin-react": "7.6.1"
   }
 }

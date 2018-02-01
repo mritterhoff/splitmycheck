@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { CellToggle } from './CellToggle.js'
-import { StringInput, PriceInput } from './Input.js'
+import { StringInput, PriceInput } from './Inputs.js'
 import { ButtonBar } from './ButtonBar.js'
 import { Linker } from './Linker.js'
 
@@ -10,7 +10,7 @@ import { StateLoader } from '../StateLoader.js'
 
 import '../css/Splitter.css'
 
-let summer = (p, c) => p + c
+let sumFunc = (p, c) => p + c
 
 class Splitter extends React.Component {
   constructor(props) {
@@ -37,7 +37,7 @@ class Splitter extends React.Component {
   peoplePerDish(dInd) {
     return this.state.people
       .map((p, pInd) => (this.didPersonOrderDish(pInd, dInd)))
-      .reduce(summer);
+      .reduce(sumFunc);
   }
 
   // Given a person and dish, how much do they owe for it?
@@ -50,12 +50,12 @@ class Splitter extends React.Component {
   // Given a person, what's their total owed for orders? (exluding tax/tip)
   orderTotalForPerson(pInd) {
     return this.state.dishes.map((dish, dInd) => (this.personCostForDish(pInd, dInd)), this)
-      .reduce(summer, 0);
+      .reduce(sumFunc, 0);
   }
 
   // Return the sum of dish orders.
   orderTotal() {
-    return this.state.dishes.map((dish) => (dish.price.num)).reduce(summer, 0);
+    return this.state.dishes.map((dish) => (dish.price.num)).reduce(sumFunc, 0);
   }
 
   // get the proportion of the order that Person (indexed by pInd) is responsible for
@@ -175,11 +175,6 @@ class Splitter extends React.Component {
   }
 
   getTotalRow() {
-    let totalStyle = {
-      float: 'right',
-      paddingRight: '.9em'
-    };
-
     let personStyle = {
       fontWeight: 'bold',
       display: 'inline-block'
@@ -188,7 +183,7 @@ class Splitter extends React.Component {
     let rowEls = [
       <div>
         <span>Total:</span>
-        <span style = {totalStyle}>
+        <span>
           {priceAsString(this.orderTotal() + this.state.tax.num + this.state.tip.num)}
         </span>
       </div>
@@ -222,7 +217,6 @@ class Splitter extends React.Component {
       <div>
         <span style={style}>{displayName}:</span>
         <PriceInput 
-          style={{float: 'right'}} 
           priceObj = {getterFunc()}
           onChangeCB = {updaterFunc} />
       </div>
@@ -255,7 +249,7 @@ class Splitter extends React.Component {
       return (setUnset) => {
         // make sure we aren't unsetting the last enabled cell in an order (someone has to pay!)
         // let the user make the illegal move, but revert it immediately
-        if (!setUnset && that.state.orders[dInd].reduce(summer, 0) === 1) {
+        if (!setUnset && that.state.orders[dInd].reduce(sumFunc, 0) === 1) {
           setTimeout(() => {that.indicateOrder(true, pInd, dInd)}, 200);
         }
         that.indicateOrder(setUnset, pInd, dInd);   
@@ -292,17 +286,12 @@ class Splitter extends React.Component {
 
     return this.state.dishes.map((dish, dInd) => {
       let rowEls = [
-        <div>
-          <StringInput 
-            style={{float: 'left'}}
-            placeholder= {`Dish ${dInd + 1}`}
-            value = {dish.name}
-            onChangeCB = {setDishNameCBGetter(dInd)}/>
-          <PriceInput 
-            style={{float: 'right'}} 
-            priceObj = {dish.price}
-            onChangeCB = {setDishPriceCBGetter(dInd)} />
-        </div>
+        <DishRowHeaderCell 
+          dInd={dInd}
+          dish={dish}
+          setDishNameCBGetter={setDishNameCBGetter}
+          setDishPriceCBGetter={setDishPriceCBGetter}
+        />
       ];
 
       rowEls = rowEls.concat(this.state.people.map((el, pInd) => (
@@ -322,6 +311,93 @@ class Splitter extends React.Component {
     });
   }
 }  // end of Splitter class
+
+class DishRowHeaderCell extends React.Component {
+  
+  _timeoutID;
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      // focused: false
+      isManagingFocus: false
+    };
+  }
+
+  // onFocus(event) {
+  //   this.setState(prevState => {
+  //     return {focused: true}
+  //   });
+
+  //   console.log('Headercell is FOCUSSED');
+  // }
+
+  // onBlur(event) {
+  //   // this should check if either of the children inputs have focus
+  //   // with refs? or some other way
+  //   // or 
+  //   // this.setState(prevState => {
+  //   //   return {focused: false}
+  //   // });
+
+  //   console.log('Headercell is blured');
+  // }
+
+  didComponentUpdate() {
+    console.log(`isManagingFocus is now: ${this.state.isManagingFocus}`);
+  }
+
+  _onBlur() {
+    this._timeoutID = setTimeout(() => {
+      if (this.state.isManagingFocus) {
+        this.setState({
+          isManagingFocus: false,
+        });
+      }
+    }, 0);
+  }
+  
+  _onFocus() {
+    clearTimeout(this._timeoutID);
+    if (!this.state.isManagingFocus) {
+      this.setState({
+        isManagingFocus: true,
+      });
+    }
+  }
+
+  render() {
+    return (
+      <div 
+        tabIndex={this.props.dInd} 
+        // style={{backgroundColor: (this.state.isManagingFocus ? 'red' : 'pink')}}
+        onBlur={this._onBlur.bind(this)}
+        onFocus={this._onFocus.bind(this)}>
+          {this.getInnerDisplay()}
+      </div>
+    );
+  }
+
+  getInnerDisplay() {
+    // if (this.state.isManagingFocus) {
+      let dInd = this.props.dInd;
+      return (
+        [<StringInput 
+          placeholder= {`Dish ${dInd + 1}`}
+          value = {this.props.dish.name}
+          onChangeCB = {this.props.setDishNameCBGetter(dInd)}
+          key='1'/>,
+        <PriceInput 
+          priceObj = {this.props.dish.price}
+          onChangeCB = {this.props.setDishPriceCBGetter(dInd)} 
+          key='2'/>]
+      );
+    // }
+    // return (
+    //   <span>{this.props.dish.name} - {this.props.dish.price.num}</span>
+    // );
+  }
+}
 
 function TH(props) {
   return DivTableElement('th', props);

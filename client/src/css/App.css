@@ -2,7 +2,6 @@
  http://paletton.com/#uid=52Q0D1kkXlAn2Ccm1rZjYe+iW8ukl0kenh-rm5qMk2dQjc7Bkl0kenh-rm5qMk2dQjc7B
 */
 
-
 /* footer always at bottom https://codepen.io/cbracco/pen/zekgx */
 .footer {
   font-family: Verdana;
@@ -39,8 +38,6 @@ html {
   height: 100%;
 }
 
-
-
 .App {
   display: inline-block;
 }
@@ -54,6 +51,14 @@ html {
 .App-title {
   font-size: 1.5em;
   margin: 0;
+}
+
+.App-title a {
+  color: white;
+}
+
+.App-title a:hover {
+  text-decoration: none;
 }
 
 .App-intro {
