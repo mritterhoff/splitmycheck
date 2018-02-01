@@ -24,3 +24,6 @@ splitmycheck.db
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# notes of mine
+.notes

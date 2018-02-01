@@ -4,9 +4,12 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const cheerio = require('cheerio');
 const fs = require('fs');
+const randomstring = require('randomstring');
 
-const { Database } = require('./Database.js');
-const randomstring = require("randomstring");
+// const { Database } = require('./Database.js');
+const { DBActions } = require('./DBActions.js');
+const validators = require('./columnValidators');
+
 
 const app = express();
 
@@ -18,7 +21,7 @@ const PORT = process.env.PORT || 3001;
 console.log(`setting app port to ${PORT}`);
 app.set("port", PORT);
 
-const db = new Database();
+const dbActions = new DBActions();
 
 // enable logging
 // more options: https://github.com/expressjs/morgan
@@ -34,7 +37,7 @@ if (process.env.NODE_ENV === "production") {
 app.post("/save", (req, res) => {
   const stateString = req.body;
   console.log(`POST to /save: ${stateString}`);
-  validateStateString(stateString);
+  validators.validateStateString(stateString);
 
   // captures 'localhost:port' for testing ease
   const host = req.headers.host;
@@ -43,24 +46,24 @@ app.post("/save", (req, res) => {
   // at 280,610 entries, there'll be a 50% of a collision
   // https://www.wolframalpha.com/input/?i=solve+1-e%5E(-n%5E2%2F(2d))%3D.5,++d+%3D+(10%2B26%2B26)%5E6+over+the+reals
   // "solve 1-e^(-n^2/(2d))=.5, d = (10+26+26)^6 over the reals"
-  db.addRow(
-    {link_id: randomstring.generate(6), state: stateString},
+  dbActions.addRow(
+    {link_code: randomstring.generate(6), state: stateString},
     (obj) => {
       // return the link
-      res.send(`${host}/saved/${obj.link_id}`);
+      res.send(`${host}/saved/${obj.link_code}`);
     });  
 });
 
 app.get("/saved/*", (req, res) => {
   const key = req.params[0];
   console.log(`GET to /saved: ${key}`);
-  validateLinkID(key);
+  validators.validateLinkID(key);
 
-  function serveAlteredHTML(row) {
-    if (row) {
+  function serveAlteredHTML(dbRes) {
+    if (dbRes) {
       let html = fs.readFileSync(__dirname + '/client/build/' + 'index.html', 'utf8');
       var $ = cheerio.load(html);
-      $('head').prepend(`<script>window.SERVER_DATA = ${row.state};</script>`);
+      $('head').prepend(`<script>window.SERVER_DATA = ${dbRes.rows[0].state};</script>`);
       res.send($.html());
     }
     else {
@@ -68,7 +71,7 @@ app.get("/saved/*", (req, res) => {
     }
   }
 
-  db.query(key, serveAlteredHTML);
+  dbActions.findByLinkCode(key, serveAlteredHTML);
 });
 
 app.use((req, res, next) => {
@@ -78,42 +81,3 @@ app.use((req, res, next) => {
 app.listen(app.get("port"), () => {
   console.log(`Find the server at: http://localhost:${app.get("port")}/`); // eslint-disable-line no-console
 });
-
-// quick and dirty validation of stateString
-function validateStateString(stateString) {
-  let valid = false;
-  if (typeof stateString === 'string') {
-    valid = [ 'people', 'dishes', 'orders', 'tax', 'tip' ]
-      .map(str => stateString.indexOf(str) > -1)
-      .reduce((a,b)=>(a && b), true);
-  }
-  if (!valid) {
-    throw new Error(`stateString is invalid: ${stateString}`);
-  }
-}
-
-// quick and dirty validation of linkID
-function validateLinkID(linkID) {
-  let valid = false;
-  const alphanumeric = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  if (linkID.length === 6) {
-    valid = linkID.split('')
-      .map(letter => alphanumeric.indexOf(letter) > -1)
-      .reduce((a,b)=>(a && b), true);
-  }
-  if (!valid) {
-    throw new Error(`linkID is invalid: ${linkID}`);
-  }
-}
-
-// app.get("/api/", (req, res) => {
-//   const param = req.query.q;
-
-//   if (!param) {
-//     res.json({
-//       error: "Missing required parameter `q`"
-//     });
-//     return;
-//   }
-//   res.json({'yourQParamWas': param})
-// });
