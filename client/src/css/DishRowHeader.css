@@ -1,0 +1,10 @@
+.DishRowHeader {
+  width: max-content;
+  min-height: 2.3em;
+}
+
+.flexVertCenter {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}

@@ -3,9 +3,9 @@
   text-align: center;
 }
 
-.tr .td:first-child div {
+/*.tr .td:first-child div {
   display: inline-block;
-}
+}*/
 
 .table {
   display: table;

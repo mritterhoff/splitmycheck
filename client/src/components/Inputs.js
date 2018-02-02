@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import AutosizeInput from 'react-input-autosize'
 
-import { Price } from '../Price.js'
+import { Price } from '../Price'
 
 import '../css/Inputs.css'
 
@@ -29,16 +29,13 @@ class StringInput extends React.Component {
   onFocus(event) {
     // don't show the placeholder when user is inputting numbers
     this.inputRef.input.placeholder = '';
-    // console.log('__StringInput is FOCUSSED');
   }
 
   onBlur(event) {
     this.inputRef.input.placeholder = this.props.placeholder;
-    // console.log('__StringInput is blurred');
   }
 
   selectInput() {
-    // this.inputRef.input.focus();
     this.inputRef.input.select();
   }
 
@@ -163,14 +160,14 @@ function getKeydownCB(inputRefGetter) {
       if (inputRef) {
         inputRef.blur();
         // get as array rather than NodeList
-        let tabableElements = [...document.querySelectorAll('input, .DishRowHeader')];
+        let tabableElements = [...document.querySelectorAll('input, .DishRowHeader[tabIndex="0"]')];
         let curIndex = tabableElements.indexOf(inputRef.input)
         if (curIndex === -1) {
           console.warn(`Couldn't find current input. ${inputRef.input.innerHTML}`);
           return;
         }
 
-        // shift/enter moves backwards in the input list. wrap to the beginning
+        // shift/enter moves backwards in the list!!! wrap to the beginning
         let newIndex = mod(curIndex + (ev.shiftKey ? -1 : 1), tabableElements.length);
         let v = tabableElements[newIndex];
         

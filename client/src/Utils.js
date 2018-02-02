@@ -1,8 +1,9 @@
+// Some small useful functions that make sense to share
 class Utils {
-  // display num as '$ num.##' (nbsp after $)
+  // display num as  '$num.##' or '$ num.##' (nbsp after $)
   // add commas using regex, via https://stackoverflow.com/a/14428340/1188090
-  static priceAsString(num) {
-    return '$\u00A0' + num.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'); 
+  static priceAsString(num, space = true) {
+    return '$' + (space ? '\u00A0' : '') + num.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'); 
   }
 
   // Return a shallow clone of the given 2d array
