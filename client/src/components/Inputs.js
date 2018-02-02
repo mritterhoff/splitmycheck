@@ -1,10 +1,10 @@
 import React from 'react'
-import PropTypes from 'prop-types';
-import AutosizeInput from 'react-input-autosize';
+import PropTypes from 'prop-types'
+import AutosizeInput from 'react-input-autosize'
 
-import { Price } from '../Price.js';
+import { Price } from '../Price.js'
 
-import '../css/Inputs.css';
+import '../css/Inputs.css'
 
 let inputStyleDefault = { 
   border: '1px solid #999',
@@ -29,14 +29,17 @@ class StringInput extends React.Component {
   onFocus(event) {
     // don't show the placeholder when user is inputting numbers
     this.inputRef.input.placeholder = '';
-
-    console.log('__StringInput is FOCUSSED');
+    // console.log('__StringInput is FOCUSSED');
   }
 
   onBlur(event) {
     this.inputRef.input.placeholder = this.props.placeholder;
+    // console.log('__StringInput is blurred');
+  }
 
-    console.log('__StringInput is blurred');
+  selectInput() {
+    // this.inputRef.input.focus();
+    this.inputRef.input.select();
   }
 
   render() {
@@ -66,9 +69,9 @@ StringInput.propTypes = {
 }
 
 
-let defaultPlaceholder = '0.00';
-
 class PriceInput extends React.Component {
+  defaultPlaceholder = '0.00';
+
   constructor(props) {
     super(props);
     this.state = {
@@ -85,20 +88,23 @@ class PriceInput extends React.Component {
 
     // don't show the placeholder when user is inputting numbers
     this.inputRef.input.placeholder = '';
-
-    console.log('__PriceInput is FOCUSSED');
   }
 
   onBlur(event) {
     // only ever send back a string, even if it's an empty string
-    this.props.onChangeCB(event.target.value || '', true);
+    let newValue = event.target.value || '';
+
+    // only trigger a price change if the newValue is actually different
+    // console.log(newValue, Number(newValue), this.props.priceObj);
+    if (Number(newValue) !== this.props.priceObj.num) {
+      this.props.onChangeCB(newValue, true);
+    }
 
     this.setState((prevState) => ({
       focused: false
     }));
 
-    this.inputRef.input.placeholder = defaultPlaceholder;
-    console.log('__PriceInput is blurred');
+    this.inputRef.input.placeholder = this.defaultPlaceholder;
   }
 
   render() {
@@ -111,7 +117,7 @@ class PriceInput extends React.Component {
     }
 
     let valueToShow = this.props.priceObj.stringRep;
-    if (valueToShow === defaultPlaceholder) {
+    if (valueToShow === this.defaultPlaceholder) {
       valueToShow = '';
     }
 
@@ -120,7 +126,7 @@ class PriceInput extends React.Component {
         value={valueToShow}
         type="number"
         min = "0" step="0.01"
-        placeholder={defaultPlaceholder}
+        placeholder={this.defaultPlaceholder}
         placeholderIsMinWidth
         style={divStyle}
         inputStyle={inputStyle}
@@ -155,19 +161,21 @@ function getKeydownCB(inputRefGetter) {
     if (ev.keyCode === 13) {  // Enter key (works on mobile too!)
       const inputRef = inputRefGetter();  
       if (inputRef) {
-
         inputRef.blur();
         // get as array rather than NodeList
-        let inputs = [...document.querySelectorAll('input')];
-        let curIndex = inputs.indexOf(inputRef.input)
+        let tabableElements = [...document.querySelectorAll('input, .DishRowHeader')];
+        let curIndex = tabableElements.indexOf(inputRef.input)
         if (curIndex === -1) {
           console.warn(`Couldn't find current input. ${inputRef.input.innerHTML}`);
           return;
         }
 
         // shift/enter moves backwards in the input list. wrap to the beginning
-        let newIndex = mod(curIndex + (ev.shiftKey ? -1 : 1), inputs.length);
-        inputs[newIndex].select();
+        let newIndex = mod(curIndex + (ev.shiftKey ? -1 : 1), tabableElements.length);
+        let v = tabableElements[newIndex];
+        
+        // if it is an input, we select it, if it's a DishRowHeader, focus on it
+        v.select ? v.select() : v.focus();
       }
     }
   };

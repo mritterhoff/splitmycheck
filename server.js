@@ -60,13 +60,15 @@ app.get("/saved/*", (req, res) => {
   validators.validateLinkID(key);
 
   function serveAlteredHTML(dbRes) {
+    // TODO possibly add a message saying that link has loaded successfully?
     if (dbRes && dbRes.rowCount > 0) {
-      let html = fs.readFileSync(__dirname + '/client/build/' + 'index.html', 'utf8');
+      let html = fs.readFileSync(`${__dirname}/client/build/index.html`, 'utf8');
       var $ = cheerio.load(html);
       $('head').prepend(`<script>window.SERVER_DATA = ${dbRes.rows[0].state};</script>`);
       res.send($.html());
     }
     else {
+      // TODO we should return the webpage with an error message instead
       res.status(404).send(`Couldn't find that saved link :(`);
     }
   }
@@ -79,5 +81,12 @@ app.use((req, res, next) => {
 })
 
 app.listen(app.get("port"), () => {
-  console.log(`Find the server at: http://localhost:${app.get("port")}/`); // eslint-disable-line no-console
+  console.log(`Find the server at: http://localhost:${app.get("port")}/`);
+});
+
+// Short term solution to prevent unanticipated errors from crashing the whole app
+// more info: https://stackoverflow.com/q/5999373/1188090
+process.on('uncaughtException', function (err) {
+  console.error(err);
+  console.log("Node NOT Exiting...");
 });

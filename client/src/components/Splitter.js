@@ -1,16 +1,17 @@
 import React from 'react'
 
-import { CellToggle } from './CellToggle.js'
-import { StringInput, PriceInput } from './Inputs.js'
-import { ButtonBar } from './ButtonBar.js'
-import { Linker } from './Linker.js'
+import { CellToggle } from './CellToggle'
+import { StringInput, PriceInput } from './Inputs'
+import { ButtonBar } from './ButtonBar'
+import { Linker } from './Linker'
+import { DishRowHeader } from './DishRowHeader'
+import { TH, TD, TR } from './TableDivs'
 
-import { Dish } from '../Dish.js'
-import { StateLoader } from '../StateLoader.js'
+import { Dish } from '../Dish'
+import { StateLoader } from '../StateLoader'
+import { Utils } from '../Utils'
 
 import '../css/Splitter.css'
-
-let sumFunc = (p, c) => p + c
 
 class Splitter extends React.Component {
   constructor(props) {
@@ -20,7 +21,7 @@ class Splitter extends React.Component {
 
   indicateOrder(setUnset, pInd, dInd) {
     this.setState(prevState => {
-      let newOrders = clone2D(prevState.orders);
+      let newOrders = Utils.clone2D(prevState.orders);
       newOrders[dInd][pInd] = setUnset;
       return {
         orders: newOrders
@@ -37,7 +38,7 @@ class Splitter extends React.Component {
   peoplePerDish(dInd) {
     return this.state.people
       .map((p, pInd) => (this.didPersonOrderDish(pInd, dInd)))
-      .reduce(sumFunc);
+      .reduce(Utils.sumFunc);
   }
 
   // Given a person and dish, how much do they owe for it?
@@ -50,12 +51,12 @@ class Splitter extends React.Component {
   // Given a person, what's their total owed for orders? (exluding tax/tip)
   orderTotalForPerson(pInd) {
     return this.state.dishes.map((dish, dInd) => (this.personCostForDish(pInd, dInd)), this)
-      .reduce(sumFunc, 0);
+      .reduce(Utils.sumFunc, 0);
   }
 
   // Return the sum of dish orders.
   orderTotal() {
-    return this.state.dishes.map((dish) => (dish.price.num)).reduce(sumFunc, 0);
+    return this.state.dishes.map((dish) => (dish.price.num)).reduce(Utils.sumFunc, 0);
   }
 
   // get the proportion of the order that Person (indexed by pInd) is responsible for
@@ -71,7 +72,7 @@ class Splitter extends React.Component {
 
   addPerson() {
     this.setState((prevState) => {
-      let newOrders = clone2D(prevState.orders);
+      let newOrders = Utils.clone2D(prevState.orders);
 
       for (let row = 0; row < newOrders.length; row++) {
         newOrders[row][this.state.people.length] = true;
@@ -100,7 +101,7 @@ class Splitter extends React.Component {
     this.setState((prevState) => {
       return {
         dishes: [...prevState.dishes, new Dish()],
-        orders: clone2D(prevState.orders).concat([Array(this.state.people.length).fill(true)])
+        orders: Utils.clone2D(prevState.orders).concat([Array(this.state.people.length).fill(true)])
       };
     });
   }
@@ -123,6 +124,7 @@ class Splitter extends React.Component {
   render() {
     return (
       <div className="splitterContainer">
+        <span>{this.props.useMobileUI ? 'Mobile Mode Active!' : ''}</span>
         <Linker dataToSend={this.state}/>
         <ButtonBar 
           addPersonFunc={this.addPerson.bind(this)}
@@ -184,14 +186,14 @@ class Splitter extends React.Component {
       <div>
         <span>Total:</span>
         <span>
-          {priceAsString(this.orderTotal() + this.state.tax.num + this.state.tip.num)}
+          {Utils.priceAsString(this.orderTotal() + this.state.tax.num + this.state.tip.num)}
         </span>
       </div>
     ];
     rowEls = rowEls.concat(this.state.people.map((person, pInd) => {
         let personTotal = this.orderTotalForPerson(pInd)
           + this.personOrderProportion(pInd) * (this.state.tax.num + this.state.tip.num);
-        return <span style={personStyle}>{priceAsString(personTotal)}</span>;
+        return <span style={personStyle}>{Utils.priceAsString(personTotal)}</span>;
       },
       this));
 
@@ -223,7 +225,7 @@ class Splitter extends React.Component {
     ];
     rowEls = rowEls.concat(this.state.people.map((person, pInd) => (
       <span>
-        {priceAsString(this.personOrderProportion(pInd) * getterFunc().num)}
+        {Utils.priceAsString(this.personOrderProportion(pInd) * getterFunc().num)}
       </span>
     ), this));
 
@@ -249,7 +251,7 @@ class Splitter extends React.Component {
       return (setUnset) => {
         // make sure we aren't unsetting the last enabled cell in an order (someone has to pay!)
         // let the user make the illegal move, but revert it immediately
-        if (!setUnset && that.state.orders[dInd].reduce(sumFunc, 0) === 1) {
+        if (!setUnset && that.state.orders[dInd].reduce(Utils.sumFunc, 0) === 1) {
           setTimeout(() => {that.indicateOrder(true, pInd, dInd)}, 200);
         }
         that.indicateOrder(setUnset, pInd, dInd);   
@@ -286,7 +288,8 @@ class Splitter extends React.Component {
 
     return this.state.dishes.map((dish, dInd) => {
       let rowEls = [
-        <DishRowHeaderCell 
+        <DishRowHeader
+          useMobileUI={this.props.useMobileUI} 
           dInd={dInd}
           dish={dish}
           setDishNameCBGetter={setDishNameCBGetter}
@@ -298,7 +301,7 @@ class Splitter extends React.Component {
         <CellToggle 
           on={that.didPersonOrderDish(pInd, dInd)}
           onClickCB={getToggleCB(pInd, dInd)}
-          price={priceAsString(this.personCostForDish(pInd, dInd))}
+          price={Utils.priceAsString(this.personCostForDish(pInd, dInd))}
         />
       )));
 
@@ -312,118 +315,5 @@ class Splitter extends React.Component {
   }
 }  // end of Splitter class
 
-class DishRowHeaderCell extends React.Component {
-  
-  _timeoutID;
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      // focused: false
-      isManagingFocus: false
-    };
-  }
-
-  // onFocus(event) {
-  //   this.setState(prevState => {
-  //     return {focused: true}
-  //   });
-
-  //   console.log('Headercell is FOCUSSED');
-  // }
-
-  // onBlur(event) {
-  //   // this should check if either of the children inputs have focus
-  //   // with refs? or some other way
-  //   // or 
-  //   // this.setState(prevState => {
-  //   //   return {focused: false}
-  //   // });
-
-  //   console.log('Headercell is blured');
-  // }
-
-  didComponentUpdate() {
-    console.log(`isManagingFocus is now: ${this.state.isManagingFocus}`);
-  }
-
-  _onBlur() {
-    this._timeoutID = setTimeout(() => {
-      if (this.state.isManagingFocus) {
-        this.setState({
-          isManagingFocus: false,
-        });
-      }
-    }, 0);
-  }
-  
-  _onFocus() {
-    clearTimeout(this._timeoutID);
-    if (!this.state.isManagingFocus) {
-      this.setState({
-        isManagingFocus: true,
-      });
-    }
-  }
-
-  render() {
-    return (
-      <div 
-        tabIndex={this.props.dInd} 
-        // style={{backgroundColor: (this.state.isManagingFocus ? 'red' : 'pink')}}
-        onBlur={this._onBlur.bind(this)}
-        onFocus={this._onFocus.bind(this)}>
-          {this.getInnerDisplay()}
-      </div>
-    );
-  }
-
-  getInnerDisplay() {
-    // if (this.state.isManagingFocus) {
-      let dInd = this.props.dInd;
-      return (
-        [<StringInput 
-          placeholder= {`Dish ${dInd + 1}`}
-          value = {this.props.dish.name}
-          onChangeCB = {this.props.setDishNameCBGetter(dInd)}
-          key='1'/>,
-        <PriceInput 
-          priceObj = {this.props.dish.price}
-          onChangeCB = {this.props.setDishPriceCBGetter(dInd)} 
-          key='2'/>]
-      );
-    // }
-    // return (
-    //   <span>{this.props.dish.name} - {this.props.dish.price.num}</span>
-    // );
-  }
-}
-
-function TH(props) {
-  return DivTableElement('th', props);
-}
-
-function TD(props) {
-  return DivTableElement('td', props);
-}
-
-function TR(props) {
-  return DivTableElement('tr', props);
-}
-
-function DivTableElement(classType, props) {
-  return <div className={classType}>{props.children}</div>;
-}
-
-// Return a shallow clone of the given 2d array
-function clone2D(a) {
-  return a.map(o => [...o]);
-}
-
-// display num as '$ num.##' (nbsp after $)
-// add commas using regex, via https://stackoverflow.com/a/14428340/1188090
-function priceAsString(num) {
-  return '$\u00A0' + num.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,'); 
-}
 
 export default Splitter;
