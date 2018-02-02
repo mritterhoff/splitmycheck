@@ -60,14 +60,14 @@ app.get("/saved/*", (req, res) => {
   validators.validateLinkID(key);
 
   function serveAlteredHTML(dbRes) {
-    if (dbRes) {
+    if (dbRes && dbRes.rowCount > 0) {
       let html = fs.readFileSync(__dirname + '/client/build/' + 'index.html', 'utf8');
       var $ = cheerio.load(html);
       $('head').prepend(`<script>window.SERVER_DATA = ${dbRes.rows[0].state};</script>`);
       res.send($.html());
     }
     else {
-      res.status(404).send('no row found!');
+      res.status(404).send(`Couldn't find that saved link :(`);
     }
   }
 
