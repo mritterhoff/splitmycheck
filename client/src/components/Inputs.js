@@ -162,7 +162,7 @@ function getKeydownCB(inputRefGetter) {
       if (inputRef) {
         inputRef.blur();
         // get as array rather than NodeList
-        let tabableElements = [...document.querySelectorAll('input, .DishRowHeader[tabIndex="0"]')];
+        let tabableElements = [...document.querySelectorAll('input, .DishRowHeaderContainer[tabIndex="0"]')];
         let curIndex = tabableElements.indexOf(inputRef.input)
         if (curIndex === -1) {
           console.warn(`Couldn't find current input. ${inputRef.input.innerHTML}`);

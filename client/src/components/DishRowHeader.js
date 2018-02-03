@@ -73,7 +73,8 @@ class DishRowHeader extends React.Component {
 
     // wrap in an additional div to increase touchable/clickable surface
     return (
-      <div tabIndex={tabIndex}
+      <div className='DishRowHeaderContainer' 
+          tabIndex={tabIndex}
           onBlur={this._onBlur.bind(this)}
           onFocus={this._onFocus.bind(this)}>
         <div className={className}>
