@@ -6,6 +6,7 @@
   cursor: pointer;
   user-select: none; 
   box-sizing: border-box;
+  border-radius: 4px;
 }
 
 .CellToggle.on {

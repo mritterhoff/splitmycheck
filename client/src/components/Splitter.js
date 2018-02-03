@@ -166,6 +166,7 @@ class Splitter extends React.Component {
           value = {person}
           placeholder = {`Person ${pInd + 1}`}
           onChangeCB = {setNameCBGetter(pInd).bind(this)}
+          style = {{textAlign: 'center'}}
         />
       )));
 

@@ -1,10 +1,28 @@
 .DishRowHeader {
-  width: max-content;
   min-height: 2.3em;
+}
+
+.maxWidth {
+  width: max-content;
+}
+
+.block {
+  display: block;
 }
 
 .flexVertCenter {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+/*limit the length of the string that's shown. so cool!*/
+.DishName {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  float: left;
+
+  /*TODO experiment with this value*/
+  max-width: 6em;
 }

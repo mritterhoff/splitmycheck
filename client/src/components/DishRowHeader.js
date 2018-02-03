@@ -21,7 +21,7 @@ class DishRowHeader extends React.Component {
 
   // helpful debugging method
   log(str) {
-    console.log(`DHR${this.props.dInd} ${str}`);
+    // console.log(`DHR${this.props.dInd} ${str}`);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -35,6 +35,7 @@ class DishRowHeader extends React.Component {
   }
 
   _onBlur() {
+    // return;  // uncomment this to help with style analysis in chrome
     this.log('is going to blur');
     this._timeoutID = setTimeout(() => {
       if (this.state.isManagingFocus) {
@@ -53,41 +54,33 @@ class DishRowHeader extends React.Component {
         isManagingFocus: true
       }));
     }
-    else {
-      console.log(document.activeElement);
-    }
   }
 
   render() {
     // vertically align child span element when appropriate
+    // https://css-tricks.com/centering-css-complete-guide/
     let className='DishRowHeader';
     if (this.props.useMobileUI && !this.state.isManagingFocus) {
       className += ' flexVertCenter'
+    }
+    else {
+      className += ' block';
     }
 
     // SO PROUD OF THIS
     // makes it so that if this element is managing focus, it can't be selected!!
     let tabIndex = this.state.isManagingFocus ? '-1' : '0';
 
+    // wrap in an additional div to increase touchable/clickable surface
     return (
-      <div className={className}
-        tabIndex={tabIndex}
-        onBlur={this._onBlur.bind(this)}
-        onFocus={this._onFocus.bind(this)}
-        ref={(drhRef) => { this.drhRef = drhRef; }}>
+      <div tabIndex={tabIndex}
+          onBlur={this._onBlur.bind(this)}
+          onFocus={this._onFocus.bind(this)}>
+        <div className={className}>
           {this.getInnerDisplay()}
+        </div>
       </div>
     );
-  }
-
-  // https://css-tricks.com/centering-css-complete-guide/
-
-  // TODO This would be nicer and more consistent if we used a monospace font (ugly)
-  // or figured out the actual rendered length of the partial strings (tedius)
-  limitToXChars(input, limit) {
-    return input.length <= limit + 3
-      ? input
-      : input.substring(0, limit) + '...';
   }
 
   getInnerDisplay() {
@@ -103,6 +96,7 @@ class DishRowHeader extends React.Component {
           ref={(stringInputRef) => { this.stringInputRef = stringInputRef; }}
           key='1'/>,
         <PriceInput 
+          style={{float: 'right'}}
           priceObj = {this.props.dish.price}
           onChangeCB = {this.props.setDishPriceCBGetter(dInd)} 
           key='2'/>]
@@ -110,11 +104,14 @@ class DishRowHeader extends React.Component {
     }
 
     // if we're using mobile and we're not focused
-    
-    let dish = this.limitToXChars(this.props.dish.name || placeholder, 12);
+    let dish = this.props.dish.name || placeholder;
     let price = Utils.priceAsString(this.props.dish.price.num, false);
     return (
-      <span>{dish} {price}</span>
+      <div style={{display: 'block'}}>
+        <span className='DishName'>{dish}</span>
+        <span style={{float: 'right'}}>{price}</span>
+        <div style={{clear:'both'}}/>
+      </div>
     );
   }
 }

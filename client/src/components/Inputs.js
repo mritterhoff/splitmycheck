@@ -9,8 +9,8 @@ import '../css/Inputs.css'
 let inputStyleDefault = { 
   border: '1px solid #999',
   borderRadius: 3, 
-  padding: '.2em 0em',
-  textAlign: 'center'
+  paddingTop: '.2em',
+  paddingBottom: '.2em',
 };
 
 let divContainerStyle = {
@@ -41,7 +41,8 @@ class StringInput extends React.Component {
 
   render() {
     let divStyle = Object.assign({}, divContainerStyle, this.props.style);
-    let inputStyle = Object.assign({}, inputStyleDefault, this.props.style, {padding: '.2em'});
+    let inputStyle = Object.assign({}, inputStyleDefault, this.props.style,
+      {padding: '.2em', maxWidth: '6em'});
     return (
       <AutosizeInput
         value={this.props.value}
@@ -108,7 +109,8 @@ class PriceInput extends React.Component {
     let divStyle = Object.assign({}, divContainerStyle, this.props.style);
     
     // if the price input is empty and the input isn't focused, show a pink background
-    let inputStyle = Object.assign({}, inputStyleDefault)
+    let inputStyle = Object.assign({}, inputStyleDefault, 
+      {maxWidth: '4em', textAlign: 'right', paddingRight: '.2em',})
     if (Number(this.props.priceObj.num) === 0 && !this.state.focused) {
       inputStyle.backgroundColor = 'lightgrey';
     }
