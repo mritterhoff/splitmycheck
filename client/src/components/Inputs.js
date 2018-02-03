@@ -163,7 +163,7 @@ function getKeydownCB(inputRefGetter) {
       if (inputRef) {
         inputRef.blur();
         // get as array rather than NodeList
-        let tabableElements = [...document.querySelectorAll('input, .DishRowHeaderContainer[tabIndex="0"]')];
+        let tabableElements = [...document.querySelectorAll('input, .RowHeaderContainer[tabIndex="0"]')];
         let curIndex = tabableElements.indexOf(inputRef.input)
         if (curIndex === -1) {
           console.warn(`Couldn't find current input. ${inputRef.input.innerHTML}`);
@@ -174,7 +174,7 @@ function getKeydownCB(inputRefGetter) {
         let newIndex = mod(curIndex + (ev.shiftKey ? -1 : 1), tabableElements.length);
         let v = tabableElements[newIndex];
         
-        // if it is an input, we select it, if it's a DishRowHeader, focus on it
+        // if it is an input, we select it, if it's a RowHeader, focus on it
         v.select ? v.select() : v.focus();
       }
     }

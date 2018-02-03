@@ -1,15 +1,16 @@
 import React from 'react';
 
-import { StringInput, PriceInput } from './Inputs'
-
-import { Utils } from '../Utils'
-
 import '../css/RowHeader.css'
 
+// 
 // Focus massively improved by https://medium.com/@jessebeach/dealing-with-focus-and-blur-in-a-composite-widget-in-react-90d3c3b49a9b
 class RowHeader extends React.Component {
   // holds blur timeout id
   _timeoutID;
+
+  // array of refs to all of the children components so we can trigger focus/selection
+  // on the first one when this component receives focus
+  _refs = [];
 
   constructor(props) {
     super(props);
@@ -19,22 +20,16 @@ class RowHeader extends React.Component {
     };
   }
 
-  // helpful debugging method
-  log(str) {
-    // console.log(`DHR${this.props.dInd} ${str}`);
-  }
-
   componentDidUpdate(prevProps, prevState) {
     // only select the first input if we're NEWLY focussed
-    if (this.state.isManagingFocus && !prevState.isManagingFocus && this.stringInputRef) {
-      this.stringInputRef.selectInput();
-      this.log('would like to focused to stringInput here');
+    if (this.state.isManagingFocus && !prevState.isManagingFocus) {
+      this._refs[0].selectInput();
+      console.log('would like to focused to on the first input here');
     }
   }
 
   _onBlur() {
     // return;  // uncomment this to help with style analysis in chrome
-    this.log('is going to blur');
     this._timeoutID = setTimeout(() => {
       if (this.state.isManagingFocus) {
         this.setState(prevState => ({
@@ -45,7 +40,6 @@ class RowHeader extends React.Component {
   }
   
   _onFocus() {
-    this.log('is going to focus');
     clearTimeout(this._timeoutID);
     if (!this.state.isManagingFocus) {
       this.setState(prevState => ({
@@ -55,6 +49,7 @@ class RowHeader extends React.Component {
   }
 
   render() {
+    // TOOD neaten this up
     // vertically align child span element when appropriate
     // https://css-tricks.com/centering-css-complete-guide/
     let className='RowHeader';
@@ -82,36 +77,18 @@ class RowHeader extends React.Component {
     );
   }
 
+  // get refs to each child component
+  // hat tip to https://stackoverflow.com/a/32371612/1188090
+  // must set _ref by index (push() will lead to an array of old duplicates)
   getInnerDisplay() {
-    let dInd = this.props.dInd;
-    let placeholder = `Dish ${dInd + 1}`;
-
     if (this.state.isManagingFocus || !this.props.useMobileUI) {
-      return (
-        [<StringInput 
-          placeholder= {placeholder}
-          value = {this.props.dish.name}
-          onChangeCB = {this.props.setDishNameCBGetter(dInd)}
-          ref={(stringInputRef) => { this.stringInputRef = stringInputRef; }}
-          key='1'/>,
-        <PriceInput 
-          style={{float: 'right'}}
-          priceObj = {this.props.dish.price}
-          onChangeCB = {this.props.setDishPriceCBGetter(dInd)} 
-          key='2'/>]
-      );
+      return React.Children.map(
+        this.props.children, 
+        (child, i) => React.cloneElement(child, { ref: (ref) => { this._refs[i] = ref; } }));
     }
 
     // if we're using mobile and we're not focused
-    let dish = this.props.dish.name || placeholder;
-    let price = Utils.priceAsString(this.props.dish.price.num, false);
-    return (
-      <div style={{display: 'block'}}>
-        <span className='DishName'>{dish}</span>
-        <span style={{float: 'right'}}>{price}</span>
-        <div style={{clear:'both'}}/>
-      </div>
-    );
+    return this.props.staticReplacement();
   }
 }
 

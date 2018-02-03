@@ -291,15 +291,35 @@ class Splitter extends React.Component {
       };
     };
 
+    function staticReplacement(dish, dInd) {
+      return () => {
+        let dishName = dish.name || `Dish ${dInd + 1}`;
+        let price = Utils.priceAsString(dish.price.num, false);
+        return (
+          <div style={{display: 'block'}}>
+            <span className='DishName'>{dishName}</span>
+            <span style={{float: 'right'}}>{price}</span>
+            <div style={{clear:'both'}}/>
+          </div>
+        );
+      }
+    }
+
     return this.state.dishes.map((dish, dInd) => {
       let rowEls = [
-        <RowHeader
-          useMobileUI={this.props.useMobileUI} 
-          dInd={dInd}
-          dish={dish}
-          setDishNameCBGetter={setDishNameCBGetter}
-          setDishPriceCBGetter={setDishPriceCBGetter}
-        />
+        <RowHeader 
+          useMobileUI={this.props.useMobileUI}
+          staticReplacement={staticReplacement(dish, dInd)}
+        >
+          <StringInput 
+            placeholder={`Dish ${dInd + 1}`}
+            value = {dish.name}
+            onChangeCB = {setDishNameCBGetter(dInd)}/>
+          <PriceInput 
+            style={{float: 'right'}}
+            priceObj = {dish.price}
+            onChangeCB = {setDishPriceCBGetter(dInd)}/>
+        </RowHeader>
       ];
 
       rowEls = rowEls.concat(this.state.people.map((el, pInd) => (
