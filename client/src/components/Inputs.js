@@ -133,6 +133,7 @@ class PriceInput extends React.Component {
         onBlur={this.onBlur.bind(this)}
         onFocus={this.onFocus.bind(this)}
         onKeyDown={getKeydownCB(() => (this.inputRef))}
+        extraWidth={1}
         ref={(inputRef) => { this.inputRef = inputRef; }}
       />
     );

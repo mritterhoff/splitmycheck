@@ -164,7 +164,7 @@ class Splitter extends React.Component {
       .concat(this.state.people.map((person, pInd) => (
         <StringInput 
           value = {person}
-          placeholder = {`Person ${pInd + 1}`}
+          placeholder = {`Pal ${pInd + 1}`}
           onChangeCB = {setNameCBGetter(pInd).bind(this)}
           style = {{textAlign: 'center'}}
         />

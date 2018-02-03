@@ -8,12 +8,14 @@
 
 .block {
   display: block;
+  /*width: max-content;*/
 }
 
 .flexVertCenter {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  /*width: max-content;*/
 }
 
 /*limit the length of the string that's shown. so cool!*/

@@ -89,6 +89,12 @@
     padding: 0;
   }
 
+  .table,
+  .thead,
+  .tbody,
+  .tfoot,
+  .tr,
+  .td,
   .th {
     padding: .1em;
   }
@@ -100,6 +106,16 @@
 
 /* Tablet Styles */
 @media only screen and (min-width: 401px) and (max-width: 960px) {
+  .table,
+  .thead,
+  .tbody,
+  .tfoot,
+  .tr,
+  .td,
+  .th {
+    padding: .2em;
+  }
+
   .table {
     width: 100%;
   }
