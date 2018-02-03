@@ -4,7 +4,7 @@ import { CellToggle } from './CellToggle'
 import { StringInput, PriceInput } from './Inputs'
 import { ButtonBar } from './ButtonBar'
 import { Linker } from './Linker'
-import { DishRowHeader } from './DishRowHeader'
+import { RowHeader } from './RowHeader'
 import { TH, TD, TR } from './TableDivs'
 
 import { Dish } from '../Dish'
@@ -19,6 +19,7 @@ class Splitter extends React.Component {
     this.state = StateLoader.loadInitial();
   }
 
+  // set or unset if the given person got the given dish.
   indicateOrder(setUnset, pInd, dInd) {
     this.setState(prevState => {
       let newOrders = Utils.clone2D(prevState.orders);
@@ -29,7 +30,7 @@ class Splitter extends React.Component {
     });
   }
 
-  // Returns true or false
+  // Returns true if the person got the dish, else false.
   didPersonOrderDish(pInd, dInd) {
     return this.state.orders[dInd][pInd];
   }
@@ -50,26 +51,29 @@ class Splitter extends React.Component {
 
   // Given a person, what's their total owed for orders? (exluding tax/tip)
   orderTotalForPerson(pInd) {
-    return this.state.dishes.map((dish, dInd) => (this.personCostForDish(pInd, dInd)), this)
+    return this.state.dishes
+      .map((dish, dInd) => (this.personCostForDish(pInd, dInd)), this)
       .reduce(Utils.sumFunc, 0);
   }
 
-  // Return the sum of dish orders.
+  // Return the sum of dish prices.
   orderTotal() {
-    return this.state.dishes.map((dish) => (dish.price.num)).reduce(Utils.sumFunc, 0);
+    return this.state.dishes
+      .map((dish) => (dish.price.num))
+      .reduce(Utils.sumFunc, 0);
   }
 
   // get the proportion of the order that Person (indexed by pInd) is responsible for
   // if the orderTotal is 0, will return 0 instead of NaN (dev by 0) (better to show user 0 than NaN)
   personOrderProportion(pInd) {
     let orderTotal = this.orderTotal();
-    if (orderTotal === 0) {
-      return 0;
-    }
-
-    return this.orderTotalForPerson(pInd) / orderTotal;
+    return orderTotal === 0
+      ? 0
+      : this.orderTotalForPerson(pInd) / orderTotal;
   }
 
+  // Add a new person to the people array, and a new column of Trues
+  // to the orders array (they order everything by default)
   addPerson() {
     this.setState((prevState) => {
       let newOrders = Utils.clone2D(prevState.orders);
@@ -101,7 +105,8 @@ class Splitter extends React.Component {
     this.setState((prevState) => {
       return {
         dishes: [...prevState.dishes, new Dish()],
-        orders: Utils.clone2D(prevState.orders).concat([Array(this.state.people.length).fill(true)])
+        orders: Utils.clone2D(prevState.orders)
+                  .concat([Array(this.state.people.length).fill(true)])
       };
     });
   }
@@ -116,7 +121,7 @@ class Splitter extends React.Component {
     }
   }
 
-  // this is called everytime the state is updated
+  // Store the current state to localStorage, every time the state is updated
   componentDidUpdate(prevProps, prevState) {
     StateLoader.updateLocalStorage(this.state);
   }
@@ -124,7 +129,6 @@ class Splitter extends React.Component {
   render() {
     return (
       <div className="splitterContainer">
-        <span>{this.props.useMobileUI ? 'Mobile Mode Active!' : ''}</span>
         <Linker dataToSend={this.state}/>
         <ButtonBar 
           addPersonFunc={this.addPerson.bind(this)}
@@ -289,7 +293,7 @@ class Splitter extends React.Component {
 
     return this.state.dishes.map((dish, dInd) => {
       let rowEls = [
-        <DishRowHeader
+        <RowHeader
           useMobileUI={this.props.useMobileUI} 
           dInd={dInd}
           dish={dish}
@@ -308,8 +312,7 @@ class Splitter extends React.Component {
 
       return (
         <TR key={dInd}>
-          {rowEls.map((el, i) => 
-            <TD key={i}>{el}</TD>)}
+          {rowEls.map((el, i) => <TD key={i}>{el}</TD>)}
         </TR>
       );
     });

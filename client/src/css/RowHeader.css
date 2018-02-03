@@ -1,4 +1,4 @@
-.DishRowHeader {
+.RowHeader {
   min-height: 2.3em;
 }
 
@@ -18,7 +18,7 @@
   /*width: max-content;*/
 }
 
-/*limit the length of the string that's shown. so cool!*/
+/* limit the length of the string that's shown. so cool! */
 .DishName {
   white-space: nowrap;
   overflow: hidden;

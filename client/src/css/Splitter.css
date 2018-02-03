@@ -102,6 +102,11 @@
   .table {
     width: 100%;
   }
+
+  /* make the first table header a fixed width for as long as possible */
+  .th:first-child {
+    width: 12em;
+  }
 }
 
 /* Tablet Styles */

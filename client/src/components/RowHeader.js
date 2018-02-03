@@ -4,10 +4,10 @@ import { StringInput, PriceInput } from './Inputs'
 
 import { Utils } from '../Utils'
 
-import '../css/DishRowHeader.css'
+import '../css/RowHeader.css'
 
 // Focus massively improved by https://medium.com/@jessebeach/dealing-with-focus-and-blur-in-a-composite-widget-in-react-90d3c3b49a9b
-class DishRowHeader extends React.Component {
+class RowHeader extends React.Component {
   // holds blur timeout id
   _timeoutID;
 
@@ -25,8 +25,6 @@ class DishRowHeader extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    this.log(`isManagingFocus is now: ${this.state.isManagingFocus}, was ${prevState.isManagingFocus}`);
-    
     // only select the first input if we're NEWLY focussed
     if (this.state.isManagingFocus && !prevState.isManagingFocus && this.stringInputRef) {
       this.stringInputRef.selectInput();
@@ -59,7 +57,7 @@ class DishRowHeader extends React.Component {
   render() {
     // vertically align child span element when appropriate
     // https://css-tricks.com/centering-css-complete-guide/
-    let className='DishRowHeader';
+    let className='RowHeader';
     if (this.props.useMobileUI && !this.state.isManagingFocus) {
       className += ' flexVertCenter'
     }
@@ -73,7 +71,7 @@ class DishRowHeader extends React.Component {
 
     // wrap in an additional div to increase touchable/clickable surface
     return (
-      <div className='DishRowHeaderContainer' 
+      <div className='RowHeaderContainer' 
           tabIndex={tabIndex}
           onBlur={this._onBlur.bind(this)}
           onFocus={this._onFocus.bind(this)}>
@@ -117,4 +115,4 @@ class DishRowHeader extends React.Component {
   }
 }
 
-export { DishRowHeader };
+export { RowHeader };

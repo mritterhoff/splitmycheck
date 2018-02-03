@@ -1,41 +1,64 @@
 import React from 'react';
 
-import Client from '../Client.js';
+import Client from '../Client';
 
 import '../css/Linker.css'
 
+const STATUS = {
+  NONE: 'none',
+  REQUESTING: 'requesting',
+  ERROR: 'error',
+  COMPLETE: 'complete'
+}
+
 class Linker extends React.Component {
+  // holds request timeout id
+  _timeoutID;
+
   constructor(props) {
     super(props);
     this.state = {
       result: '',
-      lastSentDataString: ''
+      lastSentDataString: '',
+      requestStatus: STATUS.NONE
     };
   }
 
   onClick() {
     // update the ui to show a request is in progress
     this.setState((prevState) => ({
-      requesting: true
+      requestStatus: STATUS.REQUESTING
     }));
+
+    // set a timeout to display "error" if we don't hear back soon
+    this._timeoutID = setTimeout(() => {
+      this.setState((prevState) => ({
+        requestStatus: STATUS.ERROR
+      }));
+    }, 2000);
 
     let dataString = JSON.stringify(this.props.dataToSend);
 
     Client.save(dataString, (response, error) => {
-      this.setState({
+      // we heard back, so cancel the timeout
+      clearTimeout(this._timeoutID);
+      this.setState((prevState) => ({
         link: response || error,
         lastSentDataString: dataString,
-        requesting: false
-      });
+        requestStatus: STATUS.COMPLETE
+      }));
     });
   }
 
   getLinkOrStatus() {
-    if (this.state.requesting) {
-      return <span> ...requesting</span>;
+    const userTextMap = {
+      [STATUS.REQUESTING]: ' ...requesting',
+      [STATUS.ERROR]: ' error getting link',
+      [STATUS.NONE]: ''
     }
-    if (!this.state.link) {
-      return <span></span>
+
+    if (this.state.requestStatus !== STATUS.COMPLETE) {
+      return <span>{userTextMap[this.state.requestStatus]}</span>;
     }
 
     // keep us on https if we're not running locally
@@ -51,7 +74,7 @@ class Linker extends React.Component {
 
   render() {
     // disable the button if we're requesting the url, or we haven't got new data to send
-    let disableButton = this.state.requesting 
+    let disableButton = (this.state.requestStatus === STATUS.REQUESTING)
       || (this.state.lastSentDataString === JSON.stringify(this.props.dataToSend));
 
     return (
