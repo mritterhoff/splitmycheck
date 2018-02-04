@@ -1,8 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types'
 
 import '../css/RowHeader.css'
 
-// 
+// Create the first element of a row. Handle bluring/focusing on subelements,
+// render 'staticReplacement' when unfocussed on mobile. 
 // Focus massively improved by https://medium.com/@jessebeach/dealing-with-focus-and-blur-in-a-composite-widget-in-react-90d3c3b49a9b
 class RowHeader extends React.Component {
   // holds blur timeout id
@@ -15,7 +17,7 @@ class RowHeader extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      // if one of this element's children is focussed
+      // if one of this element's children is focused
       isManagingFocus: false
     };
   }
@@ -68,9 +70,9 @@ class RowHeader extends React.Component {
     // wrap in an additional div to increase touchable/clickable surface
     return (
       <div className='RowHeaderContainer' 
-          tabIndex={tabIndex}
-          onBlur={this._onBlur.bind(this)}
-          onFocus={this._onFocus.bind(this)}>
+        tabIndex={tabIndex}
+        onBlur={this._onBlur.bind(this)}
+        onFocus={this._onFocus.bind(this)}>
         <div className={className}>
           {this.getInnerDisplay()}
         </div>
@@ -91,6 +93,12 @@ class RowHeader extends React.Component {
     // if we're using mobile and we're not focused
     return this.props.staticReplacement();
   }
+}
+
+RowHeader.propTypes = {
+  children:          PropTypes.array.isRequired,
+  useMobileUI:       PropTypes.bool.isRequired,
+  staticReplacement: PropTypes.func.isRequired
 }
 
 export { RowHeader };

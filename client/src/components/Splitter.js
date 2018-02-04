@@ -292,10 +292,10 @@ class Splitter extends React.Component {
 
   getSpecialRow(displayName, stateKey) {
     let updaterFunc = (stringRep, isFinal) => {
-        this.setState((prevState) => {
-          return {[stateKey]: prevState[stateKey].as(stringRep, isFinal)};
-        });
-      };
+      this.setState((prevState) => {
+        return {[stateKey]: prevState[stateKey].as(stringRep, isFinal)};
+      });
+    };
 
     let getterFunc = () => (this.state[stateKey]);
 
