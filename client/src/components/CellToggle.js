@@ -7,7 +7,7 @@ class CellToggle extends React.Component {
   render() {
     return (
       <div 
-        className={'CellToggle ' + (this.props.on ? 'on' : 'off')} 
+        className={this.getClassNames()} 
         onClick={() => {this.props.onClickCB(!this.props.on)}}>
         <span>
             {this.props.price}
@@ -15,10 +15,18 @@ class CellToggle extends React.Component {
       </div>
     );
   }
+
+  getClassNames() {
+    let names = 'CellToggle';
+    names += this.props.on ? ' on' : ' off';
+    if (this.props.hasError) { names += ' error'; }
+    return names;
+  }
 }
 
 CellToggle.propTypes = {
   on:         PropTypes.bool.isRequired,
+  hasError:   PropTypes.bool.isRequired,
   onClickCB:  PropTypes.func.isRequired,
   price:      PropTypes.string.isRequired
 }

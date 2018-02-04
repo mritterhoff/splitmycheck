@@ -182,23 +182,22 @@ class Splitter extends React.Component {
   }
 
   getTotalRow() {
-    let personStyle = {
-      fontWeight: 'bold',
-      display: 'inline-block'
-    };
-
     let rowEls = [
       <div>
         <span>Total:</span>
-        <span>
-          {Utils.priceAsString(this.orderTotal() + this.state.tax.num + this.state.tip.num)}
+        <span style={{float: 'right'}}>
+          {Utils.priceAsString(this.orderTotal() + this.state.tax.num + this.state.tip.num, false)}
         </span>
       </div>
     ];
     rowEls = rowEls.concat(this.state.people.map((person, pInd) => {
         let personTotal = this.orderTotalForPerson(pInd)
           + this.personOrderProportion(pInd) * (this.state.tax.num + this.state.tip.num);
-        return <span style={personStyle}>{Utils.priceAsString(personTotal)}</span>;
+        return (
+          <span style={{fontWeight: 'bold', display: 'inline-block'}}>
+            {Utils.priceAsString(personTotal)}
+          </span>
+        );
       },
       this));
 
@@ -241,8 +240,7 @@ class Splitter extends React.Component {
           onChangeCB = {updaterFunc}
           style={{float: 'right'}}/>
       </RowHeader> 
-    ]
-
+    ];
 
     rowEls = rowEls.concat(this.state.people.map((person, pInd) => (
       <span>
@@ -273,9 +271,14 @@ class Splitter extends React.Component {
         // make sure we aren't unsetting the last enabled cell in an order (someone has to pay!)
         // let the user make the illegal move, but revert it immediately
         if (!setUnset && that.state.orders[dInd].reduce(Utils.sumFunc, 0) === 1) {
-          setTimeout(() => {that.indicateOrder(true, pInd, dInd)}, 200);
+          that.setState((prevState) => ({error: pInd + '_' + dInd}));
+          setTimeout(() => {
+            that.setState((prevState) => ({error: undefined}));
+          }, 200);
         }
-        that.indicateOrder(setUnset, pInd, dInd);   
+        else {
+          that.indicateOrder(setUnset, pInd, dInd);   
+        }
       };
     };
 
@@ -341,6 +344,7 @@ class Splitter extends React.Component {
           on={that.didPersonOrderDish(pInd, dInd)}
           onClickCB={getToggleCB(pInd, dInd)}
           price={Utils.priceAsString(this.personCostForDish(pInd, dInd))}
+          hasError={this.state.error === (pInd + '_' + dInd)}
         />
       )));
 

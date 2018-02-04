@@ -17,3 +17,7 @@
   background: lightgrey;
   color: #b1b1b1;
 }
+
+.CellToggle.error {
+  background: lightgrey;
+}
