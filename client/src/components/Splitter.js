@@ -122,10 +122,10 @@ class Splitter extends React.Component {
     return initialSplit + splitDiff;
   }
 
-  // Given a person, what's their total owed for orders? (exluding tax/tip)
-  orderTotalForPerson(pInd) {
+  // Given a person, what's their subtotal owed? (exluding tax/tip)
+  subtotalOwed(pInd) {
     return this.state.dishes
-      .map((dish, dInd) => (this.personCostForDish(pInd, dInd)), this)
+      .map((dish, dInd) => (this.personCostForDish(pInd, dInd)))
       .reduce(Utils.sumFunc, 0);
   }
 
@@ -136,13 +136,13 @@ class Splitter extends React.Component {
       .reduce(Utils.sumFunc, 0);
   }
 
-  // get the proportion of the order that Person (indexed by pInd) is responsible for
+  // get the percent of the order that Person (indexed by pInd) owes
   // if the orderTotal is 0, will return 0 instead of NaN (dev by 0) (better to show user 0 than NaN)
-  personOrderProportion(pInd) {
+  percentOfSubtotalOwed(pInd) {
     let orderTotal = this.orderTotal();
     return orderTotal === 0
       ? 0
-      : this.orderTotalForPerson(pInd) / orderTotal;
+      : this.subtotalOwed(pInd) / orderTotal;
   }
 
   // Add a new person to the people array, and a new column of Trues
@@ -217,7 +217,7 @@ class Splitter extends React.Component {
           resetFunc={() => {this.setState((prevState) => StateLoader.getDefault())}}
         />
         <TABLE>
-          {this.getNamesHeader()}
+          {this.getHeaderRow()}
           <TBODY>
             {this.getOrderRows()}
             {this.getTaxRow()}
@@ -229,59 +229,54 @@ class Splitter extends React.Component {
     );
   }
 
-  getNamesHeader(people) {
-    let that = this;
-    function setNameCBGetter(pInd) {
-      return (newName) => {
-        that.setState((prevState) => {
-          prevState.people[pInd] = newName;
-          return {
-            people: prevState.people
-          }
-        });
-      };
-    };
-
-    let rowEls = [<div/>]
-      .concat(this.state.people.map((person, pInd) => (
-        <StringInput 
-          value = {person}
-          placeholder = {`Pal ${pInd + 1}`}
-          onChangeCB = {setNameCBGetter(pInd).bind(this)}
-          style = {{textAlign: 'center'}}
-        />
-      )));
-
-
+  getHeaderRow(people) {
     let widths = getHeaderWidths(30, this.state.people.length);
     return (
       <THEAD> 
-        {rowEls.map((el, i) => {
+        {this.getHeaderRowChildren().map((el, i) => {
           return <TH key={i} style={{width: widths[i] + '%'}}>{el}</TH>;
         })}
       </THEAD>
     );
   }
 
+  getHeaderRowChildren() {
+    let setNameCBGetter = pInd => (
+      newName => {
+        this.setState((prevState) => {
+          prevState.people[pInd] = newName;
+          return {
+            people: prevState.people
+          }
+        });
+      }
+    );
+
+    return [<div/>]
+      .concat(this.state.people.map((person, pInd) => (
+        <StringInput 
+          value = {person}
+          placeholder = {`Pal ${pInd + 1}`}
+          onChangeCB = {setNameCBGetter(pInd)}
+          style = {{textAlign: 'center'}}/>
+      )));
+  }
+
   getTotalRow() {
+    let taxAndTip = this.state.tax.num + this.state.tip.num;
     let rowEls = [
       <div>
         <span>Total:</span>
         <span style={{float: 'right'}}>
-          {Utils.priceAsString(this.orderTotal() + this.state.tax.num + this.state.tip.num, false)}
+          {Utils.priceAsString(this.orderTotal() + taxAndTip, false)}
         </span>
       </div>
     ];
-    rowEls = rowEls.concat(this.state.people.map((person, pInd) => {
-        let personTotal = this.orderTotalForPerson(pInd)
-          + this.personOrderProportion(pInd) * (this.state.tax.num + this.state.tip.num);
-        return (
-          <span style={{fontWeight: 'bold', display: 'inline-block'}}>
-            {Utils.priceAsString(personTotal)}
-          </span>
-        );
-      },
-      this));
+    rowEls = rowEls.concat(this.state.people.map((person, pInd) => (
+      <span style={{fontWeight: 'bold', display: 'inline-block'}}>
+        {Utils.priceAsString(this.subtotalOwed(pInd) + this.percentOfSubtotalOwed(pInd) * taxAndTip)}
+      </span>
+    )));
 
     return (
       <TR>
@@ -325,7 +320,7 @@ class Splitter extends React.Component {
     ];
 
     let priceArray = this.state.people.map((person, pInd) => (
-      Utils.roundToCent(this.personOrderProportion(pInd) * getterFunc().num)
+      Utils.roundToCent(this.percentOfSubtotalOwed(pInd) * getterFunc().num)
     ));
 
     let attemptSum = priceArray.reduce(Utils.sumFunc);
@@ -345,7 +340,7 @@ class Splitter extends React.Component {
       <span>
         {Utils.priceAsString(price)}
       </span>
-    ), this));
+    )));
 
     return (
       <TR>
