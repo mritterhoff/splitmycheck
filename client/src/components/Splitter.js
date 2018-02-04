@@ -14,6 +14,8 @@ import { Utils } from '../Utils'
 import '../css/Splitter.css'
 
 class Splitter extends React.Component {
+  _cache = {};
+
   constructor(props) {
     super(props);
     this.state = StateLoader.loadInitial();
@@ -42,11 +44,82 @@ class Splitter extends React.Component {
       .reduce(Utils.sumFunc);
   }
 
-  // Given a person and dish, how much do they owe for it?
+  getKey() {
+    let key = arguments.length === 1
+      ? arguments[0].join('_')
+      : [...arguments].join('_');
+    return key;
+  }
+
+  cacheHasIt() {
+    let key = this.getKey([...arguments]);
+    return this._cache[key] !== undefined;
+  }
+
+  getFromCache() {
+    let key = this.getKey([...arguments]);
+    return this._cache[key];
+  }
+
+  putInCache() {
+    let args = [...arguments];
+    let value = args[0];
+    args = args.slice(1);
+    let key = this.getKey(args);
+    this._cache[key] = value;
+    console.log('put', key, value);
+  }
+
   personCostForDish(pInd, dInd) {
-    return this.didPersonOrderDish(pInd, dInd)
-      ? this.state.dishes[dInd].price.num / this.peoplePerDish(dInd)
-      : 0;
+    if (this.cacheHasIt('personCostForDish', pInd, dInd)) {
+     return this.getFromCache('personCostForDish', pInd, dInd);
+    } 
+    let result = this.personCostForDishOrig(pInd, dInd);
+    this.putInCache(result, 'personCostForDish', pInd, dInd);
+    return result;
+  }
+
+  // Given a person and dish, how much do they owe for it?
+  // TODO this gets called 4 times per cell. should cache
+  personCostForDishOrig(pInd, dInd) {
+    if (!this.didPersonOrderDish(pInd, dInd)) { return 0; }
+  
+    let ppd = this.peoplePerDish(dInd)
+    let dishPrice = this.state.dishes[dInd].price.num
+    let initialSplit = Utils.precisionRound(dishPrice / ppd, 2);
+
+    // if the math was exact, we're done!
+    let diff = Utils.roundToCent(dishPrice - initialSplit * ppd);
+    if (diff === 0) {
+      return initialSplit;
+    }
+
+    // if there is a difference, it will be 
+    // between -(ppd - 1) cents and (ppd - 1) cents.
+    // this assumes 4 people ordered the dish:
+    //
+    // off  P0  P1  P2  P3  
+    //  -3   0  -1  -1  -1
+    //  -2   0   0  -1  -1
+    //  -1   0   0   0  -1  
+    //
+    //   1  +1   0   0   0
+    //   2  +1  +1   0   0
+    //   3  +1  +1  +1   0
+
+    // figure out where in the index of people we are, since people to the 
+    // left always pay more
+    let indexOfThisPerson = this.state.people
+      .map((p, pInd) => (this.didPersonOrderDish(pInd, dInd) ? pInd : -1))
+      .filter(el => el > -1)
+      .indexOf(pInd);
+
+    //console.log(`NOT EVEN: ${initialSplit * ppd} != ${dishPrice}, diff = ${diff}, initialSplit = ${initialSplit}`);
+
+    let splitDiff = diff < 0
+      ? (ppd - indexOfThisPerson <= Math.abs(diff)*100) ? -.01 : 0
+      : (indexOfThisPerson < diff*100) ? .01 : 0;
+    return initialSplit + splitDiff;
   }
 
   // Given a person, what's their total owed for orders? (exluding tax/tip)
@@ -119,6 +192,11 @@ class Splitter extends React.Component {
         orders: prevState.orders.slice(0, prevState.orders.length - 1)
       }));
     }
+  }
+
+  componentWillUpdate() {
+    this._cache = {};
+    console.log('cleared cache');
   }
 
   // Store the current state to localStorage, every time the state is updated
@@ -242,9 +320,17 @@ class Splitter extends React.Component {
       </RowHeader> 
     ];
 
-    rowEls = rowEls.concat(this.state.people.map((person, pInd) => (
+    let priceArray = this.state.people.map((person, pInd) => (
+      Utils.roundToCent(this.personOrderProportion(pInd) * getterFunc().num)
+    ));
+
+    let attemptSum = priceArray.reduce(Utils.sumFunc, 0);
+    let diff = Utils.roundToCent(getterFunc().num - attemptSum);
+    console.log(`${displayName} off by ${diff}`);
+
+    rowEls = rowEls.concat(priceArray.map(price => (
       <span>
-        {Utils.priceAsString(this.personOrderProportion(pInd) * getterFunc().num)}
+        {Utils.priceAsString(price)}
       </span>
     ), this));
 

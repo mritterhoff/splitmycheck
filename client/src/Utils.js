@@ -14,6 +14,16 @@ class Utils {
   static sumFunc(p, c) {
     return p + c;
   }
+
+  // hat tip to https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round
+  static precisionRound(number, precision) {
+    var factor = Math.pow(10, precision);
+    return Math.round(number * factor) / factor;
+  }
+
+  static roundToCent(number) {
+    return Utils.precisionRound(number, 2);
+  }
 }
 
 export { Utils };
