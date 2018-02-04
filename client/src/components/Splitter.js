@@ -218,16 +218,32 @@ class Splitter extends React.Component {
 
     let getterFunc = () => (this.state[stateKey]);
 
+    function staticReplacement(displayName, getterFunc) {
+      return () => (
+        <div style={{display: 'block'}}>
+          <span className='DishName'>{displayName}</span>
+          <span style={{float: 'right'}}>
+            {Utils.priceAsString(getterFunc().num, false)}
+          </span>
+        </div>
+      )
+    }
+
     // this style makes it align with the input box (which has a 1px border)
     let style = {display: 'inline-block', padding: '.3em 0em', margin: '1px 0'};
     let rowEls = [
-      <div>
-        <span style={style}>{displayName}:</span>
+      <RowHeader 
+        useMobileUI={this.props.useMobileUI}
+        staticReplacement={staticReplacement(displayName, getterFunc)}>
+        <span style={style}>{displayName}</span>
         <PriceInput 
           priceObj = {getterFunc()}
-          onChangeCB = {updaterFunc} />
-      </div>
-    ];
+          onChangeCB = {updaterFunc}
+          style={{float: 'right'}}/>
+      </RowHeader> 
+    ]
+
+
     rowEls = rowEls.concat(this.state.people.map((person, pInd) => (
       <span>
         {Utils.priceAsString(this.personOrderProportion(pInd) * getterFunc().num)}
@@ -299,7 +315,6 @@ class Splitter extends React.Component {
           <div style={{display: 'block'}}>
             <span className='DishName'>{dishName}</span>
             <span style={{float: 'right'}}>{price}</span>
-            <div style={{clear:'both'}}/>
           </div>
         );
       }
@@ -309,8 +324,7 @@ class Splitter extends React.Component {
       let rowEls = [
         <RowHeader 
           useMobileUI={this.props.useMobileUI}
-          staticReplacement={staticReplacement(dish, dInd)}
-        >
+          staticReplacement={staticReplacement(dish, dInd)}>
           <StringInput 
             placeholder={`Dish ${dInd + 1}`}
             value = {dish.name}

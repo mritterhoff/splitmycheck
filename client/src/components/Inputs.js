@@ -21,6 +21,8 @@ let divContainerStyle = {
 // This is a controlled component that only ever shows current state, and updates
 // that state with this.props.onChangeCB()
 class StringInput extends React.Component {
+  inputRef;
+
   updateInputValue(event) {
     // must prevent passing null value, so pass empty string instead
     this.props.onChangeCB(event.target.value || '');
@@ -69,6 +71,7 @@ StringInput.propTypes = {
 
 class PriceInput extends React.Component {
   defaultPlaceholder = '0.00';
+  inputRef;
 
   constructor(props) {
     super(props);
@@ -86,6 +89,10 @@ class PriceInput extends React.Component {
 
     // don't show the placeholder when user is inputting numbers
     this.inputRef.input.placeholder = '';
+  }
+
+  selectInput() {
+    this.inputRef.input.select();
   }
 
   onBlur(event) {

@@ -21,10 +21,11 @@ class RowHeader extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    // only select the first input if we're NEWLY focussed
+    // only select the first input if we're newly focussed
     if (this.state.isManagingFocus && !prevState.isManagingFocus) {
-      this._refs[0].selectInput();
-      console.log('would like to focused to on the first input here');
+      // select the input of the first ref that has that function
+      // this exists to accomidate tax/tip, who's first ref is a span element
+      this._refs.filter(el => el.selectInput)[0].selectInput();
     }
   }
 
