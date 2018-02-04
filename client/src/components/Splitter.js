@@ -5,7 +5,7 @@ import { StringInput, PriceInput } from './Inputs'
 import { ButtonBar } from './ButtonBar'
 import { Linker } from './Linker'
 import { RowHeader } from './RowHeader'
-import { TH, TD, TR } from './TableDivs'
+import { TH, TD, TR, THEAD, TBODY, TABLE } from './TableDivs'
 
 import { Dish } from '../Dish'
 import { StateLoader } from '../StateLoader'
@@ -67,7 +67,7 @@ class Splitter extends React.Component {
     args = args.slice(1);
     let key = this.getKey(args);
     this._cache[key] = value;
-    console.log('put', key, value);
+    // console.log('put', key, value);
   }
 
   personCostForDish(pInd, dInd) {
@@ -216,15 +216,15 @@ class Splitter extends React.Component {
           showExampleFunc={() => {this.setState((prevState) => StateLoader.getExample())}}
           resetFunc={() => {this.setState((prevState) => StateLoader.getDefault())}}
         />
-        <div className="table">
+        <TABLE>
           {this.getNamesHeader()}
-          <div className="tbody">
+          <TBODY>
             {this.getOrderRows()}
             {this.getTaxRow()}
             {this.getTipRow()}
             {this.getTotalRow()}
-          </div>
-        </div>
+          </TBODY>
+        </TABLE>
       </div>
     );
   }
@@ -252,10 +252,14 @@ class Splitter extends React.Component {
         />
       )));
 
+
+    let widths = getHeaderWidths(30, this.state.people.length);
     return (
-      <div className="thead"> 
-        {rowEls.map((el, i) => <TH key={i}>{el}</TH>)}
-      </div>
+      <THEAD> 
+        {rowEls.map((el, i) => {
+          return <TH key={i} style={{width: widths[i] + '%'}}>{el}</TH>;
+        })}
+      </THEAD>
     );
   }
 
@@ -324,9 +328,18 @@ class Splitter extends React.Component {
       Utils.roundToCent(this.personOrderProportion(pInd) * getterFunc().num)
     ));
 
-    let attemptSum = priceArray.reduce(Utils.sumFunc, 0);
+    let attemptSum = priceArray.reduce(Utils.sumFunc);
     let diff = Utils.roundToCent(getterFunc().num - attemptSum);
-    console.log(`${displayName} off by ${diff}`);
+
+    // if we have to fix the tax or tip up, just add/subtract from
+    // to/from the smallest/largest. it's only ever 1cent it seems...
+    if (diff !== 0) {
+      let max = diff < 0 
+        ? Math.max(...priceArray) 
+        : Math.min(...priceArray);
+      let index = priceArray.indexOf(max);
+      priceArray[index] += diff;
+    }
 
     rowEls = rowEls.concat(priceArray.map(price => (
       <span>
@@ -442,6 +455,10 @@ class Splitter extends React.Component {
     });
   }
 }  // end of Splitter class
+
+function getHeaderWidths(firstWidth, numPeople) {
+  return [firstWidth].concat(Array(numPeople).fill((100-firstWidth)/numPeople));
+}
 
 
 export default Splitter;
