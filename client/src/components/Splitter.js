@@ -220,8 +220,8 @@ class Splitter extends React.Component {
           {this.getHeaderRow()}
           <TBODY>
             {this.getOrderRows()}
-            {this.getTaxRow()}
-            {this.getTipRow()}
+            {this.getSpecialRow('Tax', 'tax')}
+            {this.getSpecialRow('Tip', 'tip')}
             {this.getTotalRow()}
           </TBODY>
         </TABLE>
@@ -285,6 +285,7 @@ class Splitter extends React.Component {
     );
   }
 
+  // Get tax or tip row.
   getSpecialRow(displayName, stateKey) {
     let updaterFunc = (stringRep, isFinal) => {
       this.setState((prevState) => {
@@ -319,24 +320,9 @@ class Splitter extends React.Component {
       </RowHeader> 
     ];
 
-    let priceArray = this.state.people.map((person, pInd) => (
-      Utils.roundToCent(this.percentOfSubtotalOwed(pInd) * getterFunc().num)
-    ));
+  
 
-    let attemptSum = priceArray.reduce(Utils.sumFunc);
-    let diff = Utils.roundToCent(getterFunc().num - attemptSum);
-
-    // if we have to fix the tax or tip up, just add/subtract from
-    // to/from the smallest/largest. it's only ever 1cent it seems...
-    if (diff !== 0) {
-      let max = diff < 0 
-        ? Math.max(...priceArray) 
-        : Math.min(...priceArray);
-      let index = priceArray.indexOf(max);
-      priceArray[index] += diff;
-    }
-
-    rowEls = rowEls.concat(priceArray.map(price => (
+    rowEls = rowEls.concat(this.getSpecialPriceArray(getterFunc).map(price => (
       <span>
         {Utils.priceAsString(price)}
       </span>
@@ -349,36 +335,42 @@ class Splitter extends React.Component {
     );
   }
 
-  getTaxRow() {
-    return this.getSpecialRow('Tax', 'tax');
-  }
+  getSpecialPriceArray(getterFunc) {
+    let priceArray = this.state.people.map((person, pInd) => (
+      Utils.roundToCent(this.percentOfSubtotalOwed(pInd) * getterFunc().num)
+    ));
+    let diff = Utils.roundToCent(getterFunc().num - priceArray.reduce(Utils.sumFunc));
 
-  getTipRow() {
-    return this.getSpecialRow('Tip', 'tip');
+    // if we have to fix the tax or tip up, just add/subtract from
+    // to/from the smallest/largest. it's only ever 1cent it seems...
+    if (diff !== 0) {
+      let priceToAdjust = diff < 0 
+        ? Math.max(...priceArray) 
+        : Math.min(...priceArray);
+      priceArray[priceArray.indexOf(priceToAdjust)] += diff;
+    }
+    return priceArray;
   }
 
   getOrderRows() {
-    let that = this;
-
-    function getToggleCB(pInd, dInd) {
-      return (setUnset) => {
-        // make sure we aren't unsetting the last enabled cell in an order (someone has to pay!)
-        // let the user make the illegal move, but revert it immediately
-        if (!setUnset && that.state.orders[dInd].reduce(Utils.sumFunc, 0) === 1) {
-          that.setState((prevState) => ({error: pInd + '_' + dInd}));
+    let getToggleCB = (pInd, dInd) => (
+      setUnset => {
+        // don't unset the last enabled cell in an order (someone has to pay!)
+        if (!setUnset && this.state.orders[dInd].reduce(Utils.sumFunc, 0) === 1) {
+          this.setState((prevState) => ({error: pInd + '_' + dInd}));
           setTimeout(() => {
-            that.setState((prevState) => ({error: undefined}));
+            this.setState((prevState) => ({error: undefined}));
           }, 200);
         }
         else {
-          that.indicateOrder(setUnset, pInd, dInd);   
+          this.indicateOrder(setUnset, pInd, dInd);   
         }
-      };
-    };
+      }
+    );
 
-    function setDishPriceCBGetter(dInd) {
-      return (stringRep, isFinal) => {
-        that.setState((prevState) => {
+    let setDishPriceCBGetter = dInd => (
+      (stringRep, isFinal) => {
+        this.setState((prevState) => {
           let newDishes = prevState.dishes.slice();  // shallow copy
 
           newDishes[dInd] = new Dish(
@@ -389,20 +381,20 @@ class Splitter extends React.Component {
             dishes: newDishes
           }
         });
-      };
-    };
+      }
+    );
 
-    function setDishNameCBGetter(dInd) {
-      return (newDishName) => {
-        that.setState((prevState) => {
+    let setDishNameCBGetter = dInd => (
+      newDishName => {
+        this.setState((prevState) => {
           let newDishes = prevState.dishes.slice();  // shallow copy
           newDishes[dInd] = new Dish(newDishName, newDishes[dInd].price);
           return {
             dishes: newDishes
           }
         });
-      };
-    };
+      }
+    );
 
     function staticReplacement(dish, dInd) {
       return () => {
@@ -435,7 +427,7 @@ class Splitter extends React.Component {
 
       rowEls = rowEls.concat(this.state.people.map((el, pInd) => (
         <CellToggle 
-          on={that.didPersonOrderDish(pInd, dInd)}
+          on={this.didPersonOrderDish(pInd, dInd)}
           onClickCB={getToggleCB(pInd, dInd)}
           price={Utils.priceAsString(this.personCostForDish(pInd, dInd))}
           hasError={this.state.error === (pInd + '_' + dInd)}
