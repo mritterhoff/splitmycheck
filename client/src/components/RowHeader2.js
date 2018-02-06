@@ -1,6 +1,6 @@
 import React from 'react';
 import ClassNames from 'classnames';
-// import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
 
 import { Swappable } from './Swappable'
 
@@ -100,10 +100,9 @@ class RowHeader2 extends React.Component {
   }
 }
 
-// RowHeader2.propTypes = {
-//   children:          PropTypes.array.isRequired,
-//   useMobileUI:       PropTypes.bool.isRequired,
-//   staticReplacement: PropTypes.func.isRequired
-// }
+RowHeader2.propTypes = {
+  children:          PropTypes.array.isRequired,
+  useMobileUI:       PropTypes.bool.isRequired
+}
 
 export { RowHeader2 };

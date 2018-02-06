@@ -8,11 +8,9 @@ import 'bootstrap/dist/css/bootstrap.css';
 import './css/index.css';
 import App from './components/App.js';
 
-
 // disable service works for now
 //import registerServiceWorker from './registerServiceWorker';
 unregister();
-
 
 ReactDOM.render(<App />, document.getElementById('root'));
 // registerServiceWorker();
