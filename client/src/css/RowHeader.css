@@ -1,6 +1,25 @@
-.RowHeader {
-  min-height: 2.3em;
+.Swappable {
+  display: inline-block;
 }
+
+.RowHeaderContainer {
+  /*background-color: lightblue;*/
+}
+
+.Swappable.noninteractive {
+  padding: .3em 0;
+}
+
+/*.RowHeaderContainer.notFocused {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+
+.RowHeaderContainer {
+  min-height: 2.3em;
+}*/
 
 .maxWidth {
   width: max-content;
@@ -23,7 +42,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  float: left;
+/*  float: left;*/
 
   /*TODO experiment with this value*/
   max-width: 6em;

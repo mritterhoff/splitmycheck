@@ -31,28 +31,28 @@ class RowHeader extends React.Component {
     }
   }
 
-  _onBlur() {
-    // return;  // uncomment this to help with style analysis in chrome
-    this._timeoutID = setTimeout(() => {
-      if (this.state.isManagingFocus) {
-        this.setState(prevState => ({
-          isManagingFocus: false
-        }));
-      }
-    }, 0);
-  }
+  // _onBlur() {
+  //   // return;  // uncomment this to help with style analysis in chrome
+  //   this._timeoutID = setTimeout(() => {
+  //     if (this.state.isManagingFocus) {
+  //       this.setState(prevState => ({
+  //         isManagingFocus: false
+  //       }));
+  //     }
+  //   }, 0);
+  // }
   
-  _onFocus() {
-    clearTimeout(this._timeoutID);
-    if (!this.state.isManagingFocus) {
-      this.setState(prevState => ({
-        isManagingFocus: true
-      }));
-    }
-  }
+  // _onFocus() {
+  //   clearTimeout(this._timeoutID);
+  //   if (!this.state.isManagingFocus) {
+  //     this.setState(prevState => ({
+  //       isManagingFocus: true
+  //     }));
+  //   }
+  // }
 
   render() {
-    // TOOD neaten this up
+    // TODO neaten this up
     // vertically align child span element when appropriate
     // https://css-tricks.com/centering-css-complete-guide/
     let className='RowHeader';
@@ -71,8 +71,9 @@ class RowHeader extends React.Component {
     return (
       <div className='RowHeaderContainer' 
         tabIndex={tabIndex}
-        onBlur={this._onBlur.bind(this)}
-        onFocus={this._onFocus.bind(this)}>
+        // onBlur={this._onBlur.bind(this)}
+        // onFocus={this._onFocus.bind(this)}
+        >
         <div className={className}>
           {this.getInnerDisplay()}
         </div>
@@ -87,7 +88,13 @@ class RowHeader extends React.Component {
     if (this.state.isManagingFocus || !this.props.useMobileUI) {
       return React.Children.map(
         this.props.children, 
-        (child, i) => React.cloneElement(child, { ref: (ref) => { this._refs[i] = ref; } }));
+        (child, i) => React.cloneElement(
+          child, 
+          { 
+            ref: (ref) => { this._refs[i] = ref; },
+            tabIndex: 0
+          }
+        ));
     }
 
     // if we're using mobile and we're not focused

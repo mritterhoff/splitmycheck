@@ -5,6 +5,7 @@ import { StringInput, PriceInput } from './Inputs'
 import { ButtonBar } from './ButtonBar'
 import { Linker } from './Linker'
 import { RowHeader } from './RowHeader'
+import { RowHeader2 } from './RowHeader2'
 import { TH, TD, TR, THEAD, TBODY, TABLE } from './TableDivs'
 
 import { Dish } from '../Dish'
@@ -132,7 +133,7 @@ class Splitter extends React.Component {
   // Return the sum of dish prices.
   orderTotal() {
     return this.state.dishes
-      .map((dish) => (dish.price.num))
+      .map(dish => (dish.price.num))
       .reduce(Utils.sumFunc, 0);
   }
 
@@ -148,7 +149,7 @@ class Splitter extends React.Component {
   // Add a new person to the people array, and a new column of Trues
   // to the orders array (they order everything by default)
   addPerson() {
-    this.setState((prevState) => {
+    this.setState(prevState => {
       let newOrders = Utils.clone2D(prevState.orders);
 
       for (let row = 0; row < newOrders.length; row++) {
@@ -165,7 +166,7 @@ class Splitter extends React.Component {
   removeLastPerson() {
     // There must always be two or more people
     if (this.state.people.length > 2) {
-      this.setState((prevState) => {
+      this.setState(prevState => {
         return {
           people: prevState.people.slice(0, prevState.people.length - 1),
           orders: prevState.orders.map(row => (row.slice(0, row.length - 1)))
@@ -175,7 +176,7 @@ class Splitter extends React.Component {
   }
 
   addDish() {
-    this.setState((prevState) => {
+    this.setState(prevState => {
       return {
         dishes: [...prevState.dishes, new Dish()],
         orders: Utils.clone2D(prevState.orders)
@@ -187,7 +188,7 @@ class Splitter extends React.Component {
   removeLastDish() {
     // There must always be at least 1 dish
     if (this.state.dishes.length > 1) {
-      this.setState((prevState) => ({
+      this.setState(prevState => ({
         dishes: prevState.dishes.slice(0, prevState.dishes.length - 1),
         orders: prevState.orders.slice(0, prevState.orders.length - 1)
       }));
@@ -213,8 +214,8 @@ class Splitter extends React.Component {
           removePersonFunc={this.removeLastPerson.bind(this)}
           addDishFunc={this.addDish.bind(this)}
           removeDishFunc={this.removeLastDish.bind(this)}
-          showExampleFunc={() => {this.setState((prevState) => StateLoader.getExample())}}
-          resetFunc={() => {this.setState((prevState) => StateLoader.getDefault())}}
+          showExampleFunc={() => {this.setState(prevState => StateLoader.getExample())}}
+          resetFunc={() => {this.setState(prevState => StateLoader.getDefault())}}
         />
         <TABLE>
           {this.getHeaderRow()}
@@ -230,7 +231,7 @@ class Splitter extends React.Component {
   }
 
   getHeaderRow(people) {
-    let widths = getHeaderWidths(30, this.state.people.length);
+    let widths = getHeaderWidths(40, this.state.people.length);
     return (
       <THEAD> 
         {this.getHeaderRowChildren().map((el, i) => {
@@ -243,7 +244,7 @@ class Splitter extends React.Component {
   getHeaderRowChildren() {
     let setNameCBGetter = pInd => (
       newName => {
-        this.setState((prevState) => {
+        this.setState(prevState => {
           prevState.people[pInd] = newName;
           return {
             people: prevState.people
@@ -288,7 +289,7 @@ class Splitter extends React.Component {
   // Get tax or tip row.
   getSpecialRow(displayName, stateKey) {
     let updaterFunc = (stringRep, isFinal) => {
-      this.setState((prevState) => {
+      this.setState(prevState => {
         return {[stateKey]: prevState[stateKey].as(stringRep, isFinal)};
       });
     };
@@ -320,19 +321,10 @@ class Splitter extends React.Component {
       </RowHeader> 
     ];
 
-  
+    rowEls = rowEls.concat(this.getSpecialPriceArray(getterFunc)
+      .map(price => (<span>{Utils.priceAsString(price)}</span>)));
 
-    rowEls = rowEls.concat(this.getSpecialPriceArray(getterFunc).map(price => (
-      <span>
-        {Utils.priceAsString(price)}
-      </span>
-    )));
-
-    return (
-      <TR>
-        {rowEls.map((el, el_i) => <TD key={el_i}>{el}</TD>)}
-      </TR>
-    );
+    return <TR>{rowEls.map((el, el_i) => <TD key={el_i}>{el}</TD>)}</TR>;
   }
 
   getSpecialPriceArray(getterFunc) {
@@ -357,9 +349,9 @@ class Splitter extends React.Component {
       setUnset => {
         // don't unset the last enabled cell in an order (someone has to pay!)
         if (!setUnset && this.state.orders[dInd].reduce(Utils.sumFunc, 0) === 1) {
-          this.setState((prevState) => ({error: pInd + '_' + dInd}));
+          this.setState(prevState => ({error: pInd + '_' + dInd}));
           setTimeout(() => {
-            this.setState((prevState) => ({error: undefined}));
+            this.setState(prevState => ({error: undefined}));
           }, 200);
         }
         else {
@@ -370,7 +362,7 @@ class Splitter extends React.Component {
 
     let setDishPriceCBGetter = dInd => (
       (stringRep, isFinal) => {
-        this.setState((prevState) => {
+        this.setState(prevState => {
           let newDishes = prevState.dishes.slice();  // shallow copy
 
           newDishes[dInd] = new Dish(
@@ -386,7 +378,7 @@ class Splitter extends React.Component {
 
     let setDishNameCBGetter = dInd => (
       newDishName => {
-        this.setState((prevState) => {
+        this.setState(prevState => {
           let newDishes = prevState.dishes.slice();  // shallow copy
           newDishes[dInd] = new Dish(newDishName, newDishes[dInd].price);
           return {
@@ -396,33 +388,30 @@ class Splitter extends React.Component {
       }
     );
 
-    function staticReplacement(dish, dInd) {
-      return () => {
-        let dishName = dish.name || `Dish ${dInd + 1}`;
-        let price = Utils.priceAsString(dish.price.num, false);
-        return (
-          <div style={{display: 'block'}}>
-            <span className='DishName'>{dishName}</span>
-            <span style={{float: 'right'}}>{price}</span>
-          </div>
-        );
-      }
-    }
-
     return this.state.dishes.map((dish, dInd) => {
+      let dishName = dish.name || `Dish ${dInd + 1}`;
+      let price = Utils.priceAsString(dish.price.num, false);
+
+      // todo move the keys to somewhere else apparently need to be here AND in RowHeader2
       let rowEls = [
-        <RowHeader 
-          useMobileUI={this.props.useMobileUI}
-          staticReplacement={staticReplacement(dish, dInd)}>
-          <StringInput 
-            placeholder={`Dish ${dInd + 1}`}
-            value = {dish.name}
-            onChangeCB = {setDishNameCBGetter(dInd)}/>
-          <PriceInput 
-            style={{float: 'right'}}
-            priceObj = {dish.price}
-            onChangeCB = {setDishPriceCBGetter(dInd)}/>
-        </RowHeader>
+        <RowHeader2
+          useMobileUI={this.props.useMobileUI}>
+           {[[
+            <StringInput 
+              placeholder={`Dish ${dInd + 1}`}
+              value = {dish.name}
+              onChangeCB = {setDishNameCBGetter(dInd)}
+              key='1'/>,
+            <span tabIndex='0' className='DishName' key='2'>{dishName}</span>
+          ],
+          [
+            <PriceInput 
+              priceObj = {dish.price}
+              onChangeCB = {setDishPriceCBGetter(dInd)}
+              key='3'/>,
+            <span tabIndex='0' key='4'>{price}</span>
+          ]]}
+        </RowHeader2>
       ];
 
       rowEls = rowEls.concat(this.state.people.map((el, pInd) => (
