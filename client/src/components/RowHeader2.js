@@ -7,11 +7,11 @@ import { Swappable } from './Swappable'
 import '../css/RowHeader.css'
 
 class RowHeader2 extends React.Component {
-  // holds blur timeout id
+  // holds blur timeout id, so we can clear if re-focused
   _timeoutID;
 
-  // array of refs to all of the children components so we can trigger focus/selection
-  // on the first one when this component receives focus
+  // array of refs to all of the children components so we can trigger 
+  // focus/selection on the first one when this component receives focus
   _refs = [];
 
   // keep track of the swappable children, and whether they're focused or not
@@ -31,16 +31,16 @@ class RowHeader2 extends React.Component {
   }
 
   onClickCB() {
-    // if we're not already focussed, and we click somewhere other than 
+    // if we're not already focused, and we click somewhere other than 
     // the two spans (ie the background container div), focus on the first input
     if (!this.state.isManagingFocus) {
       this.swapCB(this.getFirstRefIndex(), true);
     }
   }
 
-  // status is a bool, should probably be an enum
+  // TODO status is a bool, should probably be an enum
   swapCB(index, status) {
-    console.log(index,` is now ${status ? 'focused' : 'blurred'}`);
+    // console.log(index,`is now ${status ? 'focused' : 'blurred'}`);
 
     if (status === true) {
       clearTimeout(this._timeoutID);
@@ -74,8 +74,8 @@ class RowHeader2 extends React.Component {
       'notFocused': !this.state.isManagingFocus
     });
     
+    //// TODO explore making this use something other than onClick
     return (
-                              //// TODO explore making this something other than onClick
       <div className={className} onClick={this.onClickCB.bind(this)}>
         <div>
         {this.props.children.map((childPair, i) => 
@@ -93,10 +93,9 @@ class RowHeader2 extends React.Component {
   }
 
   getRefCB(childPair, i) {
-    if (childPair.length === 1) {
-      return () => {};
-    }
-    return ref => { this._refs[i] = ref; }
+    return childPair.length === 1
+      ? () => {}
+      : ref => { this._refs[i] = ref; };
   }
 }
 

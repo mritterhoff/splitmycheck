@@ -3,6 +3,10 @@ import '../css/App.css';
 import Splitter from './Splitter.js'
 
 class App extends Component {
+  handleWindowSizeChange = () => {
+    this.setState({ width: window.innerWidth });
+  };
+
   constructor() {
     super();
     this.state = {
@@ -15,14 +19,10 @@ class App extends Component {
     window.addEventListener('resize', this.handleWindowSizeChange);
   }
 
-  // make sure to remove the listenerwhen the component is not mounted anymore
+  // make sure to remove the listener when the component is not mounted anymore
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleWindowSizeChange);
   }
-
-  handleWindowSizeChange = () => {
-    this.setState({ width: window.innerWidth });
-  };
 
   render() {
     return (

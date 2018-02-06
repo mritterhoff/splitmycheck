@@ -6,6 +6,8 @@ import { Price } from '../Price'
 
 import '../css/Inputs.css'
 
+// TODO the style resolution for these inputs should be improved.
+
 let inputStyleDefault = { 
   border: '1px solid #999',
   borderRadius: 3, 
@@ -18,27 +20,29 @@ let divContainerStyle = {
   padding: '.1em'
 };
 
-// This is a controlled component that only ever shows current state, and updates
-// that state with this.props.onChangeCB()
+/*
+  This is a controlled input component that only ever shows current state, and updates
+  that state with this.props.onChangeCB()
+*/
 class StringInput extends React.Component {
-  inputRef;
+  autoSizeInputRef;
 
-  updateInputValue(event) {
+  updateInputValue = event => {
     // must prevent passing null value, so pass empty string instead
     this.props.onChangeCB(event.target.value || '');
-  }
+  };
 
-  onFocus(event) {
+  onFocus = event => {
     // don't show the placeholder when user is inputting numbers
-    this.inputRef.input.placeholder = '';
-  }
+    this.autoSizeInputRef.input.placeholder = '';
+  };
 
-  onBlur(event) {
-    this.inputRef.input.placeholder = this.props.placeholder;
-  }
+  onBlur = event => {
+    this.autoSizeInputRef.input.placeholder = this.props.placeholder;
+  };
 
   selectInput() {
-    this.inputRef.input.select();
+    this.autoSizeInputRef.input.select();
   }
 
   render() {
@@ -52,11 +56,11 @@ class StringInput extends React.Component {
         placeholderIsMinWidth
         style={divStyle}
         inputStyle={inputStyle}
-        onKeyDown={getKeydownCB(() => (this.inputRef))}
-        onChange={this.updateInputValue.bind(this)}
-        onBlur={this.onBlur.bind(this)}
-        onFocus={this.onFocus.bind(this)}
-        ref={(inputRef) => { this.inputRef = inputRef; }}/>
+        onKeyDown={getKeydownCB(() => (this.autoSizeInputRef))}
+        onChange={this.updateInputValue}
+        onBlur={this.onBlur}
+        onFocus={this.onFocus}
+        ref={(ref) => { this.autoSizeInputRef = ref; }}/>
     );
   }
 }
@@ -71,7 +75,7 @@ StringInput.propTypes = {
 
 class PriceInput extends React.Component {
   defaultPlaceholder = '0.00';
-  inputRef;
+  autoSizeInputRef;
 
   constructor(props) {
     super(props);
@@ -88,11 +92,11 @@ class PriceInput extends React.Component {
     this.setState((prevState) => ({ focused: true }));
 
     // don't show the placeholder when user is inputting numbers
-    this.inputRef.input.placeholder = '';
+    this.autoSizeInputRef.input.placeholder = '';
   }
 
   selectInput() {
-    this.inputRef.input.select();
+    this.autoSizeInputRef.input.select();
   }
 
   onBlur(event) {
@@ -109,7 +113,7 @@ class PriceInput extends React.Component {
       focused: false
     }));
 
-    this.inputRef.input.placeholder = this.defaultPlaceholder;
+    this.autoSizeInputRef.input.placeholder = this.defaultPlaceholder;
   }
 
   render() {
@@ -139,9 +143,9 @@ class PriceInput extends React.Component {
         onChange={this.onChange.bind(this)}
         onBlur={this.onBlur.bind(this)}
         onFocus={this.onFocus.bind(this)}
-        onKeyDown={getKeydownCB(() => (this.inputRef))}
+        onKeyDown={getKeydownCB(() => (this.autoSizeInputRef))}
         extraWidth={1}
-        ref={(inputRef) => { this.inputRef = inputRef; }}
+        ref={(inputRef) => { this.autoSizeInputRef = inputRef; }}
       />
     );
   }
@@ -170,7 +174,7 @@ function getKeydownCB(inputRefGetter) {
       if (inputRef) {
         inputRef.blur();
         // get as array rather than NodeList
-        let tabableElements = [...document.querySelectorAll('input, .RowHeaderContainer[tabIndex="0"]')];
+        let tabableElements = [...document.querySelectorAll('input, [tabIndex="0"]')];
         let curIndex = tabableElements.indexOf(inputRef.input)
         if (curIndex === -1) {
           console.warn(`Couldn't find current input. ${inputRef.input.innerHTML}`);

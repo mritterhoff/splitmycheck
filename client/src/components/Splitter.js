@@ -35,14 +35,14 @@ class Splitter extends React.Component {
   }
 
   // Returns true if the person got the dish, else false.
-  didPersonOrderDish(pInd, dInd) {
+  personOrderedDish(pInd, dInd) {
     return this.state.orders[dInd][pInd];
   }
 
   // Given a dish, how many people ordered it?
   peoplePerDish(dInd) {
     return this.state.people
-      .map((p, pInd) => (this.didPersonOrderDish(pInd, dInd)))
+      .map((p, pInd) => (this.personOrderedDish(pInd, dInd)))
       .reduce(Utils.sumFunc);
   }
 
@@ -57,8 +57,21 @@ class Splitter extends React.Component {
 
   // Given a person and dish, how much do they owe for it?
   // TODO this gets called 4 times per cell, so we cache it
+
+  // if there is a difference, it will be 
+  // between -(ppd - 1) cents and (ppd - 1) cents.
+  // this assumes 4 people ordered the dish:
+  //
+  // off  P0  P1  P2  P3  
+  //  -3   0  -1  -1  -1
+  //  -2   0   0  -1  -1
+  //  -1   0   0   0  -1  
+  //
+  //   1  +1   0   0   0
+  //   2  +1  +1   0   0
+  //   3  +1  +1  +1   0
   personCostForDishOrig(pInd, dInd) {
-    if (!this.didPersonOrderDish(pInd, dInd)) { return 0; }
+    if (!this.personOrderedDish(pInd, dInd)) { return 0; }
   
     let ppd = this.peoplePerDish(dInd)
     let dishPrice = this.state.dishes[dInd].price.num
@@ -70,27 +83,12 @@ class Splitter extends React.Component {
       return initialSplit;
     }
 
-    // if there is a difference, it will be 
-    // between -(ppd - 1) cents and (ppd - 1) cents.
-    // this assumes 4 people ordered the dish:
-    //
-    // off  P0  P1  P2  P3  
-    //  -3   0  -1  -1  -1
-    //  -2   0   0  -1  -1
-    //  -1   0   0   0  -1  
-    //
-    //   1  +1   0   0   0
-    //   2  +1  +1   0   0
-    //   3  +1  +1  +1   0
-
     // figure out where in the index of people we are, since people to the 
     // left always pay more
     let indexOfThisPerson = this.state.people
-      .map((p, pInd) => (this.didPersonOrderDish(pInd, dInd) ? pInd : -1))
+      .map((p, pInd) => (this.personOrderedDish(pInd, dInd) ? pInd : -1))
       .filter(el => el > -1)
       .indexOf(pInd);
-
-    //console.log(`NOT EVEN: ${initialSplit * ppd} != ${dishPrice}, diff = ${diff}, initialSplit = ${initialSplit}`);
 
     let splitDiff = diff < 0
       ? (ppd - indexOfThisPerson <= Math.abs(diff)*100) ? -.01 : 0
@@ -196,8 +194,8 @@ class Splitter extends React.Component {
           {this.getHeaderRow()}
           <TBODY>
             {this.getOrderRows()}
-            {this.getSpecialRow('Tax', 'tax')}
-            {this.getSpecialRow('Tip', 'tip')}
+            {this.getSpecialRow('Tax:', 'tax')}
+            {this.getSpecialRow('Tip:', 'tip')}
             {this.getTotalRow()}
           </TBODY>
         </TABLE>
@@ -279,7 +277,7 @@ class Splitter extends React.Component {
           <PriceInput key='2'
             priceObj = {getterFunc()}
             onChangeCB = {updaterFunc}/>,
-          <span key='3'>
+          <span tabIndex='0' key='3'>
             {Utils.priceAsString(getterFunc().num, false)}
           </span>
         ]]}
@@ -380,7 +378,7 @@ class Splitter extends React.Component {
 
       rowEls = rowEls.concat(this.state.people.map((el, pInd) => (
         <CellToggle 
-          on={this.didPersonOrderDish(pInd, dInd)}
+          on={this.personOrderedDish(pInd, dInd)}
           onClickCB={getToggleCB(pInd, dInd)}
           price={Utils.priceAsString(this.personCostForDish(pInd, dInd), false)}
           hasError={this.state.error === errorKey(pInd, dInd)}
