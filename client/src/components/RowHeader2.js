@@ -1,4 +1,5 @@
 import React from 'react';
+import ClassNames from 'classnames';
 // import PropTypes from 'prop-types'
 
 import { Swappable } from './Swappable'
@@ -24,11 +25,16 @@ class RowHeader2 extends React.Component {
     };
   }
 
+  // Get the first defined ref index
+  getFirstRefIndex() {
+    return this._refs[0] ? 0 : 1;
+  }
+
   onClickCB() {
     // if we're not already focussed, and we click somewhere other than 
     // the two spans (ie the background container div), focus on the first input
     if (!this.state.isManagingFocus) {
-      this.swapCB(0, true);
+      this.swapCB(this.getFirstRefIndex(), true);
     }
   }
 
@@ -61,21 +67,36 @@ class RowHeader2 extends React.Component {
 
   render() {
     // wrap in an additional div to increase touchable/clickable surface
-    let className = 'RowHeaderContainer ' + (this.state.isManagingFocus ? 'focused' : 'notFocused');
+    let className = ClassNames({
+      'RowHeaderContainer': true,
+      'flexVertCenter': true,
+      'focused': this.state.isManagingFocus,
+      'notFocused': !this.state.isManagingFocus
+    });
+    
     return (
                               //// TODO explore making this something other than onClick
       <div className={className} onClick={this.onClickCB.bind(this)}>
+        <div>
         {this.props.children.map((childPair, i) => 
           <Swappable 
-            ref={ref => { this._refs[i] = ref; }}
+            ref={this.getRefCB(childPair, i)}
             swapCB={this.swapCB.bind(this)}
             interactive={this.state.isManagingFocus}
             index={i}
             key={i}>
               {childPair}
           </Swappable>)}
+        </div>
       </div>  
     );  
+  }
+
+  getRefCB(childPair, i) {
+    if (childPair.length === 1) {
+      return () => {};
+    }
+    return ref => { this._refs[i] = ref; }
   }
 }
 

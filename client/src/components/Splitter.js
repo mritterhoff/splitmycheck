@@ -4,18 +4,19 @@ import { CellToggle } from './CellToggle'
 import { StringInput, PriceInput } from './Inputs'
 import { ButtonBar } from './ButtonBar'
 import { Linker } from './Linker'
-import { RowHeader } from './RowHeader'
 import { RowHeader2 } from './RowHeader2'
 import { TH, TD, TR, THEAD, TBODY, TABLE } from './TableDivs'
 
 import { Dish } from '../Dish'
 import { StateLoader } from '../StateLoader'
 import { Utils } from '../Utils'
+import { Cache } from '../Cache'
 
 import '../css/Splitter.css'
 
 class Splitter extends React.Component {
-  _cache = {};
+  // very simple cache for some frequent calculations
+  _cache = new Cache();
 
   constructor(props) {
     super(props);
@@ -45,43 +46,17 @@ class Splitter extends React.Component {
       .reduce(Utils.sumFunc);
   }
 
-  getKey() {
-    let key = arguments.length === 1
-      ? arguments[0].join('_')
-      : [...arguments].join('_');
-    return key;
-  }
-
-  cacheHasIt() {
-    let key = this.getKey([...arguments]);
-    return this._cache[key] !== undefined;
-  }
-
-  getFromCache() {
-    let key = this.getKey([...arguments]);
-    return this._cache[key];
-  }
-
-  putInCache() {
-    let args = [...arguments];
-    let value = args[0];
-    args = args.slice(1);
-    let key = this.getKey(args);
-    this._cache[key] = value;
-    // console.log('put', key, value);
-  }
-
   personCostForDish(pInd, dInd) {
-    if (this.cacheHasIt('personCostForDish', pInd, dInd)) {
-     return this.getFromCache('personCostForDish', pInd, dInd);
+    if (this._cache.has('personCostForDish', pInd, dInd)) {
+     return this._cache.get('personCostForDish', pInd, dInd);
     } 
     let result = this.personCostForDishOrig(pInd, dInd);
-    this.putInCache(result, 'personCostForDish', pInd, dInd);
+    this._cache.put(result, 'personCostForDish', pInd, dInd);
     return result;
   }
 
   // Given a person and dish, how much do they owe for it?
-  // TODO this gets called 4 times per cell. should cache
+  // TODO this gets called 4 times per cell, so we cache it
   personCostForDishOrig(pInd, dInd) {
     if (!this.didPersonOrderDish(pInd, dInd)) { return 0; }
   
@@ -196,7 +171,7 @@ class Splitter extends React.Component {
   }
 
   componentWillUpdate() {
-    this._cache = {};
+    this._cache.clear();
     console.log('cleared cache');
   }
 
@@ -296,29 +271,19 @@ class Splitter extends React.Component {
 
     let getterFunc = () => (this.state[stateKey]);
 
-    function staticReplacement(displayName, getterFunc) {
-      return () => (
-        <div style={{display: 'block'}}>
-          <span className='DishName'>{displayName}</span>
-          <span style={{float: 'right'}}>
+    let rowEls = [
+      <RowHeader2 useMobileUI={this.props.useMobileUI}>
+        {[[
+          <span className='taxOrTip' key='1'>{displayName}</span>
+         ],[ 
+          <PriceInput key='2'
+            priceObj = {getterFunc()}
+            onChangeCB = {updaterFunc}/>,
+          <span key='3'>
             {Utils.priceAsString(getterFunc().num, false)}
           </span>
-        </div>
-      )
-    }
-
-    // this style makes it align with the input box (which has a 1px border)
-    let style = {display: 'inline-block', padding: '.3em 0em', margin: '1px 0'};
-    let rowEls = [
-      <RowHeader 
-        useMobileUI={this.props.useMobileUI}
-        staticReplacement={staticReplacement(displayName, getterFunc)}>
-        <span style={style}>{displayName}</span>
-        <PriceInput 
-          priceObj = {getterFunc()}
-          onChangeCB = {updaterFunc}
-          style={{float: 'right'}}/>
-      </RowHeader> 
+        ]]}
+      </RowHeader2> 
     ];
 
     rowEls = rowEls.concat(this.getSpecialPriceArray(getterFunc)
@@ -349,7 +314,7 @@ class Splitter extends React.Component {
       setUnset => {
         // don't unset the last enabled cell in an order (someone has to pay!)
         if (!setUnset && this.state.orders[dInd].reduce(Utils.sumFunc, 0) === 1) {
-          this.setState(prevState => ({error: pInd + '_' + dInd}));
+          this.setState(prevState => ({error: errorKey(pInd, dInd)}));
           setTimeout(() => {
             this.setState(prevState => ({error: undefined}));
           }, 200);
@@ -394,9 +359,8 @@ class Splitter extends React.Component {
 
       // todo move the keys to somewhere else apparently need to be here AND in RowHeader2
       let rowEls = [
-        <RowHeader2
-          useMobileUI={this.props.useMobileUI}>
-           {[[
+        <RowHeader2 useMobileUI={this.props.useMobileUI}>
+          {[[
             <StringInput 
               placeholder={`Dish ${dInd + 1}`}
               value = {dish.name}
@@ -418,8 +382,8 @@ class Splitter extends React.Component {
         <CellToggle 
           on={this.didPersonOrderDish(pInd, dInd)}
           onClickCB={getToggleCB(pInd, dInd)}
-          price={Utils.priceAsString(this.personCostForDish(pInd, dInd))}
-          hasError={this.state.error === (pInd + '_' + dInd)}
+          price={Utils.priceAsString(this.personCostForDish(pInd, dInd), false)}
+          hasError={this.state.error === errorKey(pInd, dInd)}
         />
       )));
 
@@ -432,9 +396,14 @@ class Splitter extends React.Component {
   }
 }  // end of Splitter class
 
+
+
 function getHeaderWidths(firstWidth, numPeople) {
   return [firstWidth].concat(Array(numPeople).fill((100-firstWidth)/numPeople));
 }
 
+function errorKey(pInd, dInd) {
+  return pInd + '_' + dInd;
+}
 
 export default Splitter;

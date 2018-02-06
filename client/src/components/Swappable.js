@@ -1,61 +1,54 @@
 import React from 'react';
-// import PropTypes from 'prop-types'
+import PropTypes from 'prop-types'
+import ClassNames from 'classnames';
 
-
-// Create the first element of a row. Handle bluring/focusing on subelements,
-// render 'staticReplacement' when unfocussed on mobile. 
-// Focus massively improved by https://medium.com/@jessebeach/dealing-with-focus-and-blur-in-a-composite-widget-in-react-90d3c3b49a9b
 class Swappable extends React.Component {
   _ref;
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      // if one of this element's children is focused
-      isManagingFocus: false
-    };
-  }
-
   onFocusCB(e) {
-    // console.log('was focused:', e.target);
     this.props.swapCB(this.props.index, true);
   }
 
   onBlurCB(e) {
-    // console.log('was blurred:', e.target);
     this.props.swapCB(this.props.index, false);
   }
 
   focusChild() {
-    console.log(`calling focus on ${this.props.index}`)
     this._ref.selectInput();
   }
  
   render() {
-    let innerComp = this.props.children[this.props.interactive ? 0 : 1];
     let style = this.props.index > 0 ? {float: 'right'} : {};
-    let className = 'Swappable ' + (this.props.interactive ? 'interactive' : 'noninteractive');
+    let className = ClassNames({
+      'Swappable': true,
+      'interactive' : this.props.interactive,
+      'notInteractive' : !this.props.interactive});
     return (
       <div className={className}
         style={style}
         onBlur={this.onBlurCB.bind(this)}
-        onFocus={this.onFocusCB.bind(this)}
-      >
-        {React.cloneElement(
-          innerComp, 
-          { 
-            ref: (ref) => { this._ref = ref; }
-          }
-        )}
+        onFocus={this.onFocusCB.bind(this)}>
+          {this.getInnerChild()}
       </div>
     );
   }
+
+  // If there's only one element in the children array, use it.
+  // else, clone the the appropriate child, and give it a ref prop for CB access
+  getInnerChild() {
+    if (this.props.children.length === 1) {
+      return this.props.children[0]
+    }
+    return React.cloneElement(
+      this.props.children[this.props.interactive ? 0 : 1], 
+      { ref: ref => { this._ref = ref; }})
+  }
 }
 
-// RowHeader_2.propTypes = {
-//   children:          PropTypes.array.isRequired,
-//   useMobileUI:       PropTypes.bool.isRequired,
-//   staticReplacement: PropTypes.func.isRequired
-// }
+Swappable.propTypes = {
+  children:          PropTypes.array.isRequired,
+  interactive:       PropTypes.bool.isRequired,
+  index:             PropTypes.number.isRequired
+}
 
 export { Swappable };

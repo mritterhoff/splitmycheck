@@ -3,23 +3,19 @@
 }
 
 .RowHeaderContainer {
+  /* uncomment for UI debugging */
   /*background-color: lightblue;*/
+  min-height: 2.5em;
 }
 
-.Swappable.noninteractive {
+.Swappable.notInteractive {
   padding: .3em 0;
 }
 
-/*.RowHeaderContainer.notFocused {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+.Swappable.interactive span.taxOrTip {
+  display: inline-block;
+  padding: .4em 0;
 }
-
-
-.RowHeaderContainer {
-  min-height: 2.3em;
-}*/
 
 .maxWidth {
   width: max-content;
@@ -27,22 +23,19 @@
 
 .block {
   display: block;
-  /*width: max-content;*/
 }
 
 .flexVertCenter {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  /*width: max-content;*/
 }
 
-/* limit the length of the string that's shown. so cool! */
+/* Limit the length of the string that's shown. */
 .DishName {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-/*  float: left;*/
 
   /*TODO experiment with this value*/
   max-width: 6em;
