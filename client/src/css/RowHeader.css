@@ -8,13 +8,10 @@
   min-height: 2.5em;
 }
 
-.Swappable.notInteractive {
-  padding: .3em 0;
-}
-
-.Swappable.interactive span.taxOrTip {
+.RowHeaderContainer.focused span {
   display: inline-block;
   padding: .4em 0;
+  /*background-color: lightblue;*/
 }
 
 .maxWidth {

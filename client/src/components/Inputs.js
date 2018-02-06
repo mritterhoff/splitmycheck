@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import AutosizeInput from 'react-input-autosize'
 
-import { Price } from '../Price'
+import { Price, Percent } from '../Price'
 
 import '../css/Inputs.css'
 
@@ -73,6 +73,10 @@ StringInput.propTypes = {
 }
 
 
+
+
+
+
 class PriceInput extends React.Component {
   defaultPlaceholder = '0.00';
   autoSizeInputRef;
@@ -135,7 +139,7 @@ class PriceInput extends React.Component {
       <AutosizeInput
         value={valueToShow}
         type="number"
-        min = "0" step="0.01"
+        min = "0" step=".01"
         placeholder={this.defaultPlaceholder}
         placeholderIsMinWidth
         style={divStyle}
@@ -155,6 +159,86 @@ PriceInput.propTypes = {
   onChangeCB:   PropTypes.func.isRequired,
   priceObj:     Price.shape.isRequired
 }
+
+
+
+
+class PercentInput extends React.Component {
+  autoSizeInputRef;
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      focused: false
+    };
+  }
+
+  onChange(event) {
+    this.props.onChangeCB(event.target.value, false);
+  }
+
+  onFocus(event) {
+    this.setState((prevState) => ({ focused: true }));
+  }
+
+  selectInput() {
+    this.autoSizeInputRef.input.select();
+  }
+
+  onBlur(event) {
+    // only ever send back a string, even if it's an empty string
+    let newValue = event.target.value || '';
+
+    // only trigger a price change if the newValue is actually different
+    if (Number(newValue) !== this.props.priceObj.num) {
+      this.props.onChangeCB(newValue, true);
+    }
+
+    this.setState((prevState) => ({
+      focused: false
+    }));
+  }
+
+  render() {
+    let divStyle = Object.assign({}, divContainerStyle, this.props.style);
+    
+    // if the price input is empty and the input isn't focused, show a pink background
+    let inputStyle = Object.assign({}, inputStyleDefault, 
+      {maxWidth: '4em', textAlign: 'right', paddingRight: '.2em',})
+    if (Number(this.props.numObj.num) === 0 && !this.state.focused) {
+      inputStyle.backgroundColor = 'lightgrey';
+    }
+
+    let valueToShow = this.props.numObj.stringRep;
+    if (valueToShow === this.defaultPlaceholder) {
+      valueToShow = '';
+    }
+
+    return (
+      <AutosizeInput
+        value={valueToShow}
+        type="number"
+        min = "0" step="1"
+        placeholder='10'
+        placeholderIsMinWidth
+        style={divStyle}
+        inputStyle={inputStyle}
+        onChange={this.onChange.bind(this)}
+        onBlur={this.onBlur.bind(this)}
+        onFocus={this.onFocus.bind(this)}
+        onKeyDown={getKeydownCB(() => (this.autoSizeInputRef))}
+        extraWidth={1}
+        ref={(inputRef) => { this.autoSizeInputRef = inputRef; }}
+      />
+    );
+  }
+}
+
+// PriceInput.propTypes = {
+//   onChangeCB:   PropTypes.func.isRequired,
+//   priceObj:     Price.shape.isRequired
+// }
+
 
 
 
@@ -192,4 +276,4 @@ function getKeydownCB(inputRefGetter) {
   };
 }
 
-export {StringInput, PriceInput};
+export {StringInput, PriceInput, PercentInput};

@@ -41,11 +41,12 @@ class RowHeader2 extends React.Component {
   // TODO status is a bool, should probably be an enum
   swapCB(index, status) {
     // console.log(index,`is now ${status ? 'focused' : 'blurred'}`);
-
     if (status === true) {
       clearTimeout(this._timeoutID);
       this._focused[index] = true;
 
+      // Update this state now that we're managing focus, and once that has trickled
+      // down to the children, focus on the now-interactive component.
       this.setState(
         prevState => ({ isManagingFocus: true }),
         () => { this._refs[index].focusChild(); });
@@ -73,29 +74,35 @@ class RowHeader2 extends React.Component {
       'focused': this.state.isManagingFocus,
       'notFocused': !this.state.isManagingFocus
     });
+
+    // If it's a Swappable, add some props to it
+    // TODO why React.Children.map?
+    let clonedChildren = React.Children.map(
+      this.props.children,
+      (child, i) => {
+        if (child.type.name === Swappable.name) {
+          return React.cloneElement(
+            child, 
+            { 
+              ref: ref => { this._refs[i] = ref; },
+              swapCB: this.swapCB.bind(this),
+              interactive: this.state.isManagingFocus,
+              index: i,
+              key: i
+            }
+          );
+        }
+        return child;
+      });
     
     //// TODO explore making this use something other than onClick
     return (
       <div className={className} onClick={this.onClickCB.bind(this)}>
         <div>
-        {this.props.children.map((childPair, i) => 
-          <Swappable 
-            ref={this.getRefCB(childPair, i)}
-            swapCB={this.swapCB.bind(this)}
-            interactive={this.state.isManagingFocus}
-            index={i}
-            key={i}>
-              {childPair}
-          </Swappable>)}
+          {clonedChildren}
         </div>
       </div>  
     );  
-  }
-
-  getRefCB(childPair, i) {
-    return childPair.length === 1
-      ? () => {}
-      : ref => { this._refs[i] = ref; };
   }
 }
 

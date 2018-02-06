@@ -1,10 +1,11 @@
 import React from 'react'
 
 import { CellToggle } from './CellToggle'
-import { StringInput, PriceInput } from './Inputs'
+import { StringInput, PriceInput, PercentInput } from './Inputs'
 import { ButtonBar } from './ButtonBar'
 import { Linker } from './Linker'
 import { RowHeader2 } from './RowHeader2'
+import { Swappable } from './Swappable'
 import { TH, TD, TR, THEAD, TBODY, TABLE } from './TableDivs'
 
 import { Dish } from '../Dish'
@@ -104,19 +105,15 @@ class Splitter extends React.Component {
   }
 
   // Return the sum of dish prices.
-  orderTotal() {
+  subtotal() {
     return this.state.dishes
       .map(dish => (dish.price.num))
       .reduce(Utils.sumFunc, 0);
   }
 
-  // get the percent of the order that Person (indexed by pInd) owes
-  // if the orderTotal is 0, will return 0 instead of NaN (dev by 0) (better to show user 0 than NaN)
+  // get the percent of the order that Person owes (or 0 if subtotal = 0)
   percentOfSubtotalOwed(pInd) {
-    let orderTotal = this.orderTotal();
-    return orderTotal === 0
-      ? 0
-      : this.subtotalOwed(pInd) / orderTotal;
+    return (this.subtotalOwed(pInd) / this.subtotal()) || 0;
   }
 
   // Add a new person to the people array, and a new column of Trues
@@ -194,8 +191,8 @@ class Splitter extends React.Component {
           {this.getHeaderRow()}
           <TBODY>
             {this.getOrderRows()}
-            {this.getSpecialRow('Tax:', 'tax')}
-            {this.getSpecialRow('Tip:', 'tip')}
+            {this.getTipRow('Tip', 'tip')}
+            {this.getTaxRow('Tax', 'tax')}
             {this.getTotalRow()}
           </TBODY>
         </TABLE>
@@ -237,12 +234,12 @@ class Splitter extends React.Component {
   }
 
   getTotalRow() {
-    let taxAndTip = this.state.tax.num + this.state.tip.num;
+    let taxAndTip = this.state.tax.num + this.tipAsMoney();
     let rowEls = [
       <div>
         <span>Total:</span>
         <span style={{float: 'right'}}>
-          {Utils.priceAsString(this.orderTotal() + taxAndTip, false)}
+          {Utils.priceAsString(this.subtotal() + taxAndTip, false)}
         </span>
       </div>
     ];
@@ -259,8 +256,54 @@ class Splitter extends React.Component {
     );
   }
 
+  tipIsPercent() {
+    return this.state.tip.isPercent();
+  }
+
+  tipAsMoney = () => (this.state.tip.num / 100 * this.subtotal());
+
+  // Get tip row.
+  getTipRow(displayName, stateKey) {
+    let updaterFunc = (stringRep, isFinal) => {
+      this.setState(prevState => {
+        return {[stateKey]: prevState[stateKey].as(stringRep, isFinal)};
+      });
+    };
+
+    let getterFunc = () => (this.state[stateKey]); 
+
+    let rowEls = [
+      <RowHeader2 useMobileUI={this.props.useMobileUI}>
+        <span>
+          {displayName+': ('}
+        </span>
+        <Swappable>
+          <PercentInput key='2'
+            numObj = {getterFunc()}
+            onChangeCB = {updaterFunc}/>
+          <span className='taxOrTip' tabIndex='0' key='1'>
+            {getterFunc().stringRep + '%'}
+          </span>
+        </Swappable>
+        <span>
+          {')'}
+        </span>
+        <span style={{float: 'right'}}>
+          {Utils.priceAsString(this.tipAsMoney(), false)}
+        </span>
+      </RowHeader2> 
+    ];
+
+    let hackyGetterFunc = () => ({num: this.tipAsMoney()});
+    rowEls = rowEls.concat(
+      this.getSpecialPriceArray(hackyGetterFunc)
+        .map(price => (<span>{Utils.priceAsString(price)}</span>)));
+
+    return <TR>{rowEls.map((el, el_i) => <TD key={el_i}>{el}</TD>)}</TR>;
+  }
+
   // Get tax or tip row.
-  getSpecialRow(displayName, stateKey) {
+  getTaxRow(displayName, stateKey) {
     let updaterFunc = (stringRep, isFinal) => {
       this.setState(prevState => {
         return {[stateKey]: prevState[stateKey].as(stringRep, isFinal)};
@@ -271,16 +314,15 @@ class Splitter extends React.Component {
 
     let rowEls = [
       <RowHeader2 useMobileUI={this.props.useMobileUI}>
-        {[[
-          <span className='taxOrTip' key='1'>{displayName}</span>
-         ],[ 
-          <PriceInput key='2'
+        <span className='taxOrTip' key='1'>{displayName + ':'}</span>
+        <Swappable style={{float: 'right'}}>
+          <PriceInput
             priceObj = {getterFunc()}
-            onChangeCB = {updaterFunc}/>,
-          <span tabIndex='0' key='3'>
+            onChangeCB = {updaterFunc}/>
+          <span tabIndex='0'>
             {Utils.priceAsString(getterFunc().num, false)}
           </span>
-        ]]}
+        </Swappable>
       </RowHeader2> 
     ];
 
@@ -358,21 +400,21 @@ class Splitter extends React.Component {
       // todo move the keys to somewhere else apparently need to be here AND in RowHeader2
       let rowEls = [
         <RowHeader2 useMobileUI={this.props.useMobileUI}>
-          {[[
+          <Swappable>
             <StringInput 
               placeholder={`Dish ${dInd + 1}`}
               value = {dish.name}
               onChangeCB = {setDishNameCBGetter(dInd)}
-              key='1'/>,
+              key='1'/>
             <span tabIndex='0' className='DishName' key='2'>{dishName}</span>
-          ],
-          [
+          </Swappable>
+          <Swappable style={{float: 'right'}}>
             <PriceInput 
               priceObj = {dish.price}
               onChangeCB = {setDishPriceCBGetter(dInd)}
-              key='3'/>,
+              key='3'/>
             <span tabIndex='0' key='4'>{price}</span>
-          ]]}
+          </Swappable>
         </RowHeader2>
       ];
 

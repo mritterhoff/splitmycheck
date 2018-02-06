@@ -18,14 +18,13 @@ class Swappable extends React.Component {
   }
  
   render() {
-    let style = this.props.index > 0 ? {float: 'right'} : {};
     let className = ClassNames({
       'Swappable': true,
       'interactive' : this.props.interactive,
       'notInteractive' : !this.props.interactive});
     return (
       <div className={className}
-        style={style}
+        style={this.props.style}
         onBlur={this.onBlurCB.bind(this)}
         onFocus={this.onFocusCB.bind(this)}>
           {this.getInnerChild()}
@@ -36,19 +35,18 @@ class Swappable extends React.Component {
   // If there's only one element in the children array, use it.
   // else, clone the the appropriate child, and give it a ref prop for CB access
   getInnerChild() {
-    if (this.props.children.length === 1) {
-      return this.props.children[0]
-    }
     return React.cloneElement(
       this.props.children[this.props.interactive ? 0 : 1], 
       { ref: ref => { this._ref = ref; }})
   }
 }
 
-Swappable.propTypes = {
-  children:          PropTypes.array.isRequired,
-  interactive:       PropTypes.bool.isRequired,
-  index:             PropTypes.number.isRequired
-}
+// Swappable.propTypes = {
+//   children:          PropTypes.array.isRequired,
+//   interactive:       PropTypes.bool.isRequired,
+//   index:             PropTypes.number.isRequired
+// };
+
+// Swappable.name = 'Swappable'
 
 export { Swappable };

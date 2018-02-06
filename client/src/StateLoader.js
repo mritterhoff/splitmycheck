@@ -1,4 +1,4 @@
-import { Price } from './Price.js'
+import { Price, Percent } from './Price.js'
 import { Dish } from './Dish.js'
 
 const lsSplitterKey = 'SplitterState';
@@ -45,7 +45,7 @@ class StateLoader {
       orders: [ [true, true] ],
 
       tax: new Price(0),
-      tip: new Price(0)
+      tip: new Percent(15)
     };
   }
 
@@ -67,15 +67,20 @@ class StateLoader {
         [false,false,true,false]
       ],
       tax: new Price(7.65),
-      tip: new Price(15)
+      tip: new Percent(20)
     };
   }
 }
 
 function customParser(key, val) {
-  if (typeof(val) === 'object' && val.__type === 'Price') {
-    return new Price(val);
-  }
+  if (typeof(val) === 'object') {
+    if (val.__type === 'Price') {
+      return new Price(val);
+    }
+    if (val.__type === 'Percent') {
+      return new Percent(val);
+    }
+  } 
   return val;
 }
 
