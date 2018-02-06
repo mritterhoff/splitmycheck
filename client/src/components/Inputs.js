@@ -190,7 +190,7 @@ class PercentInput extends React.Component {
     let newValue = event.target.value || '';
 
     // only trigger a price change if the newValue is actually different
-    if (Number(newValue) !== this.props.priceObj.num) {
+    if (Number(newValue) !== this.props.numObj.num) {
       this.props.onChangeCB(newValue, true);
     }
 
