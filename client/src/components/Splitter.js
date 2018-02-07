@@ -278,10 +278,10 @@ class Splitter extends React.Component {
           {displayName+': ('}
         </span>
         <Swappable>
-          <PercentInput key='2'
+          <PercentInput
             numObj = {getterFunc()}
             onChangeCB = {updaterFunc}/>
-          <span className='taxOrTip' tabIndex='0' key='1'>
+          <span className='taxOrTip' tabIndex='0'>
             {getterFunc().stringRep + '%'}
           </span>
         </Swappable>
@@ -314,7 +314,7 @@ class Splitter extends React.Component {
 
     let rowEls = [
       <RowHeader2 useMobileUI={this.props.useMobileUI}>
-        <span className='taxOrTip' key='1'>{displayName + ':'}</span>
+        <span className='taxOrTip'>{displayName + ':'}</span>
         <Swappable style={{float: 'right'}}>
           <PriceInput
             priceObj = {getterFunc()}
@@ -397,23 +397,20 @@ class Splitter extends React.Component {
       let dishName = dish.name || `Dish ${dInd + 1}`;
       let price = Utils.priceAsString(dish.price.num, false);
 
-      // todo move the keys to somewhere else apparently need to be here AND in RowHeader2
       let rowEls = [
         <RowHeader2 useMobileUI={this.props.useMobileUI}>
           <Swappable>
             <StringInput 
               placeholder={`Dish ${dInd + 1}`}
               value = {dish.name}
-              onChangeCB = {setDishNameCBGetter(dInd)}
-              key='1'/>
-            <span tabIndex='0' className='DishName' key='2'>{dishName}</span>
+              onChangeCB = {setDishNameCBGetter(dInd)}/>
+            <span tabIndex='0' className='DishName'>{dishName}</span>
           </Swappable>
           <Swappable style={{float: 'right'}}>
             <PriceInput 
               priceObj = {dish.price}
-              onChangeCB = {setDishPriceCBGetter(dInd)}
-              key='3'/>
-            <span tabIndex='0' key='4'>{price}</span>
+              onChangeCB = {setDishPriceCBGetter(dInd)}/>
+            <span tabIndex='0'>{price}</span>
           </Swappable>
         </RowHeader2>
       ];

@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import AutosizeInput from 'react-input-autosize'
 
-import { Price, Percent } from '../Price'
+import { Price } from '../Price'
 
 import '../css/Inputs.css'
 
@@ -25,6 +25,13 @@ let divContainerStyle = {
   that state with this.props.onChangeCB()
 */
 class StringInput extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      focused: false
+    };
+  }
+
   autoSizeInputRef;
 
   updateInputValue = event => {
@@ -35,10 +42,12 @@ class StringInput extends React.Component {
   onFocus = event => {
     // don't show the placeholder when user is inputting numbers
     this.autoSizeInputRef.input.placeholder = '';
+    this.setState((prevState) => ({ focused: true }));
   };
 
   onBlur = event => {
     this.autoSizeInputRef.input.placeholder = this.props.placeholder;
+    this.setState((prevState) => ({ focused: false }));
   };
 
   selectInput() {
@@ -49,9 +58,15 @@ class StringInput extends React.Component {
     let divStyle = Object.assign({}, divContainerStyle, this.props.style);
     let inputStyle = Object.assign({}, inputStyleDefault, this.props.style,
       {padding: '.2em', maxWidth: '6em'});
+
+    let valueToShow = this.state.focused
+      ? this.props.value
+      : this.props.value.length <= 7
+        ? this.props.value
+        : this.props.value.substring(0, 7) + '...';
     return (
       <AutosizeInput
-        value={this.props.value}
+        value={valueToShow}
         placeholder={this.props.placeholder}
         placeholderIsMinWidth
         style={divStyle}

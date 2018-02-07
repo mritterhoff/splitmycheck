@@ -45,7 +45,7 @@ class StateLoader {
       orders: [ [true, true] ],
 
       tax: new Price(0),
-      tip: new Percent(15)
+      tip: new Percent(20)
     };
   }
 

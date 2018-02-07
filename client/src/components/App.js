@@ -25,6 +25,8 @@ class App extends Component {
   }
 
   render() {
+    let useMobileUI = this.state.width < 500;
+    let tapOrClick = useMobileUI ? 'Tap' : 'Click';
     return (
       <div className="App">
         <header className="App-header">
@@ -33,10 +35,10 @@ class App extends Component {
           </h1>
         </header>
         <p className="App-intro">
-          <b>How to use</b>: Add people/dishes as needed with the + and - buttons. Click to rename them (optional) and to set prices, tax and tip (mandatory). Touch the grey/green cells to add/remove the dish from the person's order. What everyone owes is at the bottom.
-          <br/><b>Coming soon</b>: Tip calculator. History/Undo. Better rounding.<br/>
+          <b>How to use</b>: Add people/dishes as appropriate. {tapOrClick} to rename them, and to set prices, tax and tip percent (mandatory). {tapOrClick} the grey/green cells to add/remove the dish from someone's order.
+          <br/><b>Coming soon</b>: Overflow ellipses, History/Undo.<br/>
         </p>
-        <Splitter useMobileUI={this.state.width < 500}/>
+        <Splitter useMobileUI={useMobileUI}/>
         <div className='footer'> | <a href="https://github.com/mritterhoff/splitmycheck#table-of-contents">source</a> | </div>
       </div>
     );
