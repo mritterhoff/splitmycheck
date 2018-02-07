@@ -1,19 +1,19 @@
-import React from 'react'
+import React from 'react';
 
-import { CellToggle } from './CellToggle'
-import { StringInput, PriceInput, PercentInput } from './Inputs'
-import { ButtonBar } from './ButtonBar'
-import { Linker } from './Linker'
-import { RowHeader2 } from './RowHeader2'
-import { Swappable } from './Swappable'
-import { TH, TD, TR, THEAD, TBODY, TABLE } from './TableDivs'
+import { CellToggle } from './CellToggle';
+import { StringInput, PriceInput, PercentInput } from './Inputs';
+import { ButtonBar } from './ButtonBar';
+import { Linker } from './Linker';
+import { RowHeader2 } from './RowHeader2';
+import { Swappable } from './Swappable';
+import { TH, TD, TR, THEAD, TBODY, TABLE } from './TableDivs';
 
-import { Dish } from '../Dish'
-import { StateLoader } from '../StateLoader'
-import { Utils } from '../Utils'
-import { Cache } from '../Cache'
+import { Dish } from '../Dish';
+import { StateLoader } from '../StateLoader';
+import { Utils } from '../Utils';
+import { Cache } from '../Cache';
 
-import '../css/Splitter.css'
+import '../css/Splitter.css';
 
 class Splitter extends React.Component {
   // very simple cache for some frequent calculations
@@ -26,8 +26,8 @@ class Splitter extends React.Component {
 
   // set or unset if the given person got the given dish.
   indicateOrder(setUnset, pInd, dInd) {
-    this.setState(prevState => {
-      let newOrders = Utils.clone2D(prevState.orders);
+    this.setState((prevState) => {
+      const newOrders = Utils.clone2D(prevState.orders);
       newOrders[dInd][pInd] = setUnset;
       return {
         orders: newOrders
@@ -49,9 +49,9 @@ class Splitter extends React.Component {
 
   personCostForDish(pInd, dInd) {
     if (this._cache.has('personCostForDish', pInd, dInd)) {
-     return this._cache.get('personCostForDish', pInd, dInd);
-    } 
-    let result = this.personCostForDishOrig(pInd, dInd);
+      return this._cache.get('personCostForDish', pInd, dInd);
+    }
+    const result = this.personCostForDishOrig(pInd, dInd);
     this._cache.put(result, 'personCostForDish', pInd, dInd);
     return result;
   }
@@ -59,41 +59,43 @@ class Splitter extends React.Component {
   // Given a person and dish, how much do they owe for it?
   // TODO this gets called 4 times per cell, so we cache it
 
-  // if there is a difference, it will be 
+  // if there is a difference, it will be
   // between -(ppd - 1) cents and (ppd - 1) cents.
   // this assumes 4 people ordered the dish:
   //
-  // off  P0  P1  P2  P3  
+  // off  P0  P1  P2  P3
   //  -3   0  -1  -1  -1
   //  -2   0   0  -1  -1
-  //  -1   0   0   0  -1  
+  //  -1   0   0   0  -1
   //
   //   1  +1   0   0   0
   //   2  +1  +1   0   0
   //   3  +1  +1  +1   0
   personCostForDishOrig(pInd, dInd) {
-    if (!this.personOrderedDish(pInd, dInd)) { return 0; }
-  
-    let ppd = this.peoplePerDish(dInd)
-    let dishPrice = this.state.dishes[dInd].price.num
-    let initialSplit = Utils.precisionRound(dishPrice / ppd, 2);
+    if (!this.personOrderedDish(pInd, dInd)) {
+      return 0;
+    }
+
+    const ppd = this.peoplePerDish(dInd);
+    const dishPrice = this.state.dishes[dInd].price.num;
+    const initialSplit = Utils.precisionRound(dishPrice / ppd, 2);
 
     // if the math was exact, we're done!
-    let diff = Utils.roundToCent(dishPrice - initialSplit * ppd);
+    const diff = Utils.roundToCent(dishPrice - (initialSplit * ppd));
     if (diff === 0) {
       return initialSplit;
     }
 
-    // figure out where in the index of people we are, since people to the 
+    // figure out where in the index of people we are, since people to the
     // left always pay more
-    let indexOfThisPerson = this.state.people
+    const indexOfThisPerson = this.state.people
       .map((p, pInd) => (this.personOrderedDish(pInd, dInd) ? pInd : -1))
       .filter(el => el > -1)
       .indexOf(pInd);
 
-    let splitDiff = diff < 0
-      ? (ppd - indexOfThisPerson <= Math.abs(diff)*100) ? -.01 : 0
-      : (indexOfThisPerson < diff*100) ? .01 : 0;
+    const splitDiff = diff < 0
+      ? (ppd - indexOfThisPerson <= Math.abs(diff) * 100) ? -0.01 : 0
+      : (indexOfThisPerson < diff * 100) ? 0.01 : 0;
     return initialSplit + splitDiff;
   }
 
@@ -119,15 +121,15 @@ class Splitter extends React.Component {
   // Add a new person to the people array, and a new column of Trues
   // to the orders array (they order everything by default)
   addPerson() {
-    this.setState(prevState => {
-      let newOrders = Utils.clone2D(prevState.orders);
+    this.setState((prevState) => {
+      const newOrders = Utils.clone2D(prevState.orders);
 
       for (let row = 0; row < newOrders.length; row++) {
         newOrders[row][this.state.people.length] = true;
       }
 
       return {
-        people: [...prevState.people, ''],
+        people: [ ...prevState.people, '' ],
         orders: newOrders
       };
     });
@@ -136,23 +138,19 @@ class Splitter extends React.Component {
   removeLastPerson() {
     // There must always be two or more people
     if (this.state.people.length > 2) {
-      this.setState(prevState => {
-        return {
-          people: prevState.people.slice(0, prevState.people.length - 1),
-          orders: prevState.orders.map(row => (row.slice(0, row.length - 1)))
-        };
-      });
+      this.setState(prevState => ({
+        people: prevState.people.slice(0, prevState.people.length - 1),
+        orders: prevState.orders.map(row => (row.slice(0, row.length - 1)))
+      }));
     }
   }
 
   addDish() {
-    this.setState(prevState => {
-      return {
-        dishes: [...prevState.dishes, new Dish()],
-        orders: Utils.clone2D(prevState.orders)
-                  .concat([Array(this.state.people.length).fill(true)])
-      };
-    });
+    this.setState(prevState => ({
+      dishes: [ ...prevState.dishes, new Dish() ],
+      orders: Utils.clone2D(prevState.orders)
+        .concat([ Array(this.state.people.length).fill(true) ])
+    }));
   }
 
   removeLastDish() {
@@ -171,21 +169,21 @@ class Splitter extends React.Component {
   }
 
   // Store the current state to localStorage, every time the state is updated
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate() {
     StateLoader.updateLocalStorage(this.state);
   }
-  
+
   render() {
     return (
-      <div className="splitterContainer">
-        <Linker dataToSend={this.state}/>
-        <ButtonBar 
+      <div className='splitterContainer'>
+        <Linker dataToSend={this.state} />
+        <ButtonBar
           addPersonFunc={this.addPerson.bind(this)}
           removePersonFunc={this.removeLastPerson.bind(this)}
           addDishFunc={this.addDish.bind(this)}
           removeDishFunc={this.removeLastDish.bind(this)}
-          showExampleFunc={() => {this.setState(prevState => StateLoader.getExample())}}
-          resetFunc={() => {this.setState(prevState => StateLoader.getDefault())}}
+          showExampleFunc={() => { this.setState(prevState => StateLoader.getExample()); }}
+          resetFunc={() => { this.setState(prevState => StateLoader.getDefault()); }}
         />
         <TABLE>
           {this.getHeaderRow()}
@@ -200,51 +198,52 @@ class Splitter extends React.Component {
     );
   }
 
-  getHeaderRow(people) {
-    let widths = getHeaderWidths(40, this.state.people.length);
+  getHeaderRow() {
+    const widths = getHeaderWidths(40, this.state.people.length);
     return (
-      <THEAD> 
+      <THEAD>
         {this.getHeaderRowChildren().map((el, i) => {
-          return <TH key={i} style={{width: widths[i] + '%'}}>{el}</TH>;
+          return <TH key={i} style={{ width: `${widths[i]}%` }}>{el}</TH>;
         })}
       </THEAD>
     );
   }
 
   getHeaderRowChildren() {
-    let setNameCBGetter = pInd => (
-      newName => {
-        this.setState(prevState => {
+    const setNameCBGetter = pInd => (
+      (newName) => {
+        this.setState((prevState) => {
           prevState.people[pInd] = newName;
           return {
             people: prevState.people
-          }
+          };
         });
       }
     );
 
-    return [<div/>]
+    return [ <div /> ]
       .concat(this.state.people.map((person, pInd) => (
-        <StringInput 
-          value = {person}
-          placeholder = {`Pal ${pInd + 1}`}
-          onChangeCB = {setNameCBGetter(pInd)}
-          style = {{textAlign: 'center'}}/>
+        <StringInput
+          value={person}
+          placeholder={`Pal ${pInd + 1}`}
+          onChangeCB={setNameCBGetter(pInd)}
+          style={{ textAlign: 'center' }}
+        />
       )));
   }
 
   getTotalRow() {
-    let taxAndTip = this.state.tax.num + this.tipAsMoney();
+    const taxAndTip = this.state.tax.num + this.tipAsMoney();
     let rowEls = [
       <div>
         <span>Total:</span>
-        <span style={{float: 'right'}}>
+        <span style={{ float: 'right' }}>
           {Utils.priceAsString(this.subtotal() + taxAndTip, false)}
         </span>
       </div>
     ];
     rowEls = rowEls.concat(this.state.people.map((person, pInd) => (
-      <span style={{fontWeight: 'bold', display: 'inline-block'}}>
+      <span style={{ fontWeight: 'bold', display: 'inline-block' }}>
         {Utils.priceAsString(this.subtotalOwed(pInd) + this.percentOfSubtotalOwed(pInd) * taxAndTip)}
       </span>
     )));
@@ -264,66 +263,63 @@ class Splitter extends React.Component {
 
   // Get tip row.
   getTipRow(displayName, stateKey) {
-    let updaterFunc = (stringRep, isFinal) => {
-      this.setState(prevState => {
-        return {[stateKey]: prevState[stateKey].as(stringRep, isFinal)};
-      });
+    const updaterFunc = (stringRep, isFinal) => {
+      this.setState(prevState => ({ [stateKey]: prevState[stateKey].as(stringRep, isFinal) }));
     };
 
-    let getterFunc = () => (this.state[stateKey]); 
+    const getterFunc = () => (this.state[stateKey]);
 
     let rowEls = [
       <RowHeader2 useMobileUI={this.props.useMobileUI}>
         <span>
-          {displayName+': ('}
+          {`${displayName}: (`}
         </span>
         <Swappable>
           <PercentInput
-            numObj = {getterFunc()}
-            onChangeCB = {updaterFunc}/>
+            numObj={getterFunc()}
+            onChangeCB={updaterFunc}
+          />
           <span className='taxOrTip' tabIndex='0'>
-            {getterFunc().stringRep + '%'}
+            {`${getterFunc().stringRep}%`}
           </span>
         </Swappable>
         <span>
           {')'}
         </span>
-        <span style={{float: 'right'}}>
+        <span style={{ float: 'right' }}>
           {Utils.priceAsString(this.tipAsMoney(), false)}
         </span>
-      </RowHeader2> 
+      </RowHeader2>
     ];
 
-    let hackyGetterFunc = () => ({num: this.tipAsMoney()});
-    rowEls = rowEls.concat(
-      this.getSpecialPriceArray(hackyGetterFunc)
-        .map(price => (<span>{Utils.priceAsString(price)}</span>)));
+    const hackyGetterFunc = () => ({ num: this.tipAsMoney() });
+    rowEls = rowEls.concat(this.getSpecialPriceArray(hackyGetterFunc)
+      .map(price => (<span>{Utils.priceAsString(price)}</span>)));
 
     return <TR>{rowEls.map((el, el_i) => <TD key={el_i}>{el}</TD>)}</TR>;
   }
 
   // Get tax or tip row.
   getTaxRow(displayName, stateKey) {
-    let updaterFunc = (stringRep, isFinal) => {
-      this.setState(prevState => {
-        return {[stateKey]: prevState[stateKey].as(stringRep, isFinal)};
-      });
+    const updaterFunc = (stringRep, isFinal) => {
+      this.setState(prevState => ({ [stateKey]: prevState[stateKey].as(stringRep, isFinal) }));
     };
 
-    let getterFunc = () => (this.state[stateKey]);
+    const getterFunc = () => (this.state[stateKey]);
 
     let rowEls = [
       <RowHeader2 useMobileUI={this.props.useMobileUI}>
-        <span className='taxOrTip'>{displayName + ':'}</span>
-        <Swappable style={{float: 'right'}}>
+        <span className='taxOrTip'>{`${displayName}:`}</span>
+        <Swappable style={{ float: 'right' }}>
           <PriceInput
-            priceObj = {getterFunc()}
-            onChangeCB = {updaterFunc}/>
+            priceObj={getterFunc()}
+            onChangeCB={updaterFunc}
+          />
           <span tabIndex='0'>
             {Utils.priceAsString(getterFunc().num, false)}
           </span>
         </Swappable>
-      </RowHeader2> 
+      </RowHeader2>
     ];
 
     rowEls = rowEls.concat(this.getSpecialPriceArray(getterFunc)
@@ -333,16 +329,16 @@ class Splitter extends React.Component {
   }
 
   getSpecialPriceArray(getterFunc) {
-    let priceArray = this.state.people.map((person, pInd) => (
+    const priceArray = this.state.people.map((person, pInd) => (
       Utils.roundToCent(this.percentOfSubtotalOwed(pInd) * getterFunc().num)
     ));
-    let diff = Utils.roundToCent(getterFunc().num - priceArray.reduce(Utils.sumFunc));
+    const diff = Utils.roundToCent(getterFunc().num - priceArray.reduce(Utils.sumFunc));
 
     // if we have to fix the tax or tip up, just add/subtract from
     // to/from the smallest/largest. it's only ever 1cent it seems...
     if (diff !== 0) {
-      let priceToAdjust = diff < 0 
-        ? Math.max(...priceArray) 
+      const priceToAdjust = diff < 0
+        ? Math.max(...priceArray)
         : Math.min(...priceArray);
       priceArray[priceArray.indexOf(priceToAdjust)] += diff;
     }
@@ -350,73 +346,76 @@ class Splitter extends React.Component {
   }
 
   getOrderRows() {
-    let getToggleCB = (pInd, dInd) => (
-      setUnset => {
+    const getToggleCB = (pInd, dInd) => (
+      (setUnset) => {
         // don't unset the last enabled cell in an order (someone has to pay!)
         if (!setUnset && this.state.orders[dInd].reduce(Utils.sumFunc, 0) === 1) {
-          this.setState(prevState => ({error: errorKey(pInd, dInd)}));
+          this.setState(prevState => ({ error: errorKey(pInd, dInd) }));
           setTimeout(() => {
-            this.setState(prevState => ({error: undefined}));
+            this.setState(prevState => ({ error: undefined }));
           }, 200);
         }
         else {
-          this.indicateOrder(setUnset, pInd, dInd);   
+          this.indicateOrder(setUnset, pInd, dInd);
         }
       }
     );
 
-    let setDishPriceCBGetter = dInd => (
+    const setDishPriceCBGetter = dInd => (
       (stringRep, isFinal) => {
-        this.setState(prevState => {
-          let newDishes = prevState.dishes.slice();  // shallow copy
+        this.setState((prevState) => {
+          const newDishes = prevState.dishes.slice(); // shallow copy
 
           newDishes[dInd] = new Dish(
-            newDishes[dInd].name, 
-            prevState.dishes[dInd].price.as(stringRep, isFinal));
+            newDishes[dInd].name,
+            prevState.dishes[dInd].price.as(stringRep, isFinal)
+          );
 
           return {
             dishes: newDishes
-          }
+          };
         });
       }
     );
 
-    let setDishNameCBGetter = dInd => (
-      newDishName => {
-        this.setState(prevState => {
-          let newDishes = prevState.dishes.slice();  // shallow copy
+    const setDishNameCBGetter = dInd => (
+      (newDishName) => {
+        this.setState((prevState) => {
+          const newDishes = prevState.dishes.slice(); // shallow copy
           newDishes[dInd] = new Dish(newDishName, newDishes[dInd].price);
           return {
             dishes: newDishes
-          }
+          };
         });
       }
     );
 
     return this.state.dishes.map((dish, dInd) => {
-      let dishName = dish.name || `Dish ${dInd + 1}`;
-      let price = Utils.priceAsString(dish.price.num, false);
+      const dishName = dish.name || `Dish ${dInd + 1}`;
+      const price = Utils.priceAsString(dish.price.num, false);
 
       let rowEls = [
         <RowHeader2 useMobileUI={this.props.useMobileUI}>
           <Swappable>
-            <StringInput 
+            <StringInput
               placeholder={`Dish ${dInd + 1}`}
-              value = {dish.name}
-              onChangeCB = {setDishNameCBGetter(dInd)}/>
+              value={dish.name}
+              onChangeCB={setDishNameCBGetter(dInd)}
+            />
             <span tabIndex='0' className='DishName'>{dishName}</span>
           </Swappable>
-          <Swappable style={{float: 'right'}}>
-            <PriceInput 
-              priceObj = {dish.price}
-              onChangeCB = {setDishPriceCBGetter(dInd)}/>
+          <Swappable style={{ float: 'right' }}>
+            <PriceInput
+              priceObj={dish.price}
+              onChangeCB={setDishPriceCBGetter(dInd)}
+            />
             <span tabIndex='0'>{price}</span>
           </Swappable>
         </RowHeader2>
       ];
 
       rowEls = rowEls.concat(this.state.people.map((el, pInd) => (
-        <CellToggle 
+        <CellToggle
           on={this.personOrderedDish(pInd, dInd)}
           onClickCB={getToggleCB(pInd, dInd)}
           price={Utils.priceAsString(this.personCostForDish(pInd, dInd), false)}
@@ -431,16 +430,15 @@ class Splitter extends React.Component {
       );
     });
   }
-}  // end of Splitter class
-
+} // end of Splitter class
 
 
 function getHeaderWidths(firstWidth, numPeople) {
-  return [firstWidth].concat(Array(numPeople).fill((100-firstWidth)/numPeople));
+  return [ firstWidth ].concat(Array(numPeople).fill((100 - firstWidth) / numPeople));
 }
 
 function errorKey(pInd, dInd) {
-  return pInd + '_' + dInd;
+  return `${pInd}_${dInd}`;
 }
 
 export default Splitter;

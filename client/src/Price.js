@@ -25,13 +25,13 @@ class NumStringPair {
 class Percent extends NumStringPair {
   constructor(num, stringRep) {
     if (arguments.length === 1) {
-      let arg = arguments[0];
+      const arg = arguments[0];
 
       // used by StateLoader
       if (typeof arg === 'number') {
         // show 1 decimal point but only if necessary
         if (arg === Number(num.toFixed(0))) {
-          super(arg, num.toFixed(0))
+          super(arg, num.toFixed(0));
         }
         else {
           super(arg, num.toFixed(1));
@@ -58,7 +58,7 @@ class Percent extends NumStringPair {
 
   // Returns a new Percent,
   as(stringRep, finalize) {
-    return finalize 
+    return finalize
       ? new Percent(Number(stringRep))
       : new Percent(this.num, stringRep);
   }
@@ -67,7 +67,7 @@ class Percent extends NumStringPair {
 class Price extends NumStringPair {
   constructor(num, stringRep) {
     if (arguments.length === 1) {
-      let arg = arguments[0];
+      const arg = arguments[0];
 
       // used by StateLoader and Dish
       if (typeof arg === 'number') {
@@ -94,7 +94,7 @@ class Price extends NumStringPair {
 
   // Returns a new Price,
   as(stringRep, finalize) {
-    return finalize 
+    return finalize
       ? new Price(Number(stringRep))
       : new Price(this.num, stringRep);
   }
@@ -103,10 +103,10 @@ class Price extends NumStringPair {
 Price.shape = PropTypes.shape({
   num: PropTypes.number,
   stringRep: PropTypes.string
-})
+});
 
-Price.prototype.toString = function() {
+Price.prototype.toString = function toString() {
   return `(num: ${this.num}, stringRep: ${this.stringRep})`;
-}
+};
 
 export { Price, Percent };

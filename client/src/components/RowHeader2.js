@@ -2,15 +2,15 @@ import React from 'react';
 import ClassNames from 'classnames';
 import PropTypes from 'prop-types';
 
-import { Swappable } from './Swappable'
+import { Swappable } from './Swappable';
 
-import '../css/RowHeader.css'
+import '../css/RowHeader.css';
 
 class RowHeader2 extends React.Component {
   // holds blur timeout id, so we can clear if re-focused
   _timeoutID;
 
-  // array of refs to all of the children components so we can trigger 
+  // array of refs to all of the children components so we can trigger
   // focus/selection on the first one when this component receives focus
   _refs = [];
 
@@ -31,7 +31,7 @@ class RowHeader2 extends React.Component {
   }
 
   onClickCB() {
-    // if we're not already focused, and we click somewhere other than 
+    // if we're not already focused, and we click somewhere other than
     // the two spans (ie the background container div), focus on the first input
     if (!this.state.isManagingFocus) {
       this.swapCB(this.getFirstRefIndex(), true);
@@ -48,17 +48,18 @@ class RowHeader2 extends React.Component {
       // Update this state now that we're managing focus, and once that has trickled
       // down to the children, focus on the now-interactive component.
       this.setState(
-        prevState => ({ isManagingFocus: true }),
-        () => { this._refs[index].focusChild(); });
+        () => ({ isManagingFocus: true }),
+        () => { this._refs[index].focusChild(); }
+      );
     }
     else {
       this._focused[index] = false;
 
       // wait a tick, then see if everything is unfocussed:
       this._timeoutID = setTimeout(() => {
-        let hasAFocussedSubEl = this._focused.reduce((a,b)=>(a && b), true);
-        if (this.state.isManagingFocus && !hasAFocussedSubEl) {
-          this.setState(prevState => ({
+        const childHasFocus = this._focused.reduce((a, b) => (a && b), true);
+        if (this.state.isManagingFocus && !childHasFocus) {
+          this.setState(() => ({
             isManagingFocus: false
           }));
         }
@@ -68,23 +69,23 @@ class RowHeader2 extends React.Component {
 
   render() {
     // wrap in an additional div to increase touchable/clickable surface
-    let className = ClassNames({
-      'RowHeaderContainer': true,
-      'flexVertCenter': true,
-      'focused': this.state.isManagingFocus,
-      'notFocused': !this.state.isManagingFocus
+    const className = ClassNames({
+      RowHeaderContainer: true,
+      flexVertCenter: true,
+      focused: this.state.isManagingFocus,
+      notFocused: !this.state.isManagingFocus
     });
 
     // If it's a Swappable, add some props to it
     // TODO why React.Children.map?
-    let clonedChildren = React.Children.map(
+    const clonedChildren = React.Children.map(
       this.props.children,
       (child, i) => {
         if (child.type.name === Swappable.name) {
           return React.cloneElement(
-            child, 
-            { 
-              ref: ref => { this._refs[i] = ref; },
+            child,
+            {
+              ref: (ref) => { this._refs[i] = ref; },
               swapCB: this.swapCB.bind(this),
               interactive: this.state.isManagingFocus,
               index: i,
@@ -93,22 +94,23 @@ class RowHeader2 extends React.Component {
           );
         }
         return child;
-      });
-    
-    //// TODO explore making this use something other than onClick
+      }
+    );
+
+    // // TODO explore making this use something other than onClick
     return (
       <div className={className} onClick={this.onClickCB.bind(this)}>
         <div>
           {clonedChildren}
         </div>
-      </div>  
-    );  
+      </div>
+    );
   }
 }
 
 RowHeader2.propTypes = {
-  children:          PropTypes.array.isRequired,
-  useMobileUI:       PropTypes.bool.isRequired
-}
+  children: PropTypes.arrayOf(PropTypes.element).isRequired,
+  useMobileUI: PropTypes.bool.isRequired
+};
 
 export { RowHeader2 };

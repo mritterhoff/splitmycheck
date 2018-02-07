@@ -1,8 +1,10 @@
-import React, { Component } from 'react';
-import '../css/App.css';
+import React from 'react'
+
 import Splitter from './Splitter.js'
 
-class App extends Component {
+import '../css/App.css'
+
+class App extends React.Component {
   handleWindowSizeChange = () => {
     this.setState({ width: window.innerWidth });
   };

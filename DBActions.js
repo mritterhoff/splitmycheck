@@ -1,7 +1,6 @@
 const db = require('./models/database.js');
 
 class DBActions {
-
   // TODO how do we make sure this query happens before any future ones?
   constructor() {
     const createTable =
@@ -14,28 +13,27 @@ class DBActions {
 
     db.query(createTable, [], (err, res) => {
       console.log(err ? err.stack : res);
-    })
+    });
   }
 
-
-  addRow(obj, cb) {
+  static addRow(obj, cb) {
     db.query(
-      'INSERT INTO Links (link_code, state) VALUES ($1, $2)', 
+      'INSERT INTO Links (link_code, state) VALUES ($1, $2)',
       [ obj.link_code, obj.state ],
-      (err, dbRes) => {
-        if (err) { console.log(err); return (err); }
-        cb(obj);
-      });
+      (err) => {
+        cb(obj, err);
+      }
+    );
   }
 
-  findByLinkCode(link_code, cb) {
+  static findByLinkCode(link_code, cb) {
     db.query(
-      `SELECT * FROM Links WHERE link_code = '${link_code}'`, 
-      [], 
+      `SELECT * FROM Links WHERE link_code = '${link_code}'`,
+      [],
       (err, dbRes) => {
-        if (err) { throw err; }
-        cb(dbRes);
-      });
+        cb(dbRes, err);
+      }
+    );
   }
 }
 

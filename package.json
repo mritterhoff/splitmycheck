@@ -13,8 +13,7 @@
     "fs": "0.0.2",
     "morgan": "^1.9.0",
     "pg": "7.4.1",
-    "randomstring": "^1.1.5",
-    "sqlite3": "^3.1.13"
+    "randomstring": "^1.1.5"
   },
   "scripts": {
     "start": "concurrently \"npm run server\" \"npm run client\"",
@@ -28,11 +27,12 @@
   },
   "devDependencies": {
     "concurrently": "3.5.1",
-    "eslint": "^4.17.0",
+    "eslint": "4.17.0",
     "eslint-config-airbnb": "16.1.0",
     "eslint-plugin-import": "2.8.0",
     "eslint-plugin-jsx-a11y": "6.0.3",
-    "eslint-plugin-react": "7.6.1"
+    "eslint-plugin-react": "7.6.1",
+    "prettier": "1.10.2"
   },
   "engines": {
     "node": "8.4.0",

@@ -1,5 +1,5 @@
-import { Price, Percent } from './Price.js'
-import { Dish } from './Dish.js'
+import { Price, Percent } from './Price';
+import { Dish } from './Dish';
 
 const lsSplitterKey = 'SplitterState';
 
@@ -35,14 +35,14 @@ class StateLoader {
   static getDefault() {
     return {
       // list of people
-      people: ['', ''],
+      people: [ '', '' ],
 
       // list of {name, price} dish objects
-      dishes: [new Dish()],
+      dishes: [ new Dish() ],
 
       // 2d array of booleans
       // orders[dInd][pInd]
-      orders: [ [true, true] ],
+      orders: [ [ true, true ] ],
 
       tax: new Price(0),
       tip: new Percent(20)
@@ -51,7 +51,7 @@ class StateLoader {
 
   static getExample() {
     return {
-      people: ['Mark', 'Damian', 'Kai', 'Kapil'],
+      people: [ 'Mark', 'Damian', 'Kai', 'Kapil' ],
       dishes: [
         new Dish('Pitcher', 19.40),
         new Dish('Wings', 15.75),
@@ -60,11 +60,11 @@ class StateLoader {
         new Dish('Shrimp', 12.98)
       ],
       orders: [
-        [true,true,true,true],
-        [false,false,true,true],
-        [true,true,false,false],
-        [true,true,true,true],
-        [false,false,true,false]
+        [ true, true, true, true ],
+        [ false, false, true, true ],
+        [ true, true, false, false ],
+        [ true, true, true, true ],
+        [ false, false, true, false ]
       ],
       tax: new Price(7.65),
       tip: new Percent(20)
@@ -73,14 +73,14 @@ class StateLoader {
 }
 
 function customParser(key, val) {
-  if (typeof(val) === 'object') {
+  if (typeof (val) === 'object') {
     if (val.__type === 'Price') {
       return new Price(val);
     }
     if (val.__type === 'Percent') {
       return new Percent(val);
     }
-  } 
+  }
   return val;
 }
 
