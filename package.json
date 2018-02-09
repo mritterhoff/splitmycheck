@@ -17,12 +17,12 @@
   },
   "scripts": {
     "start": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "node server.js",
+    "server": "node server/server.js",
     "client": "node start-client.js",
     "startDebug": "echo \"go to chrome://inspect/#devices\" && concurrently \"npm run prodServerDebug\" \"npm run client\"",
     "prodStart": "npm --prefix ./client install && npm run --prefix ./client build && NODE_ENV=production npm run server",
     "quickProdStart": "npm run --prefix ./client build && NODE_ENV=production npm run server",
-    "prodServerDebug": "NODE_ENV=production node --inspect-brk server.js",
+    "prodServerDebug": "NODE_ENV=production node --inspect-brk server/server.js",
     "lint": "eslint .",
     "build": "echo 'we should be calling the one in ./client'"
   },
