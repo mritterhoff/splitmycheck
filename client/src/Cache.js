@@ -1,34 +1,33 @@
 
-
+// Quick and dirty cache.
+// TODO replace or improve
 class Cache {
   constructor() {
     this._cache = {};
   }
 
   // Kind of hacky method to get a key for the cache
-  static key() {
-    let key = arguments.length === 1
-      ? arguments[0].join('_')
-      : [...arguments].join('_');
+  static key(...args) {
+    const key = args.length === 1
+      ? args[0].join('_')
+      : args.join('_');
     return key;
   }
 
-  has() {
-    let key = Cache.key([...arguments]);
+  has(...args) {
+    const key = Cache.key(args);
     return this._cache[key] !== undefined;
   }
 
-  get() {
-    let key = Cache.key([...arguments]);
+  get(...args) {
+    const key = Cache.key(args);
     return this._cache[key];
   }
 
-  put() {
-    let args = [...arguments];
-    let value = args[0];
-    args = args.slice(1);
-    let key = Cache.key(args);
-    this._cache[key] = value;
+  put(...args) {
+    const value = args[0];
+    const allButFirstArgs = args.slice(1);
+    this._cache[Cache.key(allButFirstArgs)] = value;
     // console.log('put', key, value);
   }
 
@@ -37,4 +36,4 @@ class Cache {
   }
 }
 
-export { Cache };
+export default Cache;

@@ -1,23 +1,19 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import AutosizeInput from 'react-input-autosize'
+/* eslint-disable no-unused-expressions */
 
-import { Price } from '../Price'
+import React from 'react';
+import PropTypes from 'prop-types';
+import AutosizeInput from 'react-input-autosize';
 
-import '../css/Inputs.css'
+import { Price } from '../NumTypes';
+
+import '../css/Inputs.css';
 
 // TODO the style resolution for these inputs should be improved.
-
-let inputStyleDefault = { 
+const inputStyleDefault = {
   border: '1px solid #999',
-  borderRadius: 3, 
+  borderRadius: 3,
   paddingTop: '.2em',
-  paddingBottom: '.2em',
-};
-
-let divContainerStyle = {
-  borderRadius: 5, 
-  padding: '.1em'
+  paddingBottom: '.2em'
 };
 
 /*
@@ -34,62 +30,70 @@ class StringInput extends React.Component {
 
   autoSizeInputRef;
 
-  updateInputValue = event => {
+  stringMaxChars = 7;
+
+  updateInputValue = (event) => {
     // must prevent passing null value, so pass empty string instead
     this.props.onChangeCB(event.target.value || '');
   };
 
-  onFocus = event => {
+  onFocus = () => {
     // don't show the placeholder when user is inputting numbers
     this.autoSizeInputRef.input.placeholder = '';
-    this.setState((prevState) => ({ focused: true }));
+    this.setState(() => ({ focused: true }));
   };
 
-  onBlur = event => {
+  onBlur = () => {
     this.autoSizeInputRef.input.placeholder = this.props.placeholder;
-    this.setState((prevState) => ({ focused: false }));
+    this.setState(() => ({ focused: false }));
   };
 
   selectInput() {
     this.autoSizeInputRef.input.select();
   }
 
-  render() {
-    let divStyle = Object.assign({}, divContainerStyle, this.props.style);
-    let inputStyle = Object.assign({}, inputStyleDefault, this.props.style,
-      {padding: '.2em', maxWidth: '6em'});
+  // if the valye is short enough, display it, otherwise truncate and add an elipsis
+  getInputValueToDisplay = () => {
+    if (this.state.focused || this.props.value.length <= this.stringMaxChars) {
+      return this.props.value;
+    }
+    return `${this.props.value.substring(0, this.stringMaxChars)}...`;
+  }
 
-    let valueToShow = this.state.focused
-      ? this.props.value
-      : this.props.value.length <= 7
-        ? this.props.value
-        : this.props.value.substring(0, 7) + '...';
+  render() {
+    const inputStyle = Object.assign(
+      { textAlign: (this.props.center ? 'center' : 'auto') },
+      inputStyleDefault,
+      { padding: '.2em', maxWidth: '6em' }
+    );
+
     return (
       <AutosizeInput
-        value={valueToShow}
+        className='InputContainer'
+        value={this.getInputValueToDisplay()}
         placeholder={this.props.placeholder}
         placeholderIsMinWidth
-        style={divStyle}
         inputStyle={inputStyle}
         onKeyDown={getKeydownCB(() => (this.autoSizeInputRef))}
         onChange={this.updateInputValue}
         onBlur={this.onBlur}
         onFocus={this.onFocus}
-        ref={(ref) => { this.autoSizeInputRef = ref; }}/>
+        ref={(ref) => { this.autoSizeInputRef = ref; }}
+      />
     );
   }
 }
 
 StringInput.propTypes = {
-  style:        PropTypes.object,
-  onChangeCB:   PropTypes.func.isRequired,
-  value:        PropTypes.string.isRequired,
-  placeholder:  PropTypes.string.isRequired
-}
+  center: PropTypes.bool,
+  onChangeCB: PropTypes.func.isRequired,
+  value: PropTypes.string.isRequired,
+  placeholder: PropTypes.string.isRequired
+};
 
-
-
-
+StringInput.defaultProps = {
+  center: false
+};
 
 
 class PriceInput extends React.Component {
@@ -103,12 +107,12 @@ class PriceInput extends React.Component {
     };
   }
 
-  onChange(event) {
+  onChange = (event) => {
     this.props.onChangeCB(event.target.value, false);
   }
 
-  onFocus(event) {
-    this.setState((prevState) => ({ focused: true }));
+  onFocus = () => {
+    this.setState(() => ({ focused: true }));
 
     // don't show the placeholder when user is inputting numbers
     this.autoSizeInputRef.input.placeholder = '';
@@ -118,9 +122,9 @@ class PriceInput extends React.Component {
     this.autoSizeInputRef.input.select();
   }
 
-  onBlur(event) {
+  onBlur = (event) => {
     // only ever send back a string, even if it's an empty string
-    let newValue = event.target.value || '';
+    const newValue = event.target.value || '';
 
     // only trigger a price change if the newValue is actually different
     // console.log(newValue, Number(newValue), this.props.priceObj);
@@ -128,19 +132,17 @@ class PriceInput extends React.Component {
       this.props.onChangeCB(newValue, true);
     }
 
-    this.setState((prevState) => ({
-      focused: false
-    }));
+    this.setState(() => ({ focused: false }));
 
     this.autoSizeInputRef.input.placeholder = this.defaultPlaceholder;
   }
 
   render() {
-    let divStyle = Object.assign({}, divContainerStyle, this.props.style);
-    
     // if the price input is empty and the input isn't focused, show a pink background
-    let inputStyle = Object.assign({}, inputStyleDefault, 
-      {maxWidth: '4em', textAlign: 'right', paddingRight: '.2em',})
+    const inputStyle = Object.assign(
+      {}, inputStyleDefault,
+      { maxWidth: '4em', textAlign: 'right', paddingRight: '.2em' }
+    );
     if (Number(this.props.priceObj.num) === 0 && !this.state.focused) {
       inputStyle.backgroundColor = 'lightgrey';
     }
@@ -152,16 +154,17 @@ class PriceInput extends React.Component {
 
     return (
       <AutosizeInput
+        className='InputContainer'
         value={valueToShow}
-        type="number"
-        min = "0" step=".01"
+        type='number'
+        min='0'
+        step='.01'
         placeholder={this.defaultPlaceholder}
         placeholderIsMinWidth
-        style={divStyle}
         inputStyle={inputStyle}
-        onChange={this.onChange.bind(this)}
-        onBlur={this.onBlur.bind(this)}
-        onFocus={this.onFocus.bind(this)}
+        onChange={this.onChange}
+        onBlur={this.onBlur}
+        onFocus={this.onFocus}
         onKeyDown={getKeydownCB(() => (this.autoSizeInputRef))}
         extraWidth={1}
         ref={(inputRef) => { this.autoSizeInputRef = inputRef; }}
@@ -171,11 +174,9 @@ class PriceInput extends React.Component {
 }
 
 PriceInput.propTypes = {
-  onChangeCB:   PropTypes.func.isRequired,
-  priceObj:     Price.shape.isRequired
-}
-
-
+  onChangeCB: PropTypes.func.isRequired,
+  priceObj: Price.shape.isRequired
+};
 
 
 class PercentInput extends React.Component {
@@ -188,38 +189,36 @@ class PercentInput extends React.Component {
     };
   }
 
-  onChange(event) {
+  onChange = (event) => {
     this.props.onChangeCB(event.target.value, false);
   }
 
-  onFocus(event) {
-    this.setState((prevState) => ({ focused: true }));
+  onFocus = () => {
+    this.setState(() => ({ focused: true }));
   }
 
   selectInput() {
     this.autoSizeInputRef.input.select();
   }
 
-  onBlur(event) {
+  onBlur = (event) => {
     // only ever send back a string, even if it's an empty string
-    let newValue = event.target.value || '';
+    const newValue = event.target.value || '';
 
     // only trigger a price change if the newValue is actually different
     if (Number(newValue) !== this.props.numObj.num) {
       this.props.onChangeCB(newValue, true);
     }
 
-    this.setState((prevState) => ({
-      focused: false
-    }));
+    this.setState(() => ({ focused: false }));
   }
 
   render() {
-    let divStyle = Object.assign({}, divContainerStyle, this.props.style);
-    
     // if the price input is empty and the input isn't focused, show a pink background
-    let inputStyle = Object.assign({}, inputStyleDefault, 
-      {maxWidth: '4em', textAlign: 'right', paddingRight: '.2em',})
+    const inputStyle = Object.assign(
+      {}, inputStyleDefault,
+      { maxWidth: '4em', textAlign: 'right', paddingRight: '.2em' }
+    );
     if (Number(this.props.numObj.num) === 0 && !this.state.focused) {
       inputStyle.backgroundColor = 'lightgrey';
     }
@@ -231,16 +230,17 @@ class PercentInput extends React.Component {
 
     return (
       <AutosizeInput
+        className='InputContainer'
         value={valueToShow}
-        type="number"
-        min = "0" step="1"
+        type='number'
+        min='0'
+        step='1'
         placeholder='10'
         placeholderIsMinWidth
-        style={divStyle}
         inputStyle={inputStyle}
-        onChange={this.onChange.bind(this)}
-        onBlur={this.onBlur.bind(this)}
-        onFocus={this.onFocus.bind(this)}
+        onChange={this.onChange}
+        onBlur={this.onBlur}
+        onFocus={this.onFocus}
         onKeyDown={getKeydownCB(() => (this.autoSizeInputRef))}
         extraWidth={1}
         ref={(inputRef) => { this.autoSizeInputRef = inputRef; }}
@@ -255,9 +255,6 @@ class PercentInput extends React.Component {
 // }
 
 
-
-
-
 // fix for silly % not handling negative well
 function mod(n, m) {
   return ((n % m) + m) % m;
@@ -268,27 +265,31 @@ function mod(n, m) {
 // easy sharing between components (no 'this' referencing)
 function getKeydownCB(inputRefGetter) {
   return (ev) => {
-    if (ev.keyCode === 13) {  // Enter key (works on mobile too!)
-      const inputRef = inputRefGetter();  
+    if (ev.keyCode === 13) { // Enter key (works on mobile too!)
+      const inputRef = inputRefGetter();
+
       if (inputRef) {
         inputRef.blur();
+
         // get as array rather than NodeList
-        let tabableElements = [...document.querySelectorAll('input, [tabIndex="0"]')];
-        let curIndex = tabableElements.indexOf(inputRef.input)
+        const tabableEls =
+          [ ...document.querySelectorAll('input, [tabIndex="0"]') ];
+        const curIndex = tabableEls.indexOf(inputRef.input);
         if (curIndex === -1) {
           console.warn(`Couldn't find current input. ${inputRef.input.innerHTML}`);
           return;
         }
 
         // shift/enter moves backwards in the list!!! wrap to the beginning
-        let newIndex = mod(curIndex + (ev.shiftKey ? -1 : 1), tabableElements.length);
-        let v = tabableElements[newIndex];
-        
-        // if it is an input, we select it, if it's a RowHeader, focus on it
-        v.select ? v.select() : v.focus();
+        const newIndex = mod(curIndex + (ev.shiftKey ? -1 : 1), tabableEls.length);
+        const tabbedEl = tabableEls[newIndex];
+
+        // if it has a select function, call it, otherwise call focus
+        // because it could be an input, or a div that's going to become an input
+        tabbedEl.select ? tabbedEl.select() : tabbedEl.focus();
       }
     }
   };
 }
 
-export {StringInput, PriceInput, PercentInput};
+export { StringInput, PriceInput, PercentInput };

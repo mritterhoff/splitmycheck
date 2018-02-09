@@ -67,7 +67,8 @@ app.get('/saved/*', (req, res) => {
         'utf8'
       );
       const $ = cheerio.load(html);
-      $('head').prepend(`<script>window.SERVER_DATA = ${dbRes.rows[0].state};</script>`);
+      $('head')
+        .prepend(`<script>window.SERVER_DATA=${dbRes.rows[0].state};</script>`);
       res.send($.html());
     }
     else {
@@ -80,7 +81,7 @@ app.get('/saved/*', (req, res) => {
 });
 
 app.use((req, res) => {
-  res.status(404).send("Sorry, can't find what you're looking for! (404 error)");
+  res.status(404).send("404: Can't find what you're looking for.");
 });
 
 app.listen(app.get('port'), () => {

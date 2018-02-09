@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 function search(query, cb) {
   return fetch(`api/?q=${query}`, {
-    accept: "application/json"
+    accept: 'application/json'
   })
     .then(checkStatus)
     .then(parseJSON)
@@ -16,15 +16,15 @@ function search(query, cb) {
 function save(text, cb) {
   fetch('/save', {
     method: 'POST', // or 'PUT'
-    body: text, 
+    body: text,
     headers: new Headers({
       'Content-Type': 'text/plain'
     })
   })
-  .then(checkStatus)
-  .then((res) => res.text())
-  .then(cb)
-  .catch(error => console.error('Error:', error));
+    .then(checkStatus)
+    .then(res => res.text())
+    .then(cb)
+    .catch(error => console.error('Error:', error));
 }
 
 function checkStatus(response) {

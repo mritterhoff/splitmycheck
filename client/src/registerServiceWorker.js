@@ -1,3 +1,6 @@
+/* eslint-disable */
+// This is FB's code, leave it alone
+
 // In production, we register a service worker to serve assets from local cache.
 
 // This lets the app load faster on subsequent visits in production, and gives

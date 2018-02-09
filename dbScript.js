@@ -1,3 +1,6 @@
+/* eslint-disable */
+// just a one time scripts file, don't eslint
+
 const db = require('./models/database.js');
 
 

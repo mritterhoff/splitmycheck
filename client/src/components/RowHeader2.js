@@ -2,7 +2,7 @@ import React from 'react';
 import ClassNames from 'classnames';
 import PropTypes from 'prop-types';
 
-import { Swappable } from './Swappable';
+import Swappable from './Swappable';
 
 import '../css/RowHeader.css';
 
@@ -25,16 +25,11 @@ class RowHeader2 extends React.Component {
     };
   }
 
-  // Get the first defined ref index
-  getFirstRefIndex() {
-    return this._refs[0] ? 0 : 1;
-  }
-
-  onClickCB() {
+  onClickCB = () => {
     // if we're not already focused, and we click somewhere other than
     // the two spans (ie the background container div), focus on the first input
     if (!this.state.isManagingFocus) {
-      this.swapCB(this.getFirstRefIndex(), true);
+      this.swapCB(this._refs[0] ? 0 : 1, true);
     }
   }
 
@@ -76,9 +71,20 @@ class RowHeader2 extends React.Component {
       notFocused: !this.state.isManagingFocus
     });
 
+    // TODO explore making this use something other than onClick
+    return (
+      <div className={className} onClick={this.onClickCB}>
+        <div>
+          {this.getChildren()}
+        </div>
+      </div>
+    );
+  }
+
+  getChildren() {
     // If it's a Swappable, add some props to it
     // TODO why React.Children.map?
-    const clonedChildren = React.Children.map(
+    return React.Children.map(
       this.props.children,
       (child, i) => {
         if (child.type.name === Swappable.name) {
@@ -87,7 +93,7 @@ class RowHeader2 extends React.Component {
             {
               ref: (ref) => { this._refs[i] = ref; },
               swapCB: this.swapCB.bind(this),
-              interactive: this.state.isManagingFocus,
+              interactive: !this.props.useMobileUI || this.state.isManagingFocus,
               index: i,
               key: i
             }
@@ -95,15 +101,6 @@ class RowHeader2 extends React.Component {
         }
         return child;
       }
-    );
-
-    // // TODO explore making this use something other than onClick
-    return (
-      <div className={className} onClick={this.onClickCB.bind(this)}>
-        <div>
-          {clonedChildren}
-        </div>
-      </div>
     );
   }
 }
@@ -113,4 +110,4 @@ RowHeader2.propTypes = {
   useMobileUI: PropTypes.bool.isRequired
 };
 
-export { RowHeader2 };
+export default RowHeader2;

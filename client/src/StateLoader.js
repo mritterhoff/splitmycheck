@@ -1,5 +1,5 @@
-import { Price, Percent } from './Price';
-import { Dish } from './Dish';
+import { Price, Percent } from './NumTypes';
+import Dish from './Dish';
 
 const lsSplitterKey = 'SplitterState';
 
@@ -84,4 +84,4 @@ function customParser(key, val) {
   return val;
 }
 
-export { StateLoader };
+export default StateLoader;

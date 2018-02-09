@@ -1,4 +1,4 @@
-import { Price } from './Price.js'
+import { Price } from './NumTypes';
 
 class Dish {
   constructor(name = '', priceObjOrNum = 0) {
@@ -7,12 +7,12 @@ class Dish {
       this.price = priceObjOrNum;
     }
     else if (typeof priceObjOrNum === 'number') {
-      this.price = new Price(priceObjOrNum)
+      this.price = new Price(priceObjOrNum);
     }
     else {
-      throw new Error(`Dish: was expecting price obj or number, got ${priceObjOrNum}`)
+      throw new Error(`Dish: was expecting price obj or number, got ${priceObjOrNum}`);
     }
   }
 }
 
-export { Dish };
+export default Dish;

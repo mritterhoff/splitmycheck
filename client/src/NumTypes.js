@@ -1,3 +1,5 @@
+/* eslint-disable constructor-super */
+
 import PropTypes from 'prop-types';
 
 /*
@@ -23,18 +25,18 @@ class NumStringPair {
 }
 
 class Percent extends NumStringPair {
-  constructor(num, stringRep) {
+  constructor(...args) {
     if (arguments.length === 1) {
-      const arg = arguments[0];
+      const arg = args[0];
 
       // used by StateLoader
       if (typeof arg === 'number') {
         // show 1 decimal point but only if necessary
-        if (arg === Number(num.toFixed(0))) {
-          super(arg, num.toFixed(0));
+        if (arg === Number(arg.toFixed(0))) {
+          super(arg, arg.toFixed(0));
         }
         else {
-          super(arg, num.toFixed(1));
+          super(arg, arg.toFixed(1));
         }
       }
       // used by StateLoader
@@ -43,8 +45,8 @@ class Percent extends NumStringPair {
       }
     }
     // internal only
-    else if (arguments.length === 2) {
-      super(arguments[0], arguments[1]);
+    else if (args.length === 2) {
+      super(args[0], args[1]);
     }
     else {
       throw new Error('Need to supply 1 or 2 arguments');
@@ -65,13 +67,13 @@ class Percent extends NumStringPair {
 }
 
 class Price extends NumStringPair {
-  constructor(num, stringRep) {
-    if (arguments.length === 1) {
-      const arg = arguments[0];
+  constructor(...args) {
+    if (args.length === 1) {
+      const arg = args[0];
 
       // used by StateLoader and Dish
       if (typeof arg === 'number') {
-        super(arg, num.toFixed(2));
+        super(arg, arg.toFixed(2));
       }
       // used by StateLoader
       else if (typeof arg === 'object') {
@@ -79,8 +81,8 @@ class Price extends NumStringPair {
       }
     }
     // internal only
-    else if (arguments.length === 2) {
-      super(arguments[0], arguments[1]);
+    else if (args.length === 2) {
+      super(args[0], args[1]);
     }
     else {
       throw new Error('Need to supply 1 or 2 arguments');

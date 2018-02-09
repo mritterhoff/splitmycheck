@@ -8,9 +8,9 @@ function DivTableElement(classType, props) {
   );
 }
 
-export const TH = (props) => DivTableElement('th', props);
-export const TD = (props) => DivTableElement('td', props);
-export const TR = (props) => DivTableElement('tr', props);
-export const THEAD = (props) => DivTableElement('thead', props);
-export const TBODY = (props) => DivTableElement('tbody', props);
-export const TABLE = (props) => DivTableElement('table', props);
+export const TH = props => DivTableElement('th', props);
+export const TD = props => DivTableElement('td', props);
+export const TR = props => DivTableElement('tr', props);
+export const THEAD = props => DivTableElement('thead', props);
+export const TBODY = props => DivTableElement('tbody', props);
+export const TABLE = props => DivTableElement('table', props);

@@ -1,17 +1,17 @@
 import React from 'react';
 
-import { CellToggle } from './CellToggle';
+import CellToggle from './CellToggle';
 import { StringInput, PriceInput, PercentInput } from './Inputs';
-import { ButtonBar } from './ButtonBar';
-import { Linker } from './Linker';
-import { RowHeader2 } from './RowHeader2';
-import { Swappable } from './Swappable';
+import ButtonBar from './ButtonBar';
+import Linker from './Linker';
+import RowHeader2 from './RowHeader2';
+import Swappable from './Swappable';
 import { TH, TD, TR, THEAD, TBODY, TABLE } from './TableDivs';
 
-import { Dish } from '../Dish';
-import { StateLoader } from '../StateLoader';
-import { Utils } from '../Utils';
-import { Cache } from '../Cache';
+import Dish from '../Dish';
+import StateLoader from '../StateLoader';
+import Utils from '../Utils';
+import Cache from '../Cache';
 
 import '../css/Splitter.css';
 
@@ -85,7 +85,10 @@ class Splitter extends React.Component {
     if (diff === 0) {
       return initialSplit;
     }
+    return initialSplit + this.calcSplitDiff(diff, ppd, pInd, dInd);
+  }
 
+  calcSplitDiff(diff, ppd, pInd, dInd) {
     // figure out where in the index of people we are, since people to the
     // left always pay more
     const indexOfThisPerson = this.state.people
@@ -93,10 +96,10 @@ class Splitter extends React.Component {
       .filter(el => el > -1)
       .indexOf(pInd);
 
-    const splitDiff = diff < 0
-      ? (ppd - indexOfThisPerson <= Math.abs(diff) * 100) ? -0.01 : 0
-      : (indexOfThisPerson < diff * 100) ? 0.01 : 0;
-    return initialSplit + splitDiff;
+    if (diff < 0) {
+      return (ppd - indexOfThisPerson <= Math.abs(diff) * 100) ? -0.01 : 0;
+    }
+    return (indexOfThisPerson < diff * 100) ? 0.01 : 0;
   }
 
   // Given a person, what's their subtotal owed? (exluding tax/tip)
@@ -124,7 +127,7 @@ class Splitter extends React.Component {
     this.setState((prevState) => {
       const newOrders = Utils.clone2D(prevState.orders);
 
-      for (let row = 0; row < newOrders.length; row++) {
+      for (let row = 0; row < newOrders.length; row += 1) {
         newOrders[row][this.state.people.length] = true;
       }
 
@@ -165,7 +168,7 @@ class Splitter extends React.Component {
 
   componentWillUpdate() {
     this._cache.clear();
-    console.log('cleared cache');
+    console.log('Cleared cache');
   }
 
   // Store the current state to localStorage, every time the state is updated
@@ -182,8 +185,8 @@ class Splitter extends React.Component {
           removePersonFunc={this.removeLastPerson.bind(this)}
           addDishFunc={this.addDish.bind(this)}
           removeDishFunc={this.removeLastDish.bind(this)}
-          showExampleFunc={() => { this.setState(prevState => StateLoader.getExample()); }}
-          resetFunc={() => { this.setState(prevState => StateLoader.getDefault()); }}
+          showExampleFunc={() => { this.setState(() => StateLoader.getExample()); }}
+          resetFunc={() => { this.setState(() => StateLoader.getDefault()); }}
         />
         <TABLE>
           {this.getHeaderRow()}
@@ -227,7 +230,7 @@ class Splitter extends React.Component {
           value={person}
           placeholder={`Pal ${pInd + 1}`}
           onChangeCB={setNameCBGetter(pInd)}
-          style={{ textAlign: 'center' }}
+          center
         />
       )));
   }
@@ -244,13 +247,14 @@ class Splitter extends React.Component {
     ];
     rowEls = rowEls.concat(this.state.people.map((person, pInd) => (
       <span style={{ fontWeight: 'bold', display: 'inline-block' }}>
-        {Utils.priceAsString(this.subtotalOwed(pInd) + this.percentOfSubtotalOwed(pInd) * taxAndTip)}
+        {Utils.priceAsString((this.percentOfSubtotalOwed(pInd) * taxAndTip)
+          + this.subtotalOwed(pInd))}
       </span>
     )));
 
     return (
       <TR>
-        {rowEls.map((el, el_i) => <TD key={el_i}>{el}</TD>)}
+        {rowEls.map((el, i) => <TD key={i}>{el}</TD>)}
       </TR>
     );
   }
@@ -264,7 +268,9 @@ class Splitter extends React.Component {
   // Get tip row.
   getTipRow(displayName, stateKey) {
     const updaterFunc = (stringRep, isFinal) => {
-      this.setState(prevState => ({ [stateKey]: prevState[stateKey].as(stringRep, isFinal) }));
+      this.setState(prevState => ({
+        [stateKey]: prevState[stateKey].as(stringRep, isFinal)
+      }));
     };
 
     const getterFunc = () => (this.state[stateKey]);
@@ -296,7 +302,7 @@ class Splitter extends React.Component {
     rowEls = rowEls.concat(this.getSpecialPriceArray(hackyGetterFunc)
       .map(price => (<span>{Utils.priceAsString(price)}</span>)));
 
-    return <TR>{rowEls.map((el, el_i) => <TD key={el_i}>{el}</TD>)}</TR>;
+    return <TR>{rowEls.map((el, i) => <TD key={i}>{el}</TD>)}</TR>;
   }
 
   // Get tax or tip row.
@@ -325,7 +331,7 @@ class Splitter extends React.Component {
     rowEls = rowEls.concat(this.getSpecialPriceArray(getterFunc)
       .map(price => (<span>{Utils.priceAsString(price)}</span>)));
 
-    return <TR>{rowEls.map((el, el_i) => <TD key={el_i}>{el}</TD>)}</TR>;
+    return <TR>{rowEls.map((el, i) => <TD key={i}>{el}</TD>)}</TR>;
   }
 
   getSpecialPriceArray(getterFunc) {
@@ -350,9 +356,9 @@ class Splitter extends React.Component {
       (setUnset) => {
         // don't unset the last enabled cell in an order (someone has to pay!)
         if (!setUnset && this.state.orders[dInd].reduce(Utils.sumFunc, 0) === 1) {
-          this.setState(prevState => ({ error: errorKey(pInd, dInd) }));
+          this.setState(() => ({ error: errorKey(pInd, dInd) }));
           setTimeout(() => {
-            this.setState(prevState => ({ error: undefined }));
+            this.setState(() => ({ error: undefined }));
           }, 200);
         }
         else {
