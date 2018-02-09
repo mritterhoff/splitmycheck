@@ -5,8 +5,7 @@ const cheerio = require('cheerio');
 const fs = require('fs');
 const randomstring = require('randomstring');
 
-// const { Database } = require('./Database.js');
-const { DBActions } = require('./DBActions.js');
+const DBActions = require('./DBActions.js');
 const validators = require('./columnValidators');
 
 const app = express();
@@ -47,10 +46,7 @@ app.post('/save', (req, res) => {
   // "solve 1-e^(-n^2/(2d))=.5, d = (10+26+26)^6 over the reals"
   dbActions.addRow(
     { link_code: randomstring.generate(6), state: stateString },
-    (obj) => {
-      // return the link
-      res.send(`${host}/saved/${obj.link_code}`);
-    },
+    (obj) => { res.send(`${host}/saved/${obj.link_code}`); },
   );
 });
 
@@ -90,6 +86,7 @@ app.listen(app.get('port'), () => {
 
 // Short term solution to prevent unanticipated errors from crashing the whole app
 // more info: https://stackoverflow.com/q/5999373/1188090
+// TODO do something more elegant
 process.on('uncaughtException', (err) => {
   console.error(err);
   console.log('Node NOT Exiting...');
