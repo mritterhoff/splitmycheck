@@ -240,7 +240,7 @@ class Splitter extends React.Component {
     let rowEls = [
       <div>
         <span>Total:</span>
-        <span style={{ float: 'right' }}>
+        <span className='right'>
           {Utils.priceAsString(this.subtotal() + taxAndTip, false)}
         </span>
       </div>
@@ -280,7 +280,7 @@ class Splitter extends React.Component {
         <span>
           {`${displayName}: (`}
         </span>
-        <Swappable>
+        <Swappable className='middle'>
           <PercentInput
             numObj={getterFunc()}
             onChangeCB={updaterFunc}
@@ -292,7 +292,7 @@ class Splitter extends React.Component {
         <span>
           {')'}
         </span>
-        <span style={{ float: 'right' }}>
+        <span className='right'>
           {Utils.priceAsString(this.tipAsMoney(), false)}
         </span>
       </RowHeader2>
@@ -316,7 +316,7 @@ class Splitter extends React.Component {
     let rowEls = [
       <RowHeader2 useMobileUI={this.props.useMobileUI}>
         <span className='taxOrTip'>{`${displayName}:`}</span>
-        <Swappable style={{ float: 'right' }}>
+        <Swappable className='right' >
           <PriceInput
             priceObj={getterFunc()}
             onChangeCB={updaterFunc}
@@ -402,7 +402,7 @@ class Splitter extends React.Component {
 
       let rowEls = [
         <RowHeader2 useMobileUI={this.props.useMobileUI}>
-          <Swappable>
+          <Swappable className='left'>
             <StringInput
               placeholder={`Dish ${dInd + 1}`}
               value={dish.name}
@@ -410,7 +410,7 @@ class Splitter extends React.Component {
             />
             <span tabIndex='0' className='DishName'>{dishName}</span>
           </Swappable>
-          <Swappable style={{ float: 'right' }}>
+          <Swappable className='right'>
             <PriceInput
               priceObj={dish.price}
               onChangeCB={setDishPriceCBGetter(dInd)}

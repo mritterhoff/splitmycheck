@@ -18,7 +18,7 @@ class Swappable extends React.Component {
   };
 
   render() {
-    const className = ClassNames({
+    const className = ClassNames(this.props.className, {
       Swappable: true,
       interactive: this.props.interactive,
       notInteractive: !this.props.interactive

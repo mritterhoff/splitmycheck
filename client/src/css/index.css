@@ -3,4 +3,5 @@ body {
   /*padding: 0;*/
   font-family: Helvetica, Arial, sans-serif;
   width: fit-content;
+  line-height: 1;
 }

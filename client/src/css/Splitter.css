@@ -3,9 +3,10 @@
   text-align: center;
 }
 
-/*.tr .td:first-child div {
-  display: inline-block;
-}*/
+.td:first-child {
+  border-right: 1px solid #dedede;
+  padding: 0;
+}
 
 .table {
   display: table;
@@ -72,10 +73,6 @@
   font-weight: 300;
   vertical-align: middle;
   border-top: 1px solid #dedede;
-}
-
-.td:first-child {
-  border-right: 1px solid #dedede;
 }
 
 .splitterContainer {

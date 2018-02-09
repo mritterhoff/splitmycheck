@@ -1,4 +1,5 @@
 import React from 'react';
+import ClassNames from 'classnames';
 
 import '../css/App.css';
 
@@ -35,8 +36,9 @@ class App extends React.Component {
       the dish from someone's order.`;
     const gitURL = 'https://github.com/mritterhoff/splitmycheck#table-of-contents';
 
+
     return (
-      <div className='App'>
+      <div className={ClassNames({ App: true, Debug: false })}>
         <header className='App-header'>
           <h1 className='App-title'>
             <a href='https://www.splitmycheck.com'>Split My Check</a>
