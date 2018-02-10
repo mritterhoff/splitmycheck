@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 
-const Database = require('./models/Database.js');
+const Database = require('./models/Database');
 
 class DBActions {
   // TODO how do we make sure this query happens before any future ones?

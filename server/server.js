@@ -5,7 +5,7 @@ const cheerio = require('cheerio');
 const fs = require('fs');
 const randomstring = require('randomstring');
 
-const DBActions = require('./DBActions.js');
+const DBActions = require('./DBActions');
 const validators = require('./columnValidators');
 
 const app = express();
