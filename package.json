@@ -33,9 +33,5 @@
     "eslint-plugin-import": "2.8.0",
     "eslint-plugin-jsx-a11y": "6.0.3",
     "eslint-plugin-react": "7.6.1"
-  },
-  "engines": {
-    "node": "8.4.0",
-    "npm": "5.6.0"
   }
 }
