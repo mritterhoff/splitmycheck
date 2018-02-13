@@ -8,6 +8,14 @@
   padding: 0;
 }
 
+
+.td:first-child > div {
+  min-height: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .table {
   display: table;
   width: auto;

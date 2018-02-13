@@ -30,8 +30,6 @@ class StringInput extends React.Component {
 
   autoSizeInputRef;
 
-  stringMaxChars = 7;
-
   updateInputValue = (event) => {
     // must prevent passing null value, so pass empty string instead
     this.props.onChangeCB(event.target.value || '');
@@ -52,14 +50,6 @@ class StringInput extends React.Component {
     this.autoSizeInputRef.input.select();
   }
 
-  // if the valye is short enough, display it, otherwise truncate and add an elipsis
-  getInputValueToDisplay = () => {
-    if (this.state.focused || this.props.value.length <= this.stringMaxChars) {
-      return this.props.value;
-    }
-    return `${this.props.value.substring(0, this.stringMaxChars)}...`;
-  }
-
   render() {
     const inputStyle = Object.assign(
       { textAlign: (this.props.center ? 'center' : 'auto') },
@@ -69,8 +59,8 @@ class StringInput extends React.Component {
 
     return (
       <AutosizeInput
-        className='InputContainer'
-        value={this.getInputValueToDisplay()}
+        className='InputContainer StringInput'
+        value={this.props.value}
         placeholder={this.props.placeholder}
         placeholderIsMinWidth
         inputStyle={inputStyle}

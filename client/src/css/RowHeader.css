@@ -1,46 +1,17 @@
-.Swappable {
-  display: inline-block;
-}
-
-.Swappable.right, span.right{
-  float: right;
-}
-
-.Swappable.right.notInteractive, span.right{
-  padding-right: .3em;
-}
-
-/* Hack */
-.Swappable.middle .InputContainer{
-  overflow: hidden
-}
-
-.RowHeaderContainer {
-  min-height: 2.5em;
-}
-
-.Debug .RowHeaderContainer {
-  background-color: crimson;
-}
-
 .RowHeaderContainer span {
   display: inline-block;
-  padding-top: .4em;
-  padding-bottom: .4em;
 
   /* Hack. Apparently overflow: hidden (in .DishName below) 
   breaks layout. Do it everywhere for now.*/
-  overflow: hidden;
+  /*overflow: hidden;*/
 }
 
 .Debug .RowHeaderContainer span{
   background-color: lightgreen;
 }
 
-.flexVertCenter {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+.Debug .RowHeaderContainer {
+  background-color: crimson;
 }
 
 /* Limit the length of the string that's shown. */
@@ -49,7 +20,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
 
-  /*TODO experiment with this value*/
+  /* TODO experiment with this value */
   max-width: 6em;
 }
 

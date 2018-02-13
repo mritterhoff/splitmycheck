@@ -1,5 +1,11 @@
 /* For Firefox */
 
+.RowHeaderContainer.notFocused .StringInput > input{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 input[type='number'] {
   -moz-appearance: textfield;
 }

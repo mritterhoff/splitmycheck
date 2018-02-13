@@ -2,6 +2,8 @@ import React from 'react';
 // import PropTypes from 'prop-types'
 import ClassNames from 'classnames';
 
+import '../css/Swappable.css';
+
 class Swappable extends React.Component {
   _ref;
 

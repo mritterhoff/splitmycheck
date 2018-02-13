@@ -202,12 +202,12 @@ class Splitter extends React.Component {
   }
 
   getHeaderRow() {
-    const widths = getHeaderWidths(40, this.state.people.length);
+    const widths = getHeaderWidths(this.state.people.length);
     return (
       <THEAD>
-        {this.getHeaderRowChildren().map((el, i) => {
-          return <TH key={i} style={{ width: `${widths[i]}%` }}>{el}</TH>;
-        })}
+        {this.getHeaderRowChildren().map((el, i) => (
+          <TH key={i} style={{ width: `${widths[i]}%` }}>{el}</TH>
+        ))}
       </THEAD>
     );
   }
@@ -259,10 +259,6 @@ class Splitter extends React.Component {
     );
   }
 
-  tipIsPercent() {
-    return this.state.tip.isPercent();
-  }
-
   tipAsMoney = () => (this.state.tip.num / 100 * this.subtotal());
 
   // Get tip row.
@@ -277,21 +273,17 @@ class Splitter extends React.Component {
 
     let rowEls = [
       <RowHeader2 useMobileUI={this.props.useMobileUI}>
-        <span>
-          {`${displayName}: (`}
-        </span>
+        <span>{displayName}: (</span>
         <Swappable className='middle'>
           <PercentInput
             numObj={getterFunc()}
             onChangeCB={updaterFunc}
           />
-          <span className='taxOrTip' tabIndex='0'>
-            {`${getterFunc().stringRep}%`}
+          <span tabIndex='0'>
+            {`${getterFunc().stringRep}`}
           </span>
         </Swappable>
-        <span>
-          {')'}
-        </span>
+        <span>%)</span>
         <span className='right'>
           {Utils.priceAsString(this.tipAsMoney(), false)}
         </span>
@@ -315,7 +307,7 @@ class Splitter extends React.Component {
 
     let rowEls = [
       <RowHeader2 useMobileUI={this.props.useMobileUI}>
-        <span className='taxOrTip'>{`${displayName}:`}</span>
+        <span>{`${displayName}:`}</span>
         <Swappable className='right' >
           <PriceInput
             priceObj={getterFunc()}
@@ -339,6 +331,7 @@ class Splitter extends React.Component {
       Utils.roundToCent(this.percentOfSubtotalOwed(pInd) * getterFunc().num)
     ));
     const diff = Utils.roundToCent(getterFunc().num - priceArray.reduce(Utils.sumFunc));
+
 
     // if we have to fix the tax or tip up, just add/subtract from
     // to/from the smallest/largest. it's only ever 1cent it seems...
@@ -438,8 +431,8 @@ class Splitter extends React.Component {
   }
 } // end of Splitter class
 
-
-function getHeaderWidths(firstWidth, numPeople) {
+function getHeaderWidths(numPeople) {
+  const firstWidth = 40;
   return [ firstWidth ].concat(Array(numPeople).fill((100 - firstWidth) / numPeople));
 }
 

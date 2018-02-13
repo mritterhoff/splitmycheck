@@ -66,7 +66,6 @@ class RowHeader2 extends React.Component {
     // wrap in an additional div to increase touchable/clickable surface
     const className = ClassNames({
       RowHeaderContainer: true,
-      flexVertCenter: true,
       focused: this.state.isManagingFocus,
       notFocused: !this.state.isManagingFocus
     });
@@ -74,9 +73,7 @@ class RowHeader2 extends React.Component {
     // TODO explore making this use something other than onClick
     return (
       <div className={className} onClick={this.onClickCB}>
-        <div>
-          {this.getChildren()}
-        </div>
+        {this.getChildren()}
       </div>
     );
   }
