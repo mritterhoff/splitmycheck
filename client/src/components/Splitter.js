@@ -1,10 +1,12 @@
+/* eslint-disable jsx-a11y/no-noninteractive-tabindex */
+
 import React from 'react';
 
 import CellToggle from './CellToggle';
 import { StringInput, PriceInput, PercentInput } from './Inputs';
 import ButtonBar from './ButtonBar';
 import Linker from './Linker';
-import RowHeader2 from './RowHeader2';
+import RowHeader from './RowHeader';
 import Swappable from './Swappable';
 import { TH, TD, TR, THEAD, TBODY, TABLE } from './TableDivs';
 
@@ -18,6 +20,8 @@ import '../css/Splitter.css';
 class Splitter extends React.Component {
   // very simple cache for some frequent calculations
   _cache = new Cache();
+
+  lastLSUpdate = 0;
 
   constructor(props) {
     super(props);
@@ -150,7 +154,7 @@ class Splitter extends React.Component {
 
   addDish() {
     this.setState(prevState => ({
-      dishes: [ ...prevState.dishes, new Dish() ],
+      dishes: [ ...prevState.dishes, Dish.of() ],
       orders: Utils.clone2D(prevState.orders)
         .concat([ Array(this.state.people.length).fill(true) ])
     }));
@@ -171,10 +175,33 @@ class Splitter extends React.Component {
     console.log('Cleared cache');
   }
 
-  // Store the current state to localStorage, every time the state is updated
+  // Store the current state to localStorage, if state has changed, but don't update 
+  // more than 1 time every 2 seconds
   componentDidUpdate() {
-    StateLoader.updateLocalStorage(this.state);
+    this.lastStateUpdate = Date.now();
+    this.updateLSPeriodically();
   }
+
+  updateLSPeriodically() {
+    const maxUpdatePeriod = 2000;
+    const now = Date.now();
+    if (this.lastLSUpdate + maxUpdatePeriod < now) {
+      console.log('updating LS');
+      this.lastLSUpdate = now;
+      this.lsTimeout = undefined;
+      StateLoader.updateLocalStorage(this.state);
+    }
+    else {
+      if (!this.lsTimeout) {
+        console.log('setting timeout');
+        this.lsTimeout = setTimeout(this.updateLSPeriodically.bind(this), maxUpdatePeriod);
+      }
+      else {
+        console.log(`we're still waiting for ${maxUpdatePeriod/1000} seconds to finish`);
+      }
+    }
+  }
+
 
   render() {
     return (
@@ -239,8 +266,8 @@ class Splitter extends React.Component {
     const taxAndTip = this.state.tax.num + this.tipAsMoney();
     let rowEls = [
       <div>
-        <span>Total:</span>
-        <span className='right'>
+        <span className='leftPad'>Total:</span>
+        <span className='rightPad'>
           {Utils.priceAsString(this.subtotal() + taxAndTip, false)}
         </span>
       </div>
@@ -272,22 +299,22 @@ class Splitter extends React.Component {
     const getterFunc = () => (this.state[stateKey]);
 
     let rowEls = [
-      <RowHeader2 useMobileUI={this.props.useMobileUI}>
-        <span>{displayName}: (</span>
+      <RowHeader useMobileUI={this.props.useMobileUI}>
+        <span className='leftPad'>{displayName}: (</span>
         <Swappable className='middle'>
           <PercentInput
             numObj={getterFunc()}
             onChangeCB={updaterFunc}
           />
-          <span tabIndex='0'>
-            {`${getterFunc().stringRep}`}
-          </span>
+          <div className='Underlineable'>
+            <span tabIndex='0'>{`${getterFunc().stringRep}`}</span>
+          </div>
         </Swappable>
         <span>%)</span>
-        <span className='right'>
+        <span className='rightPad fakeFloatRight'>
           {Utils.priceAsString(this.tipAsMoney(), false)}
         </span>
-      </RowHeader2>
+      </RowHeader>
     ];
 
     const hackyGetterFunc = () => ({ num: this.tipAsMoney() });
@@ -300,24 +327,28 @@ class Splitter extends React.Component {
   // Get tax or tip row.
   getTaxRow(displayName, stateKey) {
     const updaterFunc = (stringRep, isFinal) => {
-      this.setState(prevState => ({ [stateKey]: prevState[stateKey].as(stringRep, isFinal) }));
+      this.setState(prevState => (
+        { [stateKey]: prevState[stateKey].as(stringRep, isFinal) })
+      );
     };
 
     const getterFunc = () => (this.state[stateKey]);
 
     let rowEls = [
-      <RowHeader2 useMobileUI={this.props.useMobileUI}>
-        <span>{`${displayName}:`}</span>
-        <Swappable className='right' >
+      <RowHeader useMobileUI={this.props.useMobileUI}>
+        <span className='leftPad'>{`${displayName}:`}</span>
+        <Swappable className='rightPad' >
           <PriceInput
             priceObj={getterFunc()}
             onChangeCB={updaterFunc}
           />
-          <span tabIndex='0'>
-            {Utils.priceAsString(getterFunc().num, false)}
-          </span>
+          <div className='Underlineable'>
+            <span tabIndex='0'>
+              {Utils.priceAsString(getterFunc().num, false)}
+            </span>
+          </div>
         </Swappable>
-      </RowHeader2>
+      </RowHeader>
     ];
 
     rowEls = rowEls.concat(this.getSpecialPriceArray(getterFunc)
@@ -365,7 +396,7 @@ class Splitter extends React.Component {
         this.setState((prevState) => {
           const newDishes = prevState.dishes.slice(); // shallow copy
 
-          newDishes[dInd] = new Dish(
+          newDishes[dInd] = Dish.of(
             newDishes[dInd].name,
             prevState.dishes[dInd].price.as(stringRep, isFinal)
           );
@@ -381,7 +412,7 @@ class Splitter extends React.Component {
       (newDishName) => {
         this.setState((prevState) => {
           const newDishes = prevState.dishes.slice(); // shallow copy
-          newDishes[dInd] = new Dish(newDishName, newDishes[dInd].price);
+          newDishes[dInd] = Dish.of(newDishName, newDishes[dInd].price);
           return {
             dishes: newDishes
           };
@@ -394,23 +425,27 @@ class Splitter extends React.Component {
       const price = Utils.priceAsString(dish.price.num, false);
 
       let rowEls = [
-        <RowHeader2 useMobileUI={this.props.useMobileUI}>
-          <Swappable className='left'>
+        <RowHeader useMobileUI={this.props.useMobileUI}>
+          <Swappable className='leftPad'>
             <StringInput
               placeholder={`Dish ${dInd + 1}`}
               value={dish.name}
               onChangeCB={setDishNameCBGetter(dInd)}
             />
-            <span tabIndex='0' className='DishName'>{dishName}</span>
+            <div className='Underlineable'>
+              <span tabIndex='0' className='DishName'>{dishName}</span>
+            </div>
           </Swappable>
-          <Swappable className='right'>
+          <Swappable className='rightPad'>
             <PriceInput
               priceObj={dish.price}
               onChangeCB={setDishPriceCBGetter(dInd)}
             />
-            <span tabIndex='0'>{price}</span>
+            <div className='Underlineable'>
+              <span tabIndex='0'>{price}</span>
+            </div>
           </Swappable>
-        </RowHeader2>
+        </RowHeader>
       ];
 
       rowEls = rowEls.concat(this.state.people.map((el, pInd) => (

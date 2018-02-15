@@ -6,7 +6,7 @@ import Swappable from './Swappable';
 
 import '../css/RowHeader.css';
 
-class RowHeader2 extends React.Component {
+class RowHeader extends React.Component {
   // holds blur timeout id, so we can clear if re-focused
   _timeoutID;
 
@@ -35,7 +35,6 @@ class RowHeader2 extends React.Component {
 
   // TODO status is a bool, should probably be an enum
   swapCB(index, status) {
-    // console.log(index,`is now ${status ? 'focused' : 'blurred'}`);
     if (status === true) {
       clearTimeout(this._timeoutID);
       this._focused[index] = true;
@@ -102,9 +101,9 @@ class RowHeader2 extends React.Component {
   }
 }
 
-RowHeader2.propTypes = {
+RowHeader.propTypes = {
   children: PropTypes.arrayOf(PropTypes.element).isRequired,
   useMobileUI: PropTypes.bool.isRequired
 };
 
-export default RowHeader2;
+export default RowHeader;

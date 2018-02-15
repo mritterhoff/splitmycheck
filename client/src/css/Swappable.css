@@ -2,16 +2,16 @@
   display: inline-block;
 }
 
-.Swappable.right, span.right{
-  /* Acts like float:right, but works with flex */
+/* Acts like float:right, but works with flex. just the tip row */
+span.fakeFloatRight{
   margin-left: auto;
 }
 
-.Swappable.right.notInteractive, span.right{
+.Swappable.rightPad.notInteractive, span.rightPad{
   padding-right: .3em;
 }
 
-.Swappable.left.notInteractive, span.left{
+.Swappable.leftPad.notInteractive, span.leftPad{
   padding-left: .3em;
 }
 
@@ -21,6 +21,22 @@
 }
 
 .Swappable.notInteractive span {
-  border-bottom: 1px dotted grey;
-  border-top: 1px solid white;
+  /*position: relative;*/
+  /*overflow: visible;*/
+}
+
+.Swappable.notInteractive div.Underlineable:after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1px;
+  width: 100%;
+  border-top: 1px dotted black;
+}
+
+/* parent of anything that will be interactive needs
+ to be position relative */
+.Swappable.notInteractive div.Underlineable {
+  position: relative;
 }

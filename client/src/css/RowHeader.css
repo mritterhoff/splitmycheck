@@ -1,9 +1,5 @@
 .RowHeaderContainer span {
   display: inline-block;
-
-  /* Hack. Apparently overflow: hidden (in .DishName below) 
-  breaks layout. Do it everywhere for now.*/
-  /*overflow: hidden;*/
 }
 
 .Debug .RowHeaderContainer span{
@@ -16,12 +12,15 @@
 
 /* Limit the length of the string that's shown. */
 .DishName {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /*white-space: nowrap;*/
+  /*overflow: hidden;*/
+  /*text-overflow: clip;*/
 
   /* TODO experiment with this value */
-  max-width: 6em;
+  /*max-width: 5em;*/
+
+  /* to help offset the vert placement bump from overflow hidden*/
+  /*margin-top: .2em;*/
 }
 
 .RowHeaderContainer.notFocused {

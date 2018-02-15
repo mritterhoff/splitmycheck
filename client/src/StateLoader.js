@@ -2,33 +2,42 @@ import { Price, Percent } from './NumTypes';
 import Dish from './Dish';
 
 const lsSplitterKey = 'SplitterState';
+const lsVersionKey = 'Version';
+
+// when we introduce breaking changes, increment this, so that the ls gets cleared
+// TODO do something more robust
+// must be a string, because LS uses key/value string pairs
+const lsVersion = '1';
 
 class StateLoader {
   static loadInitial() {
     // check if we have stashed data from the server in a global window var, use if present
     if (window.SERVER_DATA) {
-      // stringify-ing is a bit hacky, give the Price object their as() methods though...
+      // calling stringify is a bit hacky, but the subsequent call to parse 
+      // gives the Price object their as() method.
       // TODO find a better way to make this happen
-      return JSON.parse(JSON.stringify(window.SERVER_DATA), customParser);
+      return deserialize(serialize(window.SERVER_DATA));
     }
 
-    // check if we have state stored in localStorage, and use it if we do
-    if (localStorage && localStorage.getItem(lsSplitterKey)) {
-      return JSON.parse(localStorage.getItem(lsSplitterKey), customParser);
+    if (localStorage) {
+      if (localStorage.getItem(lsVersionKey) === lsVersion) {
+        // check if we have state stored in localStorage, and use it if we do
+        if (localStorage.getItem(lsSplitterKey)) {
+          return deserialize(localStorage.getItem(lsSplitterKey));
+        }
+      }
+      else {
+        localStorage.clear();
+        localStorage.setItem(lsVersionKey, lsVersion);
+      }
     }
+    
     return this.getDefault();
-  }
-
-  static getStateFromLS() {
-    if (localStorage && localStorage.getItem(lsSplitterKey)) {
-      return localStorage.getItem(lsSplitterKey);
-    }
-    throw new Error('error loading state from localStorage');
   }
 
   static updateLocalStorage(state) {
     if (localStorage) {
-      localStorage.setItem(lsSplitterKey, JSON.stringify(state));
+      localStorage.setItem(lsSplitterKey, serialize(state));
     }
   }
 
@@ -38,14 +47,14 @@ class StateLoader {
       people: [ '', '' ],
 
       // list of {name, price} dish objects
-      dishes: [ new Dish() ],
+      dishes: [ Dish.of() ],
 
       // 2d array of booleans
       // orders[dInd][pInd]
       orders: [ [ true, true ] ],
 
-      tax: new Price(0),
-      tip: new Percent(20)
+      tax: Price.of(0),
+      tip: Percent.of(20)
     };
   }
 
@@ -53,11 +62,11 @@ class StateLoader {
     return {
       people: [ 'Mark', 'Damian', 'Kai', 'Kapil' ],
       dishes: [
-        new Dish('Pitcher', 19.40),
-        new Dish('Wings', 15.75),
-        new Dish('Scotch Egg', 14.60),
-        new Dish('Pizza', 22.10),
-        new Dish('Shrimp', 12.98)
+        Dish.of('Pitcher', 19.40),
+        Dish.of('Wings', 15.75),
+        Dish.of('Scotch Egg', 14.60),
+        Dish.of('Pizza', 22.10),
+        Dish.of('Shrimp', 12.98)
       ],
       orders: [
         [ true, true, true, true ],
@@ -66,20 +75,40 @@ class StateLoader {
         [ true, true, true, true ],
         [ false, false, true, false ]
       ],
-      tax: new Price(7.65),
-      tip: new Percent(20)
+      tax: Price.of(7.65),
+      tip: Percent.of(20)
     };
   }
 }
 
+function serialize(input) {
+  const obj = JSON.stringify(input, customReader);
+  console.log('serialized into string:', obj);
+  return obj;
+}
+
+function deserialize(input) {
+  const loaded = JSON.parse(input, customParser);
+  console.log('loaded into object:', loaded);
+  return loaded;
+}
+
+// used by serialize to make an object again
 function customParser(key, val) {
-  if (typeof (val) === 'object') {
-    if (val.__type === 'Price') {
-      return new Price(val);
-    }
-    if (val.__type === 'Percent') {
-      return new Percent(val);
-    }
+  if (key === 'price' || key === 'tax') {
+    return Price.of(val);
+  }
+  if (key === 'tip') {
+    return Percent.of(val)
+  }
+  return val;
+}
+
+// used by deserialize to make a string
+function customReader(key, val) {
+  // console.log(`key value pair is: ${key}, ${val}`);
+  if (key === 'price' || key === 'tax' || key === 'tip') {
+    return val.num;
   }
   return val;
 }

@@ -1,7 +1,7 @@
 /* eslint-disable */
 // just a one time scripts file, don't eslint
 
-const db = require('./models/database.js');
+// const db = require('./models/database.js');
 
 
 // // client.connect()
@@ -16,7 +16,7 @@ const db = require('./models/database.js');
 //     console.log(err ? err.stack : res);
 // })
 
-const { DBActions } = require('./DBActions.js');
+// const { DBActions } = require('./DBActions.js');
 
 // const dbActions = new DBActions();
 
@@ -29,11 +29,24 @@ const { DBActions } = require('./DBActions.js');
 //     console.log(obj);
 //   }); 
 
-db.query('SELECT * FROM Links', [], (err, res) => {
-  if (err) {
-    return next(err);
-  }
-  for (let row of res.rows) {
-    console.log(JSON.stringify(row, null, 2));  
-  }
-});
+// db.query('SELECT * FROM Links', [], (err, res) => {
+//   if (err) {
+//     return next(err);
+//   }
+//   for (let row of res.rows) {
+//     console.log(JSON.stringify(row, null, 2));  
+//   }
+// });
+
+const db = require('./DatabaseConnection');
+
+const DBActions = require('./DBActionsReorg');
+
+// db.query('SELECT * FROM Links', [], (err, res) => {
+//   if (err) {
+//     return next(err);
+//   }
+//   for (let row of res.rows) {
+//     console.log(JSON.stringify(row, null, 2));  
+//   }
+// });

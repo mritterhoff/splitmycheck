@@ -1,13 +1,18 @@
 import { Price } from './NumTypes';
 
 class Dish {
-  constructor(name = '', priceObjOrNum = 0) {
+  constructor(name, price) {
     this.name = name;
+    this.price = price;
+  }
+
+  // Static factory to simplify constructor 
+  static of(name = '', priceObjOrNum = 0) {
     if (typeof priceObjOrNum === 'object') {
-      this.price = priceObjOrNum;
+      return new Dish(name, priceObjOrNum);
     }
     else if (typeof priceObjOrNum === 'number') {
-      this.price = new Price(priceObjOrNum);
+      return new Dish(name, Price.of(priceObjOrNum));
     }
     else {
       throw new Error(`Dish: was expecting price obj or number, got ${priceObjOrNum}`);
