@@ -6,7 +6,7 @@ class Dish {
     this.price = price;
   }
 
-  // Static factory to simplify constructor 
+  // Static factory to simplify constructor
   static of(name = '', priceObjOrNum = 0) {
     if (typeof priceObjOrNum === 'object') {
       return new Dish(name, priceObjOrNum);
@@ -14,9 +14,8 @@ class Dish {
     else if (typeof priceObjOrNum === 'number') {
       return new Dish(name, Price.of(priceObjOrNum));
     }
-    else {
-      throw new Error(`Dish: was expecting price obj or number, got ${priceObjOrNum}`);
-    }
+
+    throw new Error(`Dish: was expecting price obj or number, got ${priceObjOrNum}`);
   }
 }
 

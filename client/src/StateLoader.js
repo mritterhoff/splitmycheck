@@ -13,7 +13,7 @@ class StateLoader {
   static loadInitial() {
     // check if we have stashed data from the server in a global window var, use if present
     if (window.SERVER_DATA) {
-      // calling stringify is a bit hacky, but the subsequent call to parse 
+      // calling stringify is a bit hacky, but the subsequent call to parse
       // gives the Price object their as() method.
       // TODO find a better way to make this happen
       return deserialize(serialize(window.SERVER_DATA));
@@ -31,7 +31,7 @@ class StateLoader {
         localStorage.setItem(lsVersionKey, lsVersion);
       }
     }
-    
+
     return this.getDefault();
   }
 
@@ -99,7 +99,7 @@ function customParser(key, val) {
     return Price.of(val);
   }
   if (key === 'tip') {
-    return Percent.of(val)
+    return Percent.of(val);
   }
   return val;
 }

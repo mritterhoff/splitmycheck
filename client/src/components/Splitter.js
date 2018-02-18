@@ -175,7 +175,7 @@ class Splitter extends React.Component {
     console.log('Cleared cache');
   }
 
-  // Store the current state to localStorage, if state has changed, but don't update 
+  // Store the current state to localStorage, if state has changed, but don't update
   // more than 1 time every 2 seconds
   componentDidUpdate() {
     this.lastStateUpdate = Date.now();
@@ -191,14 +191,12 @@ class Splitter extends React.Component {
       this.lsTimeout = undefined;
       StateLoader.updateLocalStorage(this.state);
     }
+    else if (!this.lsTimeout) {
+      console.log('setting timeout');
+      this.lsTimeout = setTimeout(this.updateLSPeriodically.bind(this), maxUpdatePeriod);
+    }
     else {
-      if (!this.lsTimeout) {
-        console.log('setting timeout');
-        this.lsTimeout = setTimeout(this.updateLSPeriodically.bind(this), maxUpdatePeriod);
-      }
-      else {
-        console.log(`we're still waiting for ${maxUpdatePeriod/1000} seconds to finish`);
-      }
+      console.log(`we're still waiting for ${maxUpdatePeriod / 1000} seconds to finish`);
     }
   }
 
@@ -328,8 +326,7 @@ class Splitter extends React.Component {
   getTaxRow(displayName, stateKey) {
     const updaterFunc = (stringRep, isFinal) => {
       this.setState(prevState => (
-        { [stateKey]: prevState[stateKey].as(stringRep, isFinal) })
-      );
+        { [stateKey]: prevState[stateKey].as(stringRep, isFinal) }));
     };
 
     const getterFunc = () => (this.state[stateKey]);

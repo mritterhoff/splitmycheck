@@ -27,7 +27,7 @@ class Percent extends NumStringPair {
         const isWholeNumber = arg === Number(arg.toFixed(0));
         return new Percent(arg, arg.toFixed(isWholeNumber ? 0 : 1));
       }
-      // used by StateLoader 
+      // used by StateLoader
       else if (typeof arg === 'object') {
         return new Percent(arg.num, arg.stringRep);
       }

@@ -27,6 +27,6 @@ function validateLinkID(linkID) {
 }
 
 module.exports = {
-  validateStateString,
-  validateLinkID
+  validateStateString: validateStateString,
+  validateLinkID: validateLinkID
 };

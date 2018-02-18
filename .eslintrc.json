@@ -23,6 +23,7 @@
     "brace-style": [1, "stroustrup", { "allowSingleLine": true }],
     "no-mixed-operators":[1, {"allowSamePrecedence": true}],
 
+    "object-shorthand": [2, "never"],
     "array-bracket-spacing": [2, "always"],
     "no-use-before-define": [2, "nofunc"],
     "comma-dangle": [2, "never"],

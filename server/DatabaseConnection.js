@@ -1,6 +1,10 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
+const debug = true;
+
+const consoleLog = (...args) => { if (debug) { console.log(args); } };
+
 class Database {
   constructor() {
     this.pool = new Pool({
@@ -15,26 +19,24 @@ class Database {
     const start = Date.now();
 
     return this.pool.query(text, params, (err, dbRes) => {
-      console.log('Executed query:', {
+      consoleLog('Executed query:', {
         queryText: text,
-        params,
+        params: params,
         itTook: Date.now() - start,
         rows: dbRes ? dbRes.rowCount : 'no rows...'
       });
-      console.log(dbRes);
       callback(err, dbRes);
     });
   }
 
-    // lovingly taken from https://node-postgres.com/guides/project-structure
+  // lovingly taken from https://node-postgres.com/guides/project-structure
   async queryAsync(text, params) {
     const start = Date.now();
-
     const res = await this.pool.query(text, params);
-  
-    console.log('Executed query:', {
-      queryText: text,
-      params: params || 'none',
+
+    consoleLog('Executed query:', {
+      // queryText: text,
+      // params: params || 'none',
       itTook: Date.now() - start,
       rows: res ? res.rowCount : 'no rows...'
     });

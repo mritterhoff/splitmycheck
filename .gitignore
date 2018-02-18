@@ -26,4 +26,4 @@ yarn-debug.log*
 yarn-error.log*
 
 # notes of mine
-.notes
+*.notes
