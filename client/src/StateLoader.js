@@ -41,6 +41,13 @@ class StateLoader {
     }
   }
 
+  static getFromLocalStorage() {
+    if (localStorage) {
+      return localStorage.getItem(lsSplitterKey);
+    }
+    return null;
+  }
+
   static getDefault() {
     return {
       // list of people

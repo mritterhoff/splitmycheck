@@ -17,7 +17,7 @@
   },
   "scripts": {
     "start": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "node server/server.js",
+    "server": "nodemon server/server.js",
     "client": "node start-client.js",
     "startDebug": "echo \"go to chrome://inspect/#devices\" && concurrently \"npm run prodServerDebug\" \"npm run client\"",
     "prodStart": "npm --prefix ./client install && npm run --prefix ./client build && NODE_ENV=production npm run server",
@@ -32,6 +32,7 @@
     "eslint-config-airbnb": "16.1.0",
     "eslint-plugin-import": "2.8.0",
     "eslint-plugin-jsx-a11y": "6.0.3",
-    "eslint-plugin-react": "7.6.1"
+    "eslint-plugin-react": "7.6.1",
+    "nodemon": "1.15.1"
   }
 }

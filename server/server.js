@@ -1,11 +1,12 @@
+/* eslint-disable camelcase */
+
 const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const cheerio = require('cheerio');
 const fs = require('fs');
-const randomstring = require('randomstring');
 
-const DBActions = require('./DBActions');
+const DBActions = require('./DBActionsReorg');
 const validators = require('./columnValidators');
 
 const app = express();
@@ -33,21 +34,25 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.post('/save', (req, res) => {
-  const stateString = req.body;
-  console.log(`POST to /save: ${stateString}`);
+  // format the string so that JSON.parse can deal with it.
+  // alternatively, could call parse twice, which is gross.
+  // should change how it's encoded client-side.
+  let stateString = req.body.replace(/\\"/g, '"');
+  stateString = stateString.substr(1, stateString.length - 2);
+
+  console.log('POST to /save:', stateString);
+
+  const stateObj = JSON.parse(stateString);
+  if (typeof stateObj !== 'object') { throw new Error('expecting object, not string'); }
+
   validators.validateStateString(stateString);
 
-  // captures 'localhost:port' for testing ease
-  const { host } = req.headers;
-
-  // 6 alphanumeric chars = (10+26+26)^6 = 62^6 = 56.8 billion combinations
-  // at 280,610 entries, there'll be a 50% of a collision
-  // https://www.wolframalpha.com/input/?i=solve+1-e%5E(-n%5E2%2F(2d))%3D.5,++d+%3D+(10%2B26%2B26)%5E6+over+the+reals
-  // "solve 1-e^(-n^2/(2d))=.5, d = (10+26+26)^6 over the reals"
-  dbActions.addRow(
-    { link_code: randomstring.generate(6), state: stateString },
-    (obj) => { res.send(`${host}/saved/${obj.link_code}`); },
-  );
+  dbActions.makeNewSplitPromise(stateObj)
+    .then((link_code) => {
+      // captures 'localhost:port' for testing ease
+      const { host } = req.headers;
+      res.send(`${host}/saved/${link_code}`);
+    });
 });
 
 app.get('/saved/*', (req, res) => {
@@ -55,25 +60,21 @@ app.get('/saved/*', (req, res) => {
   console.log(`GET to /saved: ${key}`);
   validators.validateLinkID(key);
 
-  function serveAlteredHTML(dbRes) {
-    // TODO possibly add a message saying that link has loaded successfully?
-    if (dbRes && dbRes.rowCount > 0) {
-      const html = fs.readFileSync(
-        `${__dirname}/client/build/index.html`,
-        'utf8'
-      );
-      const $ = cheerio.load(html);
-      $('head')
-        .prepend(`<script>window.SERVER_DATA=${dbRes.rows[0].state};</script>`);
-      res.send($.html());
-    }
-    else {
-      // TODO we should return the webpage with an error message instead
-      res.status(404).send('Couldn\'t find that saved link :(');
-    }
-  }
-
-  dbActions.findByLinkCode(key, serveAlteredHTML);
+  // TODO possibly add a message saying that link has loaded successfully?
+  // TODO we should return the webpage with an error message instead
+  dbActions.assembleObjFromLinkCodePromise(key)
+    .then((ressurectedObj) => {
+      if (ressurectedObj) {
+        const html = fs.readFileSync(`${__dirname}/client/build/index.html`, 'utf8');
+        const $ = cheerio.load(html);
+        $('head')
+          .prepend(`<script>window.SERVER_DATA=${JSON.stringify(ressurectedObj)};</script>`);
+        res.send($.html());
+      }
+      else {
+        res.status(404).send('Couldn\'t find that saved link :(');
+      }
+    });
 });
 
 app.use((req, res) => {

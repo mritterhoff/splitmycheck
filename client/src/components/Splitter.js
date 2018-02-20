@@ -204,7 +204,7 @@ class Splitter extends React.Component {
   render() {
     return (
       <div className='splitterContainer'>
-        <Linker dataToSend={this.state} />
+        <Linker dataToSend={StateLoader.getFromLocalStorage()} />
         <ButtonBar
           addPersonFunc={this.addPerson.bind(this)}
           removePersonFunc={this.removeLastPerson.bind(this)}
