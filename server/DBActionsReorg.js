@@ -231,72 +231,72 @@ class DBActionsReorg {
       })
       .then(async (res1) => {
         const { split_id } = res1.rows[0];
-        console.log('DID WE GET HERE', res1);
-        console.log(splitObj);
-        console.log(splitObj.dishes);
+        const promises = [];
 
         // 2a. Add all the rows to Dishes, get back an array of their primary keys.
-        const dishesRowsToInsert = DBActionsReorg.makeDishRows(splitObj.dishes, split_id);
-        const dishIDs = (await this.db.queryAsync(
+        promises.push(this.db.queryAsync(
           `INSERT INTO Dishes (name, price, position, split_id)  
              (SELECT * FROM json_to_recordset($1) 
                 AS x(name varchar(40), price FLOAT, position INT, split_id INT))
            RETURNING dish_id`,
-          [ JSON.stringify(dishesRowsToInsert) ]
-        )).rows.map(r => r.dish_id);
-
+          [ makeDishRows(splitObj.dishes, split_id) ]
+        ));
         // 2b. Add all the rows to People, get back an array of their primary keys.
-        const peopleRowsToInsert = DBActionsReorg.makePeopleRows(splitObj.people, split_id);
-        const peopleIDs = (await this.db.queryAsync(
+        promises.push(this.db.queryAsync(
           `INSERT INTO People (name, position, split_id)  
              (SELECT * FROM json_to_recordset($1) 
                 AS x(name varchar(40), position INT, split_id INT))
            RETURNING person_id`,
-          [ JSON.stringify(peopleRowsToInsert) ]
-        )).rows.map(r => r.person_id);
+          [ makePeopleRows(splitObj.people, split_id) ]
+        ));
+
+        return Promise.all(promises);
+      })
+      .then((res) => {
+        const dishIDs = res[0].rows.map(r => r.dish_id);
+        const peopleIDs = res[1].rows.map(r => r.person_id);
 
         // 3. Construct and add the entries for Orders.
-        const orderRowsToInsert = DBActionsReorg.makeOrderRows(splitObj.orders, dishIDs, peopleIDs);
         return this.db.queryAsync(
           `INSERT INTO Orders (dish_id, person_id)  
              (SELECT * FROM json_to_recordset($1) 
                 AS x(dish_id INT, person_id INT))`,
-          [ JSON.stringify(orderRowsToInsert) ]
+          [ makeOrderRows(splitObj.orders, dishIDs, peopleIDs) ]
         );
       })
       .then(() => Promise.resolve(link_code));
   }
+}
 
-  static makeDishRows(dishes, split_id) {
-    return dishes.map((d, i) => ({
-      name: d.name,
-      price: d.price,
-      position: i,
-      split_id: split_id
-    }));
-  }
+function makeDishRows(dishes, split_id) {
+  return JSON.stringify(dishes.map((d, i) => ({
+    name: d.name,
+    price: d.price,
+    position: i,
+    split_id: split_id
+  })));
+}
 
-  static makePeopleRows(people, split_id) {
-    return people.map((name, i) => ({
-      name: name,
-      position: i,
-      split_id: split_id
-    }));
-  }
+function makePeopleRows(people, split_id) {
+  return JSON.stringify(people.map((name, i) => ({
+    name: name,
+    position: i,
+    split_id: split_id
+  })));
+}
 
-  static makeOrderRows(orders, dishIDs, peopleIDs) {
-    return orders.map((row, ri) => (row.map((col, ci) => ({
-      orderIndex: ri,
-      personIndex: ci,
-      val: col
-    }))))
-      .reduce((a, b) => a.concat(b))
-      .filter(el => el.val)
-      .map(el => ({
-        dish_id: dishIDs[el.orderIndex],
-        person_id: peopleIDs[el.personIndex]
-      }));
-  }
+function makeOrderRows(orders, dishIDs, peopleIDs) {
+  return JSON.stringify(orders.map((row, ri) => (row.map((col, ci) => ({
+    orderIndex: ri,
+    personIndex: ci,
+    val: col
+  }))))
+    .reduce((a, b) => a.concat(b))
+    .filter(el => el.val)
+    .map(el => ({
+      dish_id: dishIDs[el.orderIndex],
+      person_id: peopleIDs[el.personIndex]
+    })));
 }
 
 module.exports = DBActionsReorg;
