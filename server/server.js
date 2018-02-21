@@ -65,7 +65,7 @@ app.get('/saved/*', (req, res) => {
   dbActions.assembleObjFromLinkCodePromise(key)
     .then((ressurectedObj) => {
       if (ressurectedObj) {
-        const html = fs.readFileSync(`${__dirname}/client/build/index.html`, 'utf8');
+        const html = fs.readFileSync(`${__dirname}/../client/build/index.html`, 'utf8');
         const $ = cheerio.load(html);
         $('head')
           .prepend(`<script>window.SERVER_DATA=${JSON.stringify(ressurectedObj)};</script>`);

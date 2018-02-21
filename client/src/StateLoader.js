@@ -7,7 +7,7 @@ const lsVersionKey = 'Version';
 // when we introduce breaking changes, increment this, so that the ls gets cleared
 // TODO do something more robust
 // must be a string, because LS uses key/value string pairs
-const lsVersion = '1';
+const lsVersion = '2';
 
 class StateLoader {
   static loadInitial() {
@@ -16,7 +16,7 @@ class StateLoader {
       // calling stringify is a bit hacky, but the subsequent call to parse
       // gives the Price object their as() method.
       // TODO find a better way to make this happen
-      return deserialize(serialize(window.SERVER_DATA));
+      return deserialize(JSON.stringify(window.SERVER_DATA));
     }
 
     if (localStorage) {
