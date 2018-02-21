@@ -37,7 +37,8 @@ class Linker extends React.Component {
       }));
     }, 2000);
 
-    const dataString = JSON.stringify(this.props.dataToSend);
+    const dataString = this.props.dataToSend;
+    console.log('Going to send:', dataString);
     Client.save(dataString, (response, error) => {
       // we heard back, so cancel the timeout
       clearTimeout(this._timeoutID);
@@ -79,7 +80,7 @@ class Linker extends React.Component {
   render() {
     // disable the button if we're requesting the url, or we haven't got new data to send
     const disableButton = (this.state.requestStatus === STATUS.REQUESTING)
-      || (this.state.lastSentData === JSON.stringify(this.props.dataToSend));
+      || (this.state.lastSentData === this.props.dataToSend);
 
     return (
       <div className='Linker' style={{ margin: '.2em' }}>

@@ -18,8 +18,8 @@ const inputStyleDefault = {
 };
 
 /*
-  This is a controlled input component that only ever shows current state, and updates
-  that state with this.props.onChangeCB()
+  This is a controlled input component that only ever shows current state,
+  and updates that state with this.props.onChangeCB()
 */
 class StringInput extends React.Component {
   constructor(props) {
@@ -31,9 +31,9 @@ class StringInput extends React.Component {
 
   autoSizeInputRef;
 
-  updateInputValue = (event) => {
+  onChange = (event) => {
     // must prevent passing null value, so pass empty string instead
-    this.props.onChangeCB(event.target.value || '');
+    this.props.onChangeCB(event.target.value || '', false);
   };
 
   onFocus = () => {
@@ -42,9 +42,10 @@ class StringInput extends React.Component {
     this.setState(() => ({ focused: true }));
   };
 
-  onBlur = () => {
+  onBlur = (event) => {
     this.autoSizeInputRef.input.placeholder = this.props.placeholder;
     this.setState(() => ({ focused: false }));
+    this.props.onChangeCB(event.target.value || '', true);
   };
 
   selectInput() {
@@ -66,7 +67,7 @@ class StringInput extends React.Component {
         placeholderIsMinWidth
         inputStyle={inputStyle}
         onKeyDown={getKeydownCB(() => (this.autoSizeInputRef))}
-        onChange={this.updateInputValue}
+        onChange={this.onChange}
         onBlur={this.onBlur}
         onFocus={this.onFocus}
         ref={(ref) => { this.autoSizeInputRef = ref; }}
@@ -263,8 +264,7 @@ function getKeydownCB(inputRefGetter) {
         inputRef.blur();
 
         // get as array rather than NodeList
-        const tabableEls =
-          [ ...document.querySelectorAll('input, [tabIndex="0"]') ];
+        const tabableEls = [ ...document.querySelectorAll('input, [tabIndex="0"]') ];
         const curIndex = tabableEls.indexOf(inputRef.input);
         if (curIndex === -1) {
           console.warn(`Couldn't find current input. ${inputRef.input.innerHTML}`);
@@ -278,6 +278,9 @@ function getKeydownCB(inputRefGetter) {
         // if it has a select function, call it, otherwise call focus
         // because it could be an input, or a div that's going to become an input
         tabbedEl.select ? tabbedEl.select() : tabbedEl.focus();
+      }
+      else {
+        throw new Error('InputRef didn\'t exist');
       }
     }
   };

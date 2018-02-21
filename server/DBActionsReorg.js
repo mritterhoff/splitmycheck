@@ -68,10 +68,15 @@ class DBActionsReorg {
   async _initialize() {
     this.status = Status.INITIALIZING;
 
-    await this.db.queryAsync(createSplitsTable);
-    await this.db.queryAsync(createDishesTable);
-    await this.db.queryAsync(createPeopleTable);
-    await this.db.queryAsync(createOrderTable);
+    try {
+      await this.db.queryAsync(createSplitsTable);
+      await this.db.queryAsync(createDishesTable);
+      await this.db.queryAsync(createPeopleTable);
+      await this.db.queryAsync(createOrderTable);
+    }
+    catch (e) {
+      throw new Error('Issue setting up tables:', e);
+    }
 
     this.status = Status.READY;
     console.log(`status: ${this.status}`);

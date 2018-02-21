@@ -41,11 +41,13 @@ class StateLoader {
     }
   }
 
+  // returns a the serialized state as a string
   static getFromLocalStorage() {
     if (localStorage) {
       return localStorage.getItem(lsSplitterKey);
     }
-    return null;
+    // TODO should be able to avoid this
+    throw new Error('localStorage doesn\'t exist');
   }
 
   static getDefault() {
@@ -90,13 +92,13 @@ class StateLoader {
 
 function serialize(input) {
   const obj = JSON.stringify(input, customReader);
-  console.log('serialized into string:', obj);
+  // console.log('serialized into string:', obj);
   return obj;
 }
 
 function deserialize(input) {
   const loaded = JSON.parse(input, customParser);
-  console.log('loaded into object:', loaded);
+  // console.log('loaded into object:', loaded);
   return loaded;
 }
 

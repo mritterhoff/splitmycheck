@@ -172,34 +172,14 @@ class Splitter extends React.Component {
 
   componentWillUpdate() {
     this._cache.clear();
-    console.log('Cleared cache');
+    // console.log('Cleared cache');
   }
 
-  // Store the current state to localStorage, if state has changed, but don't update
-  // more than 1 time every 2 seconds
+  // Store the current state to localStorage
   componentDidUpdate() {
     this.lastStateUpdate = Date.now();
-    this.updateLSPeriodically();
+    StateLoader.updateLocalStorage(this.state);
   }
-
-  updateLSPeriodically() {
-    const maxUpdatePeriod = 2000;
-    const now = Date.now();
-    if (this.lastLSUpdate + maxUpdatePeriod < now) {
-      console.log('updating LS');
-      this.lastLSUpdate = now;
-      this.lsTimeout = undefined;
-      StateLoader.updateLocalStorage(this.state);
-    }
-    else if (!this.lsTimeout) {
-      console.log('setting timeout');
-      this.lsTimeout = setTimeout(this.updateLSPeriodically.bind(this), maxUpdatePeriod);
-    }
-    else {
-      console.log(`we're still waiting for ${maxUpdatePeriod / 1000} seconds to finish`);
-    }
-  }
-
 
   render() {
     return (
@@ -238,23 +218,12 @@ class Splitter extends React.Component {
   }
 
   getHeaderRowChildren() {
-    const setNameCBGetter = pInd => (
-      (newName) => {
-        this.setState((prevState) => {
-          prevState.people[pInd] = newName;
-          return {
-            people: prevState.people
-          };
-        });
-      }
-    );
-
     return [ <div /> ]
       .concat(this.state.people.map((person, pInd) => (
         <StringInput
           value={person}
           placeholder={`Pal ${pInd + 1}`}
-          onChangeCB={setNameCBGetter(pInd)}
+          onChangeCB={this.callbacks.setNameCBGetter(pInd)}
           center
         />
       )));
@@ -277,35 +246,23 @@ class Splitter extends React.Component {
       </span>
     )));
 
-    return (
-      <TR>
-        {rowEls.map((el, i) => <TD key={i}>{el}</TD>)}
-      </TR>
-    );
+    return <TR>{rowEls.map((el, i) => <TD key={i}>{el}</TD>)}</TR>;
   }
 
   tipAsMoney = () => (this.state.tip.num / 100 * this.subtotal());
 
   // Get tip row.
-  getTipRow(displayName, stateKey) {
-    const updaterFunc = (stringRep, isFinal) => {
-      this.setState(prevState => ({
-        [stateKey]: prevState[stateKey].as(stringRep, isFinal)
-      }));
-    };
-
-    const getterFunc = () => (this.state[stateKey]);
-
+  getTipRow(displayName) {
     let rowEls = [
       <RowHeader useMobileUI={this.props.useMobileUI}>
         <span className='leftPad'>{displayName}: (</span>
         <Swappable className='middle'>
           <PercentInput
-            numObj={getterFunc()}
-            onChangeCB={updaterFunc}
+            numObj={this.state.tip}
+            onChangeCB={this.callbacks.tipUpdater}
           />
           <div className='Underlineable'>
-            <span tabIndex='0'>{`${getterFunc().stringRep}`}</span>
+            <span tabIndex='0'>{`${this.state.tip.stringRep}`}</span>
           </div>
         </Swappable>
         <span>%)</span>
@@ -315,51 +272,42 @@ class Splitter extends React.Component {
       </RowHeader>
     ];
 
-    const hackyGetterFunc = () => ({ num: this.tipAsMoney() });
-    rowEls = rowEls.concat(this.getSpecialPriceArray(hackyGetterFunc)
+    rowEls = rowEls.concat(this.getSplitTaxOrTipArray(this.tipAsMoney())
       .map(price => (<span>{Utils.priceAsString(price)}</span>)));
 
     return <TR>{rowEls.map((el, i) => <TD key={i}>{el}</TD>)}</TR>;
   }
 
   // Get tax or tip row.
-  getTaxRow(displayName, stateKey) {
-    const updaterFunc = (stringRep, isFinal) => {
-      this.setState(prevState => (
-        { [stateKey]: prevState[stateKey].as(stringRep, isFinal) }));
-    };
-
-    const getterFunc = () => (this.state[stateKey]);
-
+  getTaxRow(displayName) {
     let rowEls = [
       <RowHeader useMobileUI={this.props.useMobileUI}>
         <span className='leftPad'>{`${displayName}:`}</span>
         <Swappable className='rightPad' >
           <PriceInput
-            priceObj={getterFunc()}
-            onChangeCB={updaterFunc}
+            priceObj={this.state.tax}
+            onChangeCB={this.callbacks.taxUpdater}
           />
           <div className='Underlineable'>
             <span tabIndex='0'>
-              {Utils.priceAsString(getterFunc().num, false)}
+              {Utils.priceAsString(this.state.tax.num, false)}
             </span>
           </div>
         </Swappable>
       </RowHeader>
     ];
 
-    rowEls = rowEls.concat(this.getSpecialPriceArray(getterFunc)
+    rowEls = rowEls.concat(this.getSplitTaxOrTipArray(this.state.tax.num)
       .map(price => (<span>{Utils.priceAsString(price)}</span>)));
 
     return <TR>{rowEls.map((el, i) => <TD key={i}>{el}</TD>)}</TR>;
   }
 
-  getSpecialPriceArray(getterFunc) {
+  getSplitTaxOrTipArray(value) {
     const priceArray = this.state.people.map((person, pInd) => (
-      Utils.roundToCent(this.percentOfSubtotalOwed(pInd) * getterFunc().num)
+      Utils.roundToCent(this.percentOfSubtotalOwed(pInd) * value)
     ));
-    const diff = Utils.roundToCent(getterFunc().num - priceArray.reduce(Utils.sumFunc));
-
+    const diff = Utils.roundToCent(value - priceArray.reduce(Utils.sumFunc));
 
     // if we have to fix the tax or tip up, just add/subtract from
     // to/from the smallest/largest. it's only ever 1cent it seems...
@@ -373,50 +321,6 @@ class Splitter extends React.Component {
   }
 
   getOrderRows() {
-    const getToggleCB = (pInd, dInd) => (
-      (setUnset) => {
-        // don't unset the last enabled cell in an order (someone has to pay!)
-        if (!setUnset && this.state.orders[dInd].reduce(Utils.sumFunc, 0) === 1) {
-          this.setState(() => ({ error: errorKey(pInd, dInd) }));
-          setTimeout(() => {
-            this.setState(() => ({ error: undefined }));
-          }, 200);
-        }
-        else {
-          this.indicateOrder(setUnset, pInd, dInd);
-        }
-      }
-    );
-
-    const setDishPriceCBGetter = dInd => (
-      (stringRep, isFinal) => {
-        this.setState((prevState) => {
-          const newDishes = prevState.dishes.slice(); // shallow copy
-
-          newDishes[dInd] = Dish.of(
-            newDishes[dInd].name,
-            prevState.dishes[dInd].price.as(stringRep, isFinal)
-          );
-
-          return {
-            dishes: newDishes
-          };
-        });
-      }
-    );
-
-    const setDishNameCBGetter = dInd => (
-      (newDishName) => {
-        this.setState((prevState) => {
-          const newDishes = prevState.dishes.slice(); // shallow copy
-          newDishes[dInd] = Dish.of(newDishName, newDishes[dInd].price);
-          return {
-            dishes: newDishes
-          };
-        });
-      }
-    );
-
     return this.state.dishes.map((dish, dInd) => {
       const dishName = dish.name || `Dish ${dInd + 1}`;
       const price = Utils.priceAsString(dish.price.num, false);
@@ -427,7 +331,7 @@ class Splitter extends React.Component {
             <StringInput
               placeholder={`Dish ${dInd + 1}`}
               value={dish.name}
-              onChangeCB={setDishNameCBGetter(dInd)}
+              onChangeCB={this.callbacks.setDishNameCBGetter(dInd)}
             />
             <div className='Underlineable'>
               <span tabIndex='0' className='DishName'>{dishName}</span>
@@ -436,7 +340,7 @@ class Splitter extends React.Component {
           <Swappable className='rightPad'>
             <PriceInput
               priceObj={dish.price}
-              onChangeCB={setDishPriceCBGetter(dInd)}
+              onChangeCB={this.callbacks.setDishPriceCBGetter(dInd)}
             />
             <div className='Underlineable'>
               <span tabIndex='0'>{price}</span>
@@ -448,7 +352,7 @@ class Splitter extends React.Component {
       rowEls = rowEls.concat(this.state.people.map((el, pInd) => (
         <CellToggle
           on={this.personOrderedDish(pInd, dInd)}
-          onClickCB={getToggleCB(pInd, dInd)}
+          onClickCB={this.callbacks.getToggleCB(pInd, dInd)}
           price={Utils.priceAsString(this.personCostForDish(pInd, dInd), false)}
           hasError={this.state.error === errorKey(pInd, dInd)}
         />
@@ -460,6 +364,70 @@ class Splitter extends React.Component {
         </TR>
       );
     });
+  }
+
+  callbacks = {
+    setDishNameCBGetter: dInd => (newDishName, final) => {
+      this.setState((prevState) => {
+        if (final) { console.log('FINAL DISH NAME ', dInd); }
+        const newDishes = prevState.dishes.slice(); // shallow copy
+        newDishes[dInd] = Dish.of(newDishName, newDishes[dInd].price);
+        return {
+          dishes: newDishes
+        };
+      });
+    },
+
+    setDishPriceCBGetter: dInd => (stringRep, final) => {
+      this.setState((prevState) => {
+        if (final) { console.log('FINAL DISH PRICE ', dInd); }
+        const newDishes = prevState.dishes.slice(); // shallow copy
+
+        newDishes[dInd] = Dish.of(
+          newDishes[dInd].name,
+          prevState.dishes[dInd].price.as(stringRep, final)
+        );
+
+        return {
+          dishes: newDishes
+        };
+      });
+    },
+
+    taxUpdater: (stringRep, final) => {
+      if (final) { console.log('FINAL TAX'); }
+      this.setState(prevState => ({ tax: prevState.tax.as(stringRep, final) }));
+    },
+
+    tipUpdater: (stringRep, final) => {
+      if (final) { console.log('FINAL TIP'); }
+      this.setState(prevState => ({
+        tip: prevState.tip.as(stringRep, final)
+      }));
+    },
+
+    setNameCBGetter: pInd => (newName, final) => {
+      if (final) { console.log('FINAL NAME', pInd); }
+      this.setState((prevState) => {
+        prevState.people[pInd] = newName;
+        return {
+          people: prevState.people
+        };
+      });
+    },
+
+    getToggleCB: (pInd, dInd) => (setUnset) => {
+      // don't unset the last enabled cell in an order (someone has to pay!)
+      if (!setUnset && this.state.orders[dInd].reduce(Utils.sumFunc, 0) === 1) {
+        this.setState(() => ({ error: errorKey(pInd, dInd) }));
+        setTimeout(() => {
+          this.setState(() => ({ error: undefined }));
+        }, 200);
+      }
+      else {
+        this.indicateOrder(setUnset, pInd, dInd);
+      }
+    }
   }
 } // end of Splitter class
 
