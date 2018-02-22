@@ -34,22 +34,16 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.post('/save', (req, res) => {
-  // format the string so that JSON.parse can deal with it.
-  // alternatively, could call parse twice, which is gross.
-  // should change how it's encoded client-side.
-  let stateString = req.body.replace(/\\"/g, '"');
-  stateString = stateString.substr(1, stateString.length - 2);
-
-  console.log('POST to /save:', stateString);
-
-  const stateObj = JSON.parse(stateString);
-  if (typeof stateObj !== 'object') { throw new Error('expecting object, not string'); }
-
-  validators.validateStateString(stateString);
+  const stateObj = JSON.parse(req.body);
+  if (typeof stateObj !== 'object') { 
+    throw new Error('expecting object, not string'); 
+  }
+  // TODO make this validate the json obj, not the string
+  //validators.validateStateString(req.body);
 
   dbActions.makeNewSplitPromise(stateObj)
     .then((link_code) => {
-      // captures 'localhost:port' for testing ease
+      // capture 'localhost:port' for testing ease
       const { host } = req.headers;
       res.send(`${host}/saved/${link_code}`);
     });
