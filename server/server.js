@@ -7,12 +7,13 @@ const cheerio = require('cheerio');
 const fs = require('fs');
 
 const DBActions = require('./DBActionsReorg');
-const validators = require('./columnValidators');
+const Validators = require('./columnValidators');
 
 const app = express();
 
-app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.text({ type: 'text/plain' }));// parse a plain body into a string
+// Make app support json-encoded and plaintext bodies.
+app.use(bodyParser.json()); // 
+app.use(bodyParser.text({ type: 'text/plain' }));// 
 
 require('dotenv').config();
 
@@ -22,9 +23,7 @@ app.set('port', PORT);
 
 const dbActions = new DBActions();
 
-// enable logging
-// more options: https://github.com/expressjs/morgan
-// app.use(morgan('combined'))
+// Enable logging. more options: https://github.com/expressjs/morgan
 app.use(morgan('tiny'));
 
 // Express only serves static assets in production
@@ -34,25 +33,24 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.post('/save', (req, res) => {
+  console.log('JSON to save:', req.body);
   const stateObj = JSON.parse(req.body);
-  if (typeof stateObj !== 'object') { 
-    throw new Error('expecting object, not string'); 
+  if (typeof stateObj !== 'object') {
+    throw new Error('expecting object, not string');
   }
-  // TODO make this validate the json obj, not the string
-  //validators.validateStateString(req.body);
 
+  // TODO make this validate the json obj, not the string
+  // Validators.forStateString(req.body);
+
+  // capture 'localhost:port' for testing ease
   dbActions.makeNewSplitPromise(stateObj)
-    .then((link_code) => {
-      // capture 'localhost:port' for testing ease
-      const { host } = req.headers;
-      res.send(`${host}/saved/${link_code}`);
-    });
+    .then(link_code => res.send(`${req.headers.host}/saved/${link_code}`));
 });
 
 app.get('/saved/*', (req, res) => {
   const key = req.params[0];
   console.log(`GET to /saved: ${key}`);
-  validators.validateLinkID(key);
+  Validators.forLinkID(key);
 
   // TODO possibly add a message saying that link has loaded successfully?
   // TODO we should return the webpage with an error message instead

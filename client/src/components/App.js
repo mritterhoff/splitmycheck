@@ -29,13 +29,7 @@ class App extends React.Component {
 
   render() {
     const useMobileUI = this.state.width < 500;
-    const tapOrClick = useMobileUI ? 'Tap' : 'Click';
-    const howToUseText = `Add people/dishes as appropriate. 
-      ${tapOrClick} to rename them, and to set prices, tax and tip 
-      percent (mandatory). ${tapOrClick} the grey/green cells to add/remove 
-      the dish from someone's order.`;
     const gitURL = 'https://github.com/mritterhoff/splitmycheck#table-of-contents';
-
 
     return (
       <div className={ClassNames({ App: true, Debug: false })}>
@@ -44,12 +38,26 @@ class App extends React.Component {
             <a href='https://www.splitmycheck.com'>Split My Check</a>
           </h1>
         </header>
-        <p className='App-intro'>
-          <b>How to use</b>: {howToUseText}
-          <br /><b>Coming soon</b>: Overflow ellipses, History/Undo.<br />
-        </p>
+        <AppIntro useMobileUI={useMobileUI} />
         <Splitter useMobileUI={useMobileUI} />
         <div className='footer'> | <a href={gitURL}>source</a> | </div>
+      </div>
+    );
+  }
+}
+
+class AppIntro extends React.Component {
+  render() {
+    const tapOrClick = this.props.useMobileUI ? 'Tap' : 'Click';
+    const howToUseText = `Add people/dishes as appropriate. 
+      ${tapOrClick} to rename them, and to set prices, tax and tip 
+      percent (mandatory). ${tapOrClick} the grey/green cells to add/remove 
+      the dish from someone's order.`;
+
+    return (
+      <div>
+        <p className='App-intro'> <b>How to use</b>: {howToUseText} </p>
+        <p className='App-intro'> <b>Coming soon</b>: History/Undo. </p>
       </div>
     );
   }

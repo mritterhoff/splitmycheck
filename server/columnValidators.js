@@ -1,6 +1,6 @@
 
 // quick and dirty validation of stateString
-function validateStateString(stateString) {
+function forStateString(stateString) {
   let valid = false;
   if (typeof stateString === 'string') {
     valid = [ 'people', 'dishes', 'orders', 'tax', 'tip' ]
@@ -13,7 +13,7 @@ function validateStateString(stateString) {
 }
 
 // quick and dirty validation of linkID
-function validateLinkID(linkID) {
+function forlinkID(linkID) {
   let valid = false;
   const alphanumeric = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   if (linkID.length === 6) {
@@ -27,6 +27,6 @@ function validateLinkID(linkID) {
 }
 
 module.exports = {
-  validateStateString: validateStateString,
-  validateLinkID: validateLinkID
+  forStateString: forStateString,
+  forlinkID: forlinkID
 };
