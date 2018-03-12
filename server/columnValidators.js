@@ -13,7 +13,7 @@ function forStateString(stateString) {
 }
 
 // quick and dirty validation of linkID
-function forlinkID(linkID) {
+function forLinkID(linkID) {
   let valid = false;
   const alphanumeric = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   if (linkID.length === 6) {
@@ -28,5 +28,5 @@ function forlinkID(linkID) {
 
 module.exports = {
   forStateString: forStateString,
-  forlinkID: forlinkID
+  forLinkID: forLinkID
 };

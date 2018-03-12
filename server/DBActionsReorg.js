@@ -10,7 +10,6 @@
 const randomstring = require('randomstring');
 
 const Database = require('./DatabaseConnection');
-const Utils = require('./Utils');
 
 const createSplitsTable =
   `CREATE TABLE IF NOT EXISTS Splits (
@@ -64,7 +63,7 @@ class DBActionsReorg {
     this._onReadyPromise = undefined;
   }
 
-  // Function to make tables if they're not already made. Gets called exaclty once.
+  // Function to make tables if they're not already made. Gets called exactly once.
   async _initialize() {
     this.status = Status.INITIALIZING;
 
@@ -90,27 +89,6 @@ class DBActionsReorg {
       this._onReadyPromise = this._initialize();
     }
     return this._onReadyPromise;
-  }
-
-  // get a 6char random link code that isn't in the db yet
-  getUnusedLinkCodePromiseParallel() {
-    const getUnusedAttempt = () => {
-      const candidate = randomstring.generate(6);
-      // console.log(`candidate ${t} is: ${candidate}`);
-      return () =>
-        this.db.queryAsync(
-          'SELECT * FROM Splits WHERE link_code = $1 LIMIT 1;',
-          [ candidate ]
-        )
-          .then(res =>
-            (res.rowCount === 0
-              ? Promise.resolve(candidate)
-              : Promise.reject(new Error(`${candidate} already used`))));
-    };
-
-    return this._checkReady()
-      .then(() =>
-        Utils.oneSuccess([ ...Array(5).keys() ].map(t => getUnusedAttempt(t)())));
   }
 
   // get a 6char random link code that isn't in the db yet

@@ -12,8 +12,8 @@ const Validators = require('./columnValidators');
 const app = express();
 
 // Make app support json-encoded and plaintext bodies.
-app.use(bodyParser.json()); // 
-app.use(bodyParser.text({ type: 'text/plain' }));// 
+app.use(bodyParser.json()); //
+app.use(bodyParser.text({ type: 'text/plain' }));//
 
 require('dotenv').config();
 
